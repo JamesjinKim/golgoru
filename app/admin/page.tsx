@@ -49,7 +49,7 @@ export default function AdminPage() {
   const [msg, setMsg] = useState('');
 
   const checkAuth = () => {
-    if (pw === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || pw === 'golgoru2026') {
+    if (pw && pw === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
       setAuthed(true); loadExperts();
     } else { alert('비밀번호가 틀렸습니다.'); }
   };

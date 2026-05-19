@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-05-19T00:27:40.505Z",
+  "lastUpdated": "2026-05-19T01:05:33.256Z",
   "activeFeatures": [
     "voice-input-gemini",
     "golgoru-sos",
@@ -97,7 +97,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-07T12:32:48.456Z",
-        "lastUpdated": "2026-05-07T12:32:48.456Z"
+        "lastUpdated": "2026-05-19T01:05:33.256Z"
       },
       "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/admin/page.tsx"
     },
@@ -149,7 +149,7 @@
   "session": {
     "startedAt": "2026-05-07T12:05:01.706Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-19T00:27:40.505Z"
+    "lastActivity": "2026-05-19T01:05:33.256Z"
   },
   "history": [
     {
@@ -473,6 +473,12 @@
     {
       "timestamp": "2026-05-19T00:27:40.505Z",
       "feature": "golgoru-sos",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T01:05:33.256Z",
+      "feature": "admin",
       "phase": "do",
       "action": "updated"
     }
