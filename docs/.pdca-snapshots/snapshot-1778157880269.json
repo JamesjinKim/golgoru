@@ -1,0 +1,221 @@
+{
+  "timestamp": "2026-05-07T12:44:40.268Z",
+  "reason": "compaction",
+  "status": {
+    "version": "2.0",
+    "lastUpdated": "2026-05-07T12:41:20.407Z",
+    "activeFeatures": [
+      "golgoru-sos",
+      "result",
+      "[id]",
+      "admin",
+      "classify"
+    ],
+    "primaryFeature": "golgoru-sos",
+    "features": {
+      "golgoru-sos": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-05-07T12:07:30.077Z",
+          "lastUpdated": "2026-05-07T12:41:20.406Z"
+        },
+        "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/next.config.js"
+      },
+      "result": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-05-07T12:31:37.998Z",
+          "lastUpdated": "2026-05-07T12:37:57.635Z"
+        },
+        "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/result/page.tsx"
+      },
+      "[id]": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-05-07T12:32:09.641Z",
+          "lastUpdated": "2026-05-07T12:38:32.316Z"
+        },
+        "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/expert/[id]/page.tsx"
+      },
+      "admin": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-05-07T12:32:48.456Z",
+          "lastUpdated": "2026-05-07T12:32:48.456Z"
+        },
+        "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/admin/page.tsx"
+      },
+      "classify": {
+        "phase": "do",
+        "phaseNumber": 3,
+        "matchRate": null,
+        "iterationCount": 0,
+        "requirements": [],
+        "documents": {},
+        "timestamps": {
+          "started": "2026-05-07T12:41:15.882Z",
+          "lastUpdated": "2026-05-07T12:41:15.882Z"
+        },
+        "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/api/classify/route.ts"
+      }
+    },
+    "pipeline": {
+      "currentPhase": 1,
+      "level": "Dynamic",
+      "phaseHistory": []
+    },
+    "session": {
+      "startedAt": "2026-05-07T12:05:01.706Z",
+      "onboardingCompleted": false,
+      "lastActivity": "2026-05-07T12:41:20.407Z"
+    },
+    "history": [
+      {
+        "timestamp": "2026-05-07T12:07:30.077Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:07:56.632Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:08:41.659Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:09:14.916Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:09:23.104Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:18:34.275Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:28:38.974Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:29:35.079Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:30:39.276Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:31:08.196Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:31:37.998Z",
+        "feature": "result",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:32:09.641Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:32:48.456Z",
+        "feature": "admin",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:32:59.013Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:37:08.575Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:37:57.635Z",
+        "feature": "result",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:38:24.366Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:38:32.316Z",
+        "feature": "[id]",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:41:09.933Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:41:15.882Z",
+        "feature": "classify",
+        "phase": "do",
+        "action": "updated"
+      },
+      {
+        "timestamp": "2026-05-07T12:41:20.406Z",
+        "feature": "golgoru-sos",
+        "phase": "do",
+        "action": "updated"
+      }
+    ]
+  }
+}

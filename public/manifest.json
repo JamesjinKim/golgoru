@@ -1,0 +1,13 @@
+{
+  "name": "골고루 SOS",
+  "short_name": "골고루",
+  "description": "긴급 상황에서 30초 안에 전문가를 연결합니다.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
