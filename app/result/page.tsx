@@ -7,7 +7,7 @@ import UrgencyBadge from '@/components/UrgencyBadge';
 import { ClassifyResult, Expert } from '@/lib/types';
 import { G, SHADOW_CARD } from '@/lib/tokens';
 
-const ANALYSIS_STEPS = ['키워드 추출', '관할/유형 분류', '전문가 3인 매칭'];
+const ANALYSIS_STEPS = ['키워드 추출', '관할/유형 분류', '전문가 3인 추천'];
 
 export default function ResultPage() {
   const router = useRouter();

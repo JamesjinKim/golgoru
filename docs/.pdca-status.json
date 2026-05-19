@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-05-19T01:05:33.256Z",
+  "lastUpdated": "2026-05-19T02:34:38.665Z",
   "activeFeatures": [
     "voice-input-gemini",
     "golgoru-sos",
@@ -71,7 +71,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-07T12:31:37.998Z",
-        "lastUpdated": "2026-05-07T12:37:57.635Z"
+        "lastUpdated": "2026-05-19T02:32:30.173Z"
       },
       "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/result/page.tsx"
     },
@@ -123,9 +123,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-07T12:52:41.928Z",
-        "lastUpdated": "2026-05-07T12:52:51.027Z"
+        "lastUpdated": "2026-05-19T02:34:38.665Z"
       },
-      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/api/admin/experts/route.ts"
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/api/experts/route.ts"
     },
     "audio": {
       "phase": "do",
@@ -149,7 +149,7 @@
   "session": {
     "startedAt": "2026-05-07T12:05:01.706Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-19T01:05:33.256Z"
+    "lastActivity": "2026-05-19T02:34:38.665Z"
   },
   "history": [
     {
@@ -479,6 +479,18 @@
     {
       "timestamp": "2026-05-19T01:05:33.256Z",
       "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T02:32:30.173Z",
+      "feature": "result",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T02:34:38.665Z",
+      "feature": "experts",
       "phase": "do",
       "action": "updated"
     }
