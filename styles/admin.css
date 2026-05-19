@@ -1,0 +1,15 @@
+/* 어드민 전용. app/(admin)/layout.tsx(독립 <html> root)에서만 import.
+   소비자(app/(site))와 root 레이아웃이 분리되어 그룹 간 이동 시 풀 리로드
+   → admin.css(Tailwind preflight 포함)가 소비자로 누수 불가 (C-1 = 아키텍처로 해결).
+   표준 Tailwind v4 전체 import + @source 명시 보강. */
+@import 'tailwindcss';
+@source '../app/(admin)';
+@source '../components/admin';
+
+/* 어드민 문서 베이스 (PC 모니터 기준) */
+.admin-root {
+  color: #0f172a;
+  background: #f1f5f9;
+  -webkit-font-smoothing: antialiased;
+  font-family: ui-sans-serif, system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}

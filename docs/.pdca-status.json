@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-05-19T02:34:38.665Z",
+  "lastUpdated": "2026-05-19T05:50:00.313Z",
   "activeFeatures": [
     "voice-input-gemini",
     "golgoru-sos",
@@ -9,7 +9,14 @@
     "admin",
     "classify",
     "experts",
-    "audio"
+    "audio",
+    "template",
+    "import",
+    "audit",
+    "login",
+    "logout",
+    "(admin)",
+    "admin-dashboard"
   ],
   "primaryFeature": "voice-input-gemini",
   "features": {
@@ -58,9 +65,9 @@
       },
       "timestamps": {
         "started": "2026-05-07T12:07:30.077Z",
-        "lastUpdated": "2026-05-19T00:27:40.505Z"
+        "lastUpdated": "2026-05-19T05:46:50.348Z"
       },
-      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/lib/gemini.ts"
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/proxy.ts"
     },
     "result": {
       "phase": "do",
@@ -84,9 +91,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-07T12:32:09.641Z",
-        "lastUpdated": "2026-05-07T14:19:52.029Z"
+        "lastUpdated": "2026-05-19T05:09:24.671Z"
       },
-      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/expert/[id]/page.tsx"
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/api/admin/experts/[id]/route.ts"
     },
     "admin": {
       "phase": "do",
@@ -97,9 +104,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-07T12:32:48.456Z",
-        "lastUpdated": "2026-05-19T01:05:33.256Z"
+        "lastUpdated": "2026-05-19T05:50:00.313Z"
       },
-      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/admin/page.tsx"
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/components/admin/AdminNav.tsx"
     },
     "classify": {
       "phase": "do",
@@ -123,9 +130,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-07T12:52:41.928Z",
-        "lastUpdated": "2026-05-19T02:34:38.665Z"
+        "lastUpdated": "2026-05-19T05:09:06.105Z"
       },
-      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/api/experts/route.ts"
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/api/admin/experts/route.ts"
     },
     "audio": {
       "phase": "do",
@@ -139,6 +146,98 @@
         "lastUpdated": "2026-05-18T23:35:08.225Z"
       },
       "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/lib/audio/useAudioRecorder.ts"
+    },
+    "template": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-19T05:09:32.099Z",
+        "lastUpdated": "2026-05-19T05:09:32.099Z"
+      },
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/api/admin/experts/template/route.ts"
+    },
+    "import": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-19T05:10:01.097Z",
+        "lastUpdated": "2026-05-19T05:12:54.354Z"
+      },
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/(admin)/admin/import/page.tsx"
+    },
+    "audit": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-19T05:10:07.795Z",
+        "lastUpdated": "2026-05-19T05:13:07.452Z"
+      },
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/(admin)/admin/audit/page.tsx"
+    },
+    "login": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-19T05:10:29.245Z",
+        "lastUpdated": "2026-05-19T05:11:25.233Z"
+      },
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/(admin)/admin/login/page.tsx"
+    },
+    "logout": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-19T05:10:34.671Z",
+        "lastUpdated": "2026-05-19T05:10:34.671Z"
+      },
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/api/admin/auth/logout/route.ts"
+    },
+    "(admin)": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-19T05:11:04.391Z",
+        "lastUpdated": "2026-05-19T05:49:37.018Z"
+      },
+      "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/(admin)/layout.tsx"
+    },
+    "admin-dashboard": {
+      "phase": "act",
+      "phaseNumber": 5,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-19T05:26:23.514Z",
+        "lastUpdated": "2026-05-19T05:26:23.515Z"
+      },
+      "previousPhase": "check",
+      "autoAdvanced": true
     }
   },
   "pipeline": {
@@ -149,7 +248,7 @@
   "session": {
     "startedAt": "2026-05-07T12:05:01.706Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-19T02:34:38.665Z"
+    "lastActivity": "2026-05-19T05:50:00.313Z"
   },
   "history": [
     {
@@ -491,6 +590,186 @@
     {
       "timestamp": "2026-05-19T02:34:38.665Z",
       "feature": "experts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:07:20.808Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:07:27.931Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:07:34.348Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:07:43.701Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:07:52.342Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:08:12.094Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:08:23.936Z",
+      "feature": "golgoru-sos",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:09:06.105Z",
+      "feature": "experts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:09:24.671Z",
+      "feature": "[id]",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:09:32.099Z",
+      "feature": "template",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:10:01.097Z",
+      "feature": "import",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:10:07.795Z",
+      "feature": "audit",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:10:29.245Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:10:34.671Z",
+      "feature": "logout",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:11:04.391Z",
+      "feature": "(admin)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:11:13.898Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:11:25.233Z",
+      "feature": "login",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:11:52.730Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:12:01.823Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:12:06.953Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:12:28.820Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:12:54.354Z",
+      "feature": "import",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:13:07.452Z",
+      "feature": "audit",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:26:23.515Z",
+      "feature": "admin-dashboard",
+      "phase": "act",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:27:57.944Z",
+      "feature": "(admin)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:28:09.145Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:46:50.348Z",
+      "feature": "golgoru-sos",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:49:37.018Z",
+      "feature": "(admin)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:49:50.693Z",
+      "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T05:50:00.313Z",
+      "feature": "admin",
       "phase": "do",
       "action": "updated"
     }

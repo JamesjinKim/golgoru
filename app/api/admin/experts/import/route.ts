@@ -1,0 +1,80 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
+import { requireAdmin } from '@/lib/admin/auth';
+import { logAudit } from '@/lib/admin/audit';
+import { parseExpertsCsv } from '@/lib/admin/csv';
+
+const MAX_BYTES = 2 * 1024 * 1024; // ≈ 수천 행
+
+export async function POST(req: NextRequest) {
+  const guard = await requireAdmin();
+  if ('response' in guard) return guard.response;
+
+  const mode = req.nextUrl.searchParams.get('mode') ?? 'validate';
+
+  let file: File | null = null;
+  try {
+    const form = await req.formData();
+    const f = form.get('file');
+    if (f instanceof File) file = f;
+  } catch {
+    return NextResponse.json({ error: '파일 전송 실패' }, { status: 400 });
+  }
+  if (!file || file.size === 0) return NextResponse.json({ error: 'CSV 파일이 필요합니다.' }, { status: 400 });
+  if (file.size > MAX_BYTES) return NextResponse.json({ error: '파일이 너무 큽니다(최대 2MB).' }, { status: 413 });
+
+  const text = await file.text();
+  const result = parseExpertsCsv(text);
+
+  if (result.errors.some((e) => e.field === 'header')) {
+    return NextResponse.json({ error: result.errors[0].message, ...result }, { status: 400 });
+  }
+  if (result.valid.length === 0) {
+    return NextResponse.json({ error: '유효한 행이 없습니다.', ...result }, { status: 422 });
+  }
+
+  if (mode === 'validate') {
+    return NextResponse.json({
+      mode: 'validate',
+      total: result.total,
+      valid: result.valid.length,
+      errorCount: result.errors.length,
+      errors: result.errors.slice(0, 200),
+      preview: result.valid.slice(0, 20),
+    });
+  }
+
+  // mode=commit — DB 기존 phone 중복 제외 후 일괄 insert (부분 성공)
+  const phones = result.valid.map((v) => v.phone);
+  const { data: existing } = await supabaseAdmin
+    .from('experts').select('phone').in('phone', phones);
+  const existSet = new Set((existing ?? []).map((e: { phone: string }) => e.phone));
+
+  const toInsert = result.valid.filter((v) => !existSet.has(v.phone));
+  const skippedExisting = result.valid.length - toInsert.length;
+
+  let inserted = 0;
+  if (toInsert.length) {
+    const { data, error } = await supabaseAdmin.from('experts').insert(toInsert).select('id');
+    if (error) {
+      console.error('[admin/import] insert error:', error);
+      return NextResponse.json({ error: '일괄 등록 실패' }, { status: 500 });
+    }
+    inserted = data?.length ?? 0;
+  }
+
+  await logAudit({
+    actorId: guard.identity.userId, actorEmail: guard.identity.email,
+    action: 'expert.import', targetTable: 'experts',
+    detail: { total: result.total, inserted, skippedExisting, rowErrors: result.errors.length },
+  });
+
+  return NextResponse.json({
+    mode: 'commit',
+    total: result.total,
+    inserted,
+    skippedExisting,
+    rowErrors: result.errors.length,
+    errors: result.errors.slice(0, 200),
+  });
+}
