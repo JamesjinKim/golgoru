@@ -43,7 +43,7 @@ export default function Home() {
           <p style={{
             margin: '8px 0 0', fontSize: 14, lineHeight: 1.5,
             color: G.textSoft, letterSpacing: '-0.16px',
-          }}>말하거나 입력하면, 적합한 전문가를 바로 연결해 드려요.</p>
+          }}>말하거나 입력하면, 적합한 전문가를 바로 추천해 드려요.</p>
         </div>
         <SosInput />
       </main>
