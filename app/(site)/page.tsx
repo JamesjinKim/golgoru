@@ -22,7 +22,7 @@ export default function Home() {
           border: `1px solid ${G.hairline}`, background: '#fff',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: G.textSoft, fontWeight: 700, fontSize: 13, cursor: 'pointer',
-        }}>김</div>
+        }}>유</div>
       </header>
 
       <main style={{ flex: 1, padding: '16px 20px 24px' }}>
