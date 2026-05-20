@@ -34,7 +34,7 @@ export default function Home() {
             fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
             textTransform: 'uppercase' as const, marginBottom: 12,
           }}>
-            <ShieldIcon /> 24시간 응급 연결
+            <ShieldIcon /> 24시간 응급 추천
           </div>
           <h1 style={{
             margin: 0, fontSize: 26, lineHeight: 1.25, fontWeight: 800,
