@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import SosInput from '@/components/SosInput';
 import { G } from '@/lib/tokens';
 
@@ -26,24 +27,43 @@ export default function Home() {
       </header>
 
       <main style={{ flex: 1, padding: '16px 20px 24px' }}>
-        <div style={{ marginBottom: 20 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: G.greenLight, color: G.starbucksGreen,
-            padding: '4px 10px', borderRadius: 50,
-            fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
-            textTransform: 'uppercase' as const, marginBottom: 12,
-          }}>
-            <ShieldIcon /> 24시간 응급 추천
+        <div style={{
+          display: 'flex', alignItems: 'flex-end', gap: 14,
+          marginBottom: 20,
+        }}>
+          <Image
+            src="/moonsiklee.png"
+            alt="문식이 변호사"
+            width={132}
+            height={132}
+            priority
+            sizes="132px"
+            style={{
+              width: 116, height: 'auto', flexShrink: 0,
+              objectFit: 'contain', objectPosition: 'bottom',
+              mixBlendMode: 'multiply',
+              alignSelf: 'flex-end',
+            }}
+          />
+          <div style={{ paddingBottom: 4 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: G.greenLight, color: G.starbucksGreen,
+              padding: '4px 10px', borderRadius: 50,
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
+              textTransform: 'uppercase' as const, marginBottom: 12,
+            }}>
+              <ShieldIcon /> 24시간 응급 추천
+            </div>
+            <h1 style={{
+              margin: 0, fontSize: 26, lineHeight: 1.25, fontWeight: 800,
+              color: G.starbucksGreen, letterSpacing: '-0.4px',
+            }}>지금 어떤 상황인가요?</h1>
+            <p style={{
+              margin: '8px 0 0', fontSize: 14, lineHeight: 1.5,
+              color: G.textSoft, letterSpacing: '-0.16px',
+            }}>말하거나 입력하면, 적합한 전문가를 바로 추천해 드려요.</p>
           </div>
-          <h1 style={{
-            margin: 0, fontSize: 26, lineHeight: 1.25, fontWeight: 800,
-            color: G.starbucksGreen, letterSpacing: '-0.4px',
-          }}>지금 어떤 상황인가요?</h1>
-          <p style={{
-            margin: '8px 0 0', fontSize: 14, lineHeight: 1.5,
-            color: G.textSoft, letterSpacing: '-0.16px',
-          }}>말하거나 입력하면, 적합한 전문가를 바로 추천해 드려요.</p>
         </div>
         <SosInput />
       </main>
