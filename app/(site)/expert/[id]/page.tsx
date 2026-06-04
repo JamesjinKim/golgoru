@@ -1,13 +1,13 @@
-import { MOCK_EXPERTS } from '@/lib/mock-data';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CallButton from '@/components/CallButton';
+import { getExpertRepository } from '@/lib/experts/repository';
 import { G, SHADOW_CARD } from '@/lib/tokens';
 import { VERTICAL_LABEL } from '@/lib/constants';
 
 export default async function ExpertPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const expert = MOCK_EXPERTS.find(e => e.id === id) ?? null;
+  const expert = await getExpertRepository().findById(id);
   if (!expert) notFound();
 
   return (

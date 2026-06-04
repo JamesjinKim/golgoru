@@ -76,7 +76,7 @@ The fixed design version remains the visual baseline. Data changes must not alte
 
 ## 5. Global Prerequisites
 
-- [ ] Before editing Next.js runtime files, read the relevant local Next.js 16 guide in `node_modules/next/dist/docs/`.
+- [x] Before editing Next.js runtime files, read the relevant local Next.js 16 guide in `node_modules/next/dist/docs/`.
 
 Run:
 
@@ -86,7 +86,7 @@ rg --files node_modules/next/dist/docs
 
 Expected: local Next.js documentation files are listed.
 
-- [ ] Confirm the current branch and dirty files before editing.
+- [x] Confirm the current branch and dirty files before editing.
 
 Run:
 
@@ -96,7 +96,7 @@ git status --short
 
 Expected: existing unrelated files are visible and are not reverted.
 
-- [ ] Confirm the current approved design still builds.
+- [x] Confirm the current approved design still builds.
 
 Run:
 
@@ -146,7 +146,7 @@ Expected: only this checklist and any intentionally selected analysis docs are c
 **Files:**
 - Create: `lib/experts/data-source.ts`
 
-- [ ] Create the data-source parser.
+- [x] Create the data-source parser.
 
 ```ts
 export type ExpertDataSource = 'mock' | 'supabase';
@@ -162,7 +162,7 @@ export function getExpertDataSource(): ExpertDataSource {
 }
 ```
 
-- [ ] Verify the selector defaults to mock when the env var is absent.
+- [x] Verify the selector defaults to mock when the env var is absent.
 
 Run:
 
@@ -179,7 +179,7 @@ Expected: build succeeds without requiring Supabase env values for demo mode.
 - Create: `lib/experts/mock-repository.ts`
 - Create: `lib/experts/supabase-repository.ts`
 
-- [ ] Create the repository interface.
+- [x] Create the repository interface.
 
 ```ts
 import { Expert, Urgency, Vertical } from '@/lib/types';
@@ -199,7 +199,7 @@ export function getExpertRepository(): ExpertRepository {
 }
 ```
 
-- [ ] Move the existing mock filter/shuffle logic into `mock-repository.ts`.
+- [x] Move the existing mock filter/shuffle logic into `mock-repository.ts`.
 
 ```ts
 import { MOCK_EXPERTS } from '@/lib/mock-data';
@@ -235,7 +235,7 @@ export const mockExpertRepository: ExpertRepository = {
 };
 ```
 
-- [ ] Add a Supabase repository shell that is only selected in Supabase mode.
+- [x] Add a Supabase repository shell that is only selected in Supabase mode.
 
 ```ts
 import { supabaseAdmin } from '@/lib/supabase';
@@ -306,7 +306,7 @@ export const supabaseExpertRepository: ExpertRepository = {
 **Files:**
 - Modify: `app/api/experts/route.ts`
 
-- [ ] Replace direct `MOCK_EXPERTS` usage with `getExpertRepository()`.
+- [x] Replace direct `MOCK_EXPERTS` usage with `getExpertRepository()`.
 
 Expected shape:
 
@@ -330,7 +330,7 @@ export async function GET(req: NextRequest) {
 }
 ```
 
-- [ ] Verify mock mode remains stable.
+- [x] Verify mock mode remains stable.
 
 Run:
 
@@ -349,7 +349,7 @@ Expected: build succeeds and `/api/experts?vertical=lawyer&urgency=즉시` retur
 **Files:**
 - Modify: `app/(site)/expert/[id]/page.tsx`
 
-- [ ] Replace direct `MOCK_EXPERTS.find()` with repository lookup.
+- [x] Replace direct `MOCK_EXPERTS.find()` with repository lookup.
 
 Expected shape:
 
@@ -367,7 +367,7 @@ export default async function ExpertPage({ params }: { params: Promise<{ id: str
 }
 ```
 
-- [ ] Verify mock expert links still work.
+- [x] Verify mock expert links still work.
 
 Run:
 
