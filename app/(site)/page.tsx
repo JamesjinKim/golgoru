@@ -32,20 +32,21 @@ export default function Home() {
           marginBottom: 20,
         }}>
           <Image
-            src="/moonsiklee.png"
+            src="/moonsiklee1.png"
             alt="문식이 변호사"
-            width={132}
-            height={132}
+            width={1536}
+            height={1024}
             priority
-            sizes="132px"
+            sizes="96px"
             style={{
-              width: 116, height: 'auto', flexShrink: 0,
-              objectFit: 'contain', objectPosition: 'bottom',
-              mixBlendMode: 'multiply',
+              width: 96, height: 96, flexShrink: 0,
+              objectFit: 'cover', objectPosition: '42% center',
+              borderRadius: 8,
+              border: `1px solid ${G.hairline}`,
               alignSelf: 'flex-end',
             }}
           />
-          <div style={{ paddingBottom: 4 }}>
+          <div style={{ paddingBottom: 4, minWidth: 0 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               background: G.greenLight, color: G.starbucksGreen,
@@ -56,7 +57,7 @@ export default function Home() {
               <ShieldIcon /> 24시간 응급 추천
             </div>
             <h1 style={{
-              margin: 0, fontSize: 26, lineHeight: 1.25, fontWeight: 800,
+              margin: 0, fontSize: 24, lineHeight: 1.28, fontWeight: 800,
               color: G.starbucksGreen, letterSpacing: '-0.4px',
             }}>지금 어떤 상황인가요?</h1>
             <p style={{

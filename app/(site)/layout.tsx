@@ -33,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         margin: 0,
       }}>
         <div style={{
+          width: '100%',
           maxWidth: 430,
           margin: '0 auto',
           minHeight: '100vh',
