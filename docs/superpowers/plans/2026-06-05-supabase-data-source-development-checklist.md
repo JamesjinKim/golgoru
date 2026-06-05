@@ -386,7 +386,7 @@ Expected: build succeeds. In mock mode, `/expert/lawyer-1` resolves.
 
 Expected: row has `id`, `vertical`, `specialties`, `phone`, `is_active=true`.
 
-- [ ] Run local app in Supabase mode.
+- [x] Run local app in Supabase mode.
 
 Run:
 
@@ -395,6 +395,14 @@ GOLGORU_DATA_SOURCE=supabase npm run dev
 ```
 
 Expected: local server starts and public result/detail pages read Supabase experts.
+
+2026-06-05 verification note:
+- `GOLGORU_DATA_SOURCE=supabase npm run build` passed.
+- `GOLGORU_DATA_SOURCE=supabase npm run start -- -p 3002` started successfully.
+- `/api/experts?vertical=lawyer&urgency=즉시` returned `{"experts":[],"total":0}`.
+- `/expert/lawyer-1` returned `404`, which confirms mock IDs are no longer used in Supabase mode.
+- Supabase REST access failed with DNS `ENOTFOUND` for the configured project host, so the active Supabase expert row could not be confirmed.
+- Next action for Stage 2: replace or repair the Supabase project URL/env values, then re-run this task.
 
 ## 9. Stage 3: Database Integrity Hardening
 
