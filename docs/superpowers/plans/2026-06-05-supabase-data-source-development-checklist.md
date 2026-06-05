@@ -404,6 +404,16 @@ Expected: local server starts and public result/detail pages read Supabase exper
 - Supabase REST access failed with DNS `ENOTFOUND` for the configured project host, so the active Supabase expert row could not be confirmed.
 - Next action for Stage 2: replace or repair the Supabase project URL/env values, then re-run this task.
 
+2026-06-05 blocker update:
+- Root cause confirmed by project owner: Supabase billing/upgrade payment was not completed, so the project host is unavailable.
+- After billing is restored, confirm the Supabase project is Active and the Project URL still matches `.env.local`.
+- Then re-run:
+  - `curl -sS -I https://<project-ref>.supabase.co`
+  - `GOLGORU_DATA_SOURCE=supabase npm run build`
+  - `GOLGORU_DATA_SOURCE=supabase npm run start -- -p 3002`
+  - `/api/experts?vertical=lawyer&urgency=즉시`
+  - `/expert/{supabase-expert-id}`
+
 ## 9. Stage 3: Database Integrity Hardening
 
 **Purpose:** Make Supabase reject invalid service data before it reaches users.
@@ -413,14 +423,14 @@ Expected: local server starts and public result/detail pages read Supabase exper
 **Files:**
 - Modify: `supabase-setup.sql`
 
-- [ ] Add a unique phone constraint.
+- [x] Add a unique phone constraint.
 
 ```sql
 alter table experts
   add constraint experts_phone_unique unique (phone);
 ```
 
-- [ ] Add an experience-year range constraint.
+- [x] Add an experience-year range constraint.
 
 ```sql
 alter table experts
@@ -428,7 +438,7 @@ alter table experts
   check (experience_years >= 0 and experience_years <= 80);
 ```
 
-- [ ] Add a non-empty specialties constraint.
+- [x] Add a non-empty specialties constraint.
 
 ```sql
 alter table experts
@@ -436,7 +446,7 @@ alter table experts
   check (array_length(specialties, 1) >= 1);
 ```
 
-- [ ] Add `updated_at` for future admin edits.
+- [x] Add `updated_at` for future admin edits.
 
 ```sql
 alter table experts
