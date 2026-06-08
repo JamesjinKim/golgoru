@@ -1,0 +1,234 @@
+/* =========================================================================
+   Starbucks Design System — Colors & Typography
+   ========================================================================= */
+
+/* Font face — substitutes for proprietary SoDoSans / Lander Tall.
+   We use Inter (close humanist geometric) for the primary face,
+   Lora (warm serif) for the Rewards editorial face,
+   and Kalam for the Careers cup-name script.
+   See README.md "Font substitutions" for swap notes. */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Gowun+Dodum&display=swap");
+
+/* Brand-uploaded NanumSquareNeo variable font */
+@font-face {
+  font-family: "NanumSquareNeo";
+  src: url("./fonts/NanumSquareNeo-Variable.ttf") format("truetype-variations"),
+       url("./fonts/NanumSquareNeo-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* 10px root trick — lets us write rem-anchored design tokens at 1rem = 10px */
+  font-size: 62.5%;
+
+  /* ---------- Colors: Greens (four-tier brand system) ---------- */
+  --color-starbucks-green: #006241; /* H1, primary brand signal */
+  --color-green-accent:   #00754A;  /* Filled CTAs, Frap fill */
+  --color-house-green:    #1E3932;  /* Footer, feature bands, dark surfaces */
+  --color-green-uplift:   #2b5148;  /* Decorative dark-green accents */
+  --color-green-light:    #d4e9e2;  /* Pale mint wash, valid form tint */
+
+  /* ---------- Colors: Gold (Rewards-only) ---------- */
+  --color-gold:          #cba258;
+  --color-gold-light:    #dfc49d;
+  --color-gold-lightest: #faf6ee;
+
+  /* ---------- Colors: Surface ---------- */
+  --color-white:         #ffffff;
+  --color-neutral-cool:  #f9f9f9; /* Dropdowns, quiet utility */
+  --color-neutral-warm:  #f2f0eb; /* Page canvas (signature cream) */
+  --color-ceramic:       #edebe9; /* Zone separators, partnership band */
+  --color-black:         #000000; /* Top conversion strip only */
+
+  /* ---------- Colors: Text ---------- */
+  --color-text-black:       rgba(0, 0, 0, 0.87); /* primary on light */
+  --color-text-black-soft:  rgba(0, 0, 0, 0.58); /* secondary on light */
+  --color-text-white:       rgba(255, 255, 255, 1);
+  --color-text-white-soft:  rgba(255, 255, 255, 0.70);
+  --color-text-rewards:     #33433d; /* Rewards muted slate-green */
+
+  /* ---------- Colors: Semantic ---------- */
+  --color-red:        #c82014;
+  --color-yellow:     #fbbc05;
+  --color-form-valid-tint:   hsl(160 32% 87% / 33%);
+  --color-form-invalid-tint: hsl(4 82% 43% / 5%);
+  --color-input-border:      #d6dbde;
+  --color-hairline:          #e7e7e7;
+
+  /* ---------- Black/White alpha ladders ---------- */
+  --black-06: rgba(0,0,0,0.06);
+  --black-10: rgba(0,0,0,0.10);
+  --black-14: rgba(0,0,0,0.14);
+  --black-24: rgba(0,0,0,0.24);
+  --black-58: rgba(0,0,0,0.58);
+  --black-87: rgba(0,0,0,0.87);
+  --white-10: rgba(255,255,255,0.10);
+  --white-30: rgba(255,255,255,0.30);
+  --white-70: rgba(255,255,255,0.70);
+  --white-90: rgba(255,255,255,0.90);
+
+  /* ---------- Typography: Families ---------- */
+  --font-sans:   "NanumSquareNeo", "NanumSquareNeo-Variable", "Inter", "SoDoSans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif:  "Nanum Myeongjo", "Lora", "Lander Tall", "Iowan Old Style", Georgia, serif;
+  --font-script: "Gowun Dodum", "Kalam", "Comic Sans MS", cursive;
+
+  /* ---------- Typography: Sizes (semantic scale) ---------- */
+  --text-1: 1.3rem;  /* 13px micro */
+  --text-2: 1.4rem;  /* 14px small/button */
+  --text-3: 1.6rem;  /* 16px body */
+  --text-4: 1.9rem;  /* 19px body-large */
+  --text-5: 2.4rem;  /* 24px h1/h2 */
+  --text-6: 2.8rem;  /* 28px */
+  --text-7: 3.2rem;  /* 32px */
+  --text-8: 4.5rem;  /* 45px hero */
+  --text-9: 5.8rem;  /* 58px jumbo */
+  --text-10: 8rem;   /* 80px display */
+
+  /* ---------- Typography: Tracking & line-height ---------- */
+  --tracking-normal:  -0.02em;  /* default tight — nudged for Hangul */
+  --tracking-tight:   -0.16px;  /* display tight pixel-perfect */
+  --tracking-loose:   0.1em;
+  --tracking-looser:  0.15em;
+  --line-compact: 1.2;
+  --line-normal:  1.5;
+
+  /* ---------- Spacing scale ---------- */
+  --space-1: 0.4rem;  /*  4px */
+  --space-2: 0.8rem;  /*  8px */
+  --space-3: 1.6rem;  /* 16px */
+  --space-4: 2.4rem;  /* 24px */
+  --space-5: 3.2rem;  /* 32px */
+  --space-6: 4rem;    /* 40px */
+  --space-7: 4.8rem;  /* 48px */
+  --space-8: 5.6rem;  /* 56px */
+  --space-9: 6.4rem;  /* 64px */
+
+  --outer-gutter:        var(--space-3);
+  --outer-gutter-medium: var(--space-4);
+  --outer-gutter-large:  var(--space-6);
+
+  /* ---------- Radius ---------- */
+  --radius-card:   12px;
+  --radius-input:  4px;
+  --radius-pill:   50px;
+  --radius-circle: 50%;
+
+  /* ---------- Shadows / Elevation ---------- */
+  --shadow-card:
+    0 0 0.5px 0 rgba(0,0,0,0.14),
+    0 1px 1px 0 rgba(0,0,0,0.24);
+  --shadow-nav:
+    0 1px 3px rgba(0,0,0,0.10),
+    0 2px 2px rgba(0,0,0,0.06),
+    0 0 2px rgba(0,0,0,0.07);
+  --shadow-frap:
+    0 0 6px rgba(0,0,0,0.24),
+    0 8px 12px rgba(0,0,0,0.14);
+  --shadow-frap-active:
+    0 0 6px rgba(0,0,0,0.24),
+    0 8px 12px rgba(0,0,0,0.00);
+  --shadow-svc:
+    drop-shadow(0 4px 1px rgba(0,0,0,0.11))
+    drop-shadow(0 0 2px rgba(0,0,0,0.24));
+
+  /* ---------- Motion ---------- */
+  --button-active-scale: 0.95;
+  --transition-button: all 0.2s ease;
+  --transition-image:  opacity 0.3s ease-in;
+  --expander-duration: 300ms;
+  --expander-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --spring-overshoot:  cubic-bezier(0.32, 2.32, 0.61, 0.27);
+
+  /* ---------- Layout columns ---------- */
+  --col-small:  343px;
+  --col-medium: 500px;
+  --col-large:  720px;
+  --col-xlarge: 1440px;
+  --header-crate-proportion: 40vw;
+  --content-crate-proportion: 60vw;
+
+  /* ---------- Nav heights (progressive) ---------- */
+  --nav-h-xs:   64px;
+  --nav-h-sm:   72px;
+  --nav-h-md:   83px;
+  --nav-h-lg:   99px;
+}
+
+/* =========================================================================
+   Semantic element styles — apply default tokens to base elements
+   ========================================================================= */
+
+html, body {
+  font-family: var(--font-sans);
+  color: var(--color-text-black);
+  background: var(--color-neutral-warm);
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--line-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { font-size: var(--text-3); }
+
+h1, .h1 {
+  font-size: var(--text-5);
+  line-height: 36px;
+  font-weight: 600;
+  color: var(--color-starbucks-green);
+  letter-spacing: var(--tracking-tight);
+}
+
+h2, .h2 {
+  font-size: var(--text-5);
+  line-height: 36px;
+  font-weight: 400;
+  color: var(--color-text-black);
+  letter-spacing: var(--tracking-tight);
+}
+
+h3, .h3 {
+  font-size: var(--text-4);
+  font-weight: 600;
+  line-height: var(--line-compact);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-black);
+}
+
+.display-1 {
+  font-size: var(--text-10);
+  font-weight: 600;
+  line-height: var(--line-compact);
+  letter-spacing: var(--tracking-tight);
+}
+.display-2 {
+  font-size: var(--text-9);
+  font-weight: 600;
+  line-height: var(--line-compact);
+  letter-spacing: var(--tracking-tight);
+}
+.display-3 {
+  font-size: var(--text-8);
+  font-weight: 600;
+  line-height: var(--line-compact);
+  letter-spacing: var(--tracking-tight);
+}
+
+.body-lg { font-size: var(--text-4); line-height: 33.25px; }
+.body    { font-size: var(--text-3); line-height: var(--line-normal); }
+.small   { font-size: var(--text-2); line-height: var(--line-normal); }
+.micro   { font-size: var(--text-1); line-height: var(--line-normal); color: var(--color-text-black-soft); }
+
+.serif-display {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.script-cup {
+  font-family: var(--font-script);
+  font-weight: 400;
+}
+
+a { color: var(--color-green-accent); text-decoration: underline; }
+a:hover { opacity: 0.85; }

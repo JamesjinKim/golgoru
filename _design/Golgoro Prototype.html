@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>골고루 — Emergency Expert Connect</title>
+<link rel="stylesheet" href="design-system/colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    font-family: var(--font-sans);
+    background: #1a1a1a;
+    color: var(--color-text-black);
+  }
+  /* Tighter root override for inside iPhone — undo 62.5% so px values are sane */
+  .gg-app, .gg-app * { font-size: initial; }
+  .gg-app { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+  .canvas-meta {
+    position: fixed; top: 16px; left: 20px; z-index: 100;
+    color: rgba(255,255,255,0.85); font-family: var(--font-sans);
+    letter-spacing: -0.16px;
+  }
+  .canvas-meta .title { font-size: 16px; font-weight: 800; color: #fff; }
+  .canvas-meta .sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="canvas-meta">
+  <div class="title">골고루 · Emergency Legal Connect</div>
+  <div class="sub">3개 화면 · Starbucks Design System · 한국어 모바일 프로토타입</div>
+</div>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="app/components.jsx"></script>
+<script type="text/babel" src="app/screen-sos.jsx"></script>
+<script type="text/babel" src="app/screen-analysis.jsx"></script>
+<script type="text/babel" src="app/screen-profile.jsx"></script>
+
+<script type="text/babel">
+/* global React, ReactDOM, IOSDevice, DesignCanvas, DCSection, DCArtboard,
+   ScreenSOS, ScreenAnalysis, ScreenProfile, GolgoroTokens */
+
+const PHONE_W = 390;
+const PHONE_H = 1080;
+
+function PhoneFrame({ children, dark = false }) {
+  return (
+    <IOSDevice width={PHONE_W} height={PHONE_H} dark={dark}>
+      <div className="gg-app" style={{
+        height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column',
+        background: GolgoroTokens.cream,
+      }}>
+        {children}
+      </div>
+    </IOSDevice>
+  );
+}
+
+// Static demo data for the side-by-side artboards
+const DEMO_SITUATION = '회식 후 회사 동료가 갑자기 성추행으로 신고했어요. 너무 당황스럽고 어떻게 해야 할지 모르겠어요.';
+const DEMO_EXPERT = {
+  id: 'kim', name: '김도윤', initial: '김',
+  specialty: '형사 전문', region: '서울 강남',
+  years: 12, rating: 4.9, cases: 312,
+  phone: '010-2456-7821', live: true,
+};
+
+// Interactive flow — for the focus-mode artboard
+function InteractiveFlow() {
+  const [screen, setScreen] = React.useState('sos');
+  const [situation, setSituation] = React.useState('');
+  const [expert, setExpert] = React.useState(null);
+
+  return (
+    <PhoneFrame>
+      {screen === 'sos' && (
+        <ScreenSOS onAnalyze={(s) => { setSituation(s); setScreen('analysis'); }}/>
+      )}
+      {screen === 'analysis' && (
+        <ScreenAnalysis
+          situation={situation}
+          onBack={() => setScreen('sos')}
+          onSelectExpert={(e) => { setExpert(e); setScreen('profile'); }}
+        />
+      )}
+      {screen === 'profile' && (
+        <ScreenProfile expert={expert} onBack={() => setScreen('analysis')}/>
+      )}
+    </PhoneFrame>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="flow" title="골고루 — 응급 전문가 연결 플로우">
+        <DCArtboard id="screen-1" label="① SOS 입력" width={PHONE_W + 40} height={PHONE_H + 40}>
+          <div style={{ padding: 20 }}>
+            <PhoneFrame>
+              <ScreenSOS onAnalyze={() => {}}/>
+            </PhoneFrame>
+          </div>
+        </DCArtboard>
+
+        <DCArtboard id="screen-2" label="② AI 분석 + 추천" width={PHONE_W + 40} height={PHONE_H + 40}>
+          <div style={{ padding: 20 }}>
+            <PhoneFrame>
+              <ScreenAnalysis
+                situation={DEMO_SITUATION}
+                onBack={() => {}}
+                onSelectExpert={() => {}}
+              />
+            </PhoneFrame>
+          </div>
+        </DCArtboard>
+
+        <DCArtboard id="screen-3" label="③ 전문가 프로필" width={PHONE_W + 40} height={PHONE_H + 40}>
+          <div style={{ padding: 20 }}>
+            <PhoneFrame>
+              <ScreenProfile expert={DEMO_EXPERT} onBack={() => {}}/>
+            </PhoneFrame>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="interactive" title="인터랙티브 — 탭하면 다음 화면으로 진행해요">
+        <DCArtboard id="interactive-flow" label="전체 플로우 (클릭 가능)" width={PHONE_W + 40} height={PHONE_H + 40}>
+          <div style={{ padding: 20 }}>
+            <InteractiveFlow/>
+          </div>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>

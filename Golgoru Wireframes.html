@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>골고루 SOS — 와이어프레임</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    html, body { height: 100%; }
+    body { background: #ece9df; }
+    .canvas-header {
+      font-family: 'Caveat', cursive;
+      font-size: 28px;
+    }
+    .legend {
+      font-family: 'Gaegu', sans-serif;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="screen1-variants.jsx"></script>
+  <script type="text/babel" src="screen2-variants.jsx"></script>
+  <script type="text/babel" src="screen3-variants.jsx"></script>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "accent": "#d63b2a",
+      "showAnnotations": true,
+      "paperTone": "cream"
+    }/*EDITMODE-END*/;
+
+    function App() {
+      const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+      React.useEffect(() => {
+        document.documentElement.style.setProperty('--accent', tweaks.accent);
+        const tones = {
+          cream:  ['#fafaf7', '#f3f1ea', '#ece9df'],
+          white:  ['#ffffff', '#f5f5f5', '#e8e8e8'],
+          warm:   ['#fbf6ee', '#f4ead9', '#ebe1cb'],
+          cool:   ['#f6f8fa', '#eaeef3', '#dfe5ec']
+        };
+        const [p, p2, bg] = tones[tweaks.paperTone] || tones.cream;
+        document.documentElement.style.setProperty('--paper', p);
+        document.documentElement.style.setProperty('--paper-2', p2);
+        document.body.style.background = bg;
+      }, [tweaks.accent, tweaks.paperTone]);
+
+      // accent-soft swatch needs to update too
+      React.useEffect(() => {
+        const a = tweaks.accent;
+        // build a soft tint using rgba mix
+        document.documentElement.style.setProperty('--accent-soft',
+          a === '#d63b2a' ? '#fde4e0'
+          : a === '#2a6fdb' ? '#dfeafd'
+          : a === '#1f8a5b' ? '#dff1e7'
+          : a === '#7a3ad6' ? '#ece0fb'
+          : '#fde4e0');
+      }, [tweaks.accent]);
+
+      return (
+        <>
+          <DesignCanvas
+            title="골고루 SOS · 와이어프레임"
+            subtitle="3개 화면 × 4가지 방향 · 저정밀 · 손그림 스타일"
+            initialZoom={0.65}
+          >
+            <DCSection id="s1" title="Screen 1 — SOS 입력 (메인)">
+              <DCArtboard id="s1a" label="A · Voice-first" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen1A /></div>
+              </DCArtboard>
+              <DCArtboard id="s1b" label="B · 텍스트 + 카테고리" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen1B /></div>
+              </DCArtboard>
+              <DCArtboard id="s1c" label="C · 긴급 모드" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen1C /></div>
+              </DCArtboard>
+              <DCArtboard id="s1d" label="D · 대화형" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen1D /></div>
+              </DCArtboard>
+            </DCSection>
+
+            <DCSection id="s2" title="Screen 2 — AI 분석 + 추천">
+              <DCArtboard id="s2a" label="A · 카드 + 리스트" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen2A /></div>
+              </DCArtboard>
+              <DCArtboard id="s2b" label="B · 톱픽 + 대안" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen2B /></div>
+              </DCArtboard>
+              <DCArtboard id="s2c" label="C · 액션 우선" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen2C /></div>
+              </DCArtboard>
+              <DCArtboard id="s2d" label="D · 지도/위치 기반" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen2D /></div>
+              </DCArtboard>
+            </DCSection>
+
+            <DCSection id="s3" title="Screen 3 — 전문가 프로필">
+              <DCArtboard id="s3a" label="A · 미니멀" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen3A /></div>
+              </DCArtboard>
+              <DCArtboard id="s3b" label="B · 신뢰지표" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen3B /></div>
+              </DCArtboard>
+              <DCArtboard id="s3c" label="C · 영상 우선" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen3C /></div>
+              </DCArtboard>
+              <DCArtboard id="s3d" label="D · 사람중심" width={360} height={720}>
+                <div style={{ display:'flex', justifyContent:'center', paddingTop: 8 }}><Screen3D /></div>
+              </DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection title="Accent">
+              <TweakColor
+                label="포인트 색상"
+                value={tweaks.accent}
+                options={['#d63b2a', '#2a6fdb', '#1f8a5b', '#7a3ad6']}
+                onChange={(v) => setTweak('accent', v)}
+              />
+            </TweakSection>
+            <TweakSection title="Paper">
+              <TweakRadio
+                label="배경 톤"
+                value={tweaks.paperTone}
+                options={[
+                  { value: 'cream', label: 'Cream' },
+                  { value: 'white', label: 'White' },
+                  { value: 'warm',  label: 'Warm' },
+                  { value: 'cool',  label: 'Cool' },
+                ]}
+                onChange={(v) => setTweak('paperTone', v)}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

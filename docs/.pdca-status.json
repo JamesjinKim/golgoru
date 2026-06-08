@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-05-19T05:50:00.313Z",
+  "lastUpdated": "2026-06-04T06:34:40.506Z",
   "activeFeatures": [
     "voice-input-gemini",
     "golgoru-sos",
@@ -16,7 +16,8 @@
     "login",
     "logout",
     "(admin)",
-    "admin-dashboard"
+    "admin-dashboard",
+    "(site)"
   ],
   "primaryFeature": "voice-input-gemini",
   "features": {
@@ -226,18 +227,40 @@
       "lastFile": "/Users/kimkookjin/Projects/golgoru-sos/app/(admin)/layout.tsx"
     },
     "admin-dashboard": {
-      "phase": "act",
-      "phaseNumber": 5,
+      "phase": "report",
+      "phaseNumber": 6,
+      "matchRate": 97,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {
+        "plan": "docs/01-plan/features/admin-dashboard.plan.md",
+        "design": "docs/02-design/features/admin-dashboard.design.md",
+        "analysis": "docs/03-analysis/admin-dashboard.analysis.md"
+      },
+      "timestamps": {
+        "started": "2026-05-19T05:26:23.514Z",
+        "lastUpdated": "2026-05-19T06:33:19.678Z"
+      },
+      "previousPhase": "check",
+      "autoAdvanced": true,
+      "residualVerification": [
+        "c-1 zod 스키마 중복(lib/admin/csv.ts <-> components/admin/ExpertForm.tsx) 해소 권장",
+        "설계 문서 d-sync-1~6 멀티루트 동기화 필요(설계->구현 방향)",
+        "Minor m-1~m-5 report 잔여 이관"
+      ]
+    },
+    "(site)": {
+      "phase": "do",
+      "phaseNumber": 3,
       "matchRate": null,
       "iterationCount": 0,
       "requirements": [],
       "documents": {},
       "timestamps": {
-        "started": "2026-05-19T05:26:23.514Z",
-        "lastUpdated": "2026-05-19T05:26:23.515Z"
+        "started": "2026-05-20T05:07:16.103Z",
+        "lastUpdated": "2026-06-04T06:34:40.506Z"
       },
-      "previousPhase": "check",
-      "autoAdvanced": true
+      "lastFile": "/Users/kimkookjin/Projects/golgoru/golgoru-sos/app/(site)/page.tsx"
     }
   },
   "pipeline": {
@@ -248,7 +271,7 @@
   "session": {
     "startedAt": "2026-05-07T12:05:01.706Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-19T05:50:00.313Z"
+    "lastActivity": "2026-06-04T06:34:40.506Z"
   },
   "history": [
     {
@@ -770,6 +793,66 @@
     {
       "timestamp": "2026-05-19T05:50:00.313Z",
       "feature": "admin",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-19T06:33:19.679Z",
+      "feature": "admin-dashboard",
+      "phase": "report",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-20T05:07:16.103Z",
+      "feature": "(site)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-20T05:10:08.187Z",
+      "feature": "(site)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-20T05:18:53.844Z",
+      "feature": "(site)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-06-04T06:24:39.226Z",
+      "feature": "(site)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-06-04T06:24:49.253Z",
+      "feature": "(site)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-06-04T06:25:00.917Z",
+      "feature": "(site)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-06-04T06:30:32.997Z",
+      "feature": "(site)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-06-04T06:30:38.272Z",
+      "feature": "(site)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-06-04T06:34:40.506Z",
+      "feature": "(site)",
       "phase": "do",
       "action": "updated"
     }
