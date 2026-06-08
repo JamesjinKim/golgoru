@@ -25,14 +25,13 @@ version_project: 0.1.0
 
 ### 1.1 Purpose
 
-운영자가 (1) **전문가 등록·수정·활성/비활성 관리**, (2) **접속자/권한 관리**(역할 기반 접근 + 관리 행위 감사 로그)를 수행하는 어드민 대시보드. 소비자용 SOS 앱과 코드·인증·배포 경계를 분리해 보안·유지보수 혼선을 제거한다.
+운영자가 (1) **전문가 등록·수정·상태 관리 및 초대 링크 발송**, (2) **사용자 상담 요청 목록 모니터링**, (3) **접속자/권한 관리**를 수행하는 어드민 대시보드와 사용자가 조회하는 **전문가 개별 미니홈피 웹 서비스**를 구축합니다. 이 Next.js 프로젝트는 Flutter 모바일 앱과 완전히 분리된 독립 웹 환경으로 개발됩니다.
 
 ### 1.2 Background
 
-- 현 `app/admin/page.tsx`는 **단순 비밀번호 게이트 + mock 데이터**(`MOCK_EXPERTS`). 실 DB 미연결(`NEXT_PUBLIC_SUPABASE_URL` 미설정), 역할·감사 없음.
-- 전략 SSoT(platform-domains §2-10)는 **다층 역할 + 감사 로그**를 Phase 1 필수로 규정.
-- 소비자 앱은 **무로그인** 원칙(모래시계 §2-1). 어드민은 정반대(강한 인증). 한 코드/라우트에 섞이면 보안 사고·실수 위험 → **분리가 핵심 요구**.
-- visactor-next-template은 시각화 특화로 본 CRUD+인증 용도에 부적합 → 채택하지 않음(사전 자문 결론).
+- 소비자 앱은 Flutter로 모바일 환경에서 작동하므로 Next.js 프로젝트는 오직 **운영 관리 목적(Admin) 및 공유용 웹 프로필(미니홈피)** 역할로 제한하여 보안 경계를 명확히 구분합니다.
+- 어드민 등록 프로세스: 운영자가 전문가 이메일 등 기본 정보 등록 -> 해당 이메일로 비밀번호 설정 초대 링크 자동 발송 -> 전문가가 비밀번호 설정 후 Flutter 앱 로그인.
+- 어드민 인증은 Supabase Auth 기반 로그인 및 세션 제어를 기반으로 견고하게 구현합니다.
 
 ### 1.3 Related Documents
 
@@ -46,16 +45,16 @@ version_project: 0.1.0
 
 ### 2.1 In Scope (MVP v1.0)
 
-- [ ] **소스 분리 구조 확립** (§6.4) — 어드민 전용 라우트 그룹·디렉토리·인증 경계
-- [ ] Supabase 실연결 (프로젝트 URL/키, `experts` 테이블, RLS) — 선결
-- [ ] 전문가 CRUD: 목록/등록/수정/활성·비활성 (Supabase 영속)
-- [ ] **전문가 일괄 등록**: CSV(주), Excel(.xlsx, 선택) 업로드 + 다운로드용 템플릿 + 검증·미리보기 후 일괄 insert
-- [ ] 어드민 인증: Supabase Auth 기반 로그인 (env 단순비번 대체)
-- [ ] 역할(Role) 최소셋: super_admin / operator (RBAC 골격)
-- [ ] 관리 행위 감사 로그(생성·수정·비활성: 누가/언제/무엇)
-- [ ] 접속자/세션 조회(읽기): 최근 관리자 로그인·행위 목록
+- [ ] **어드민/미니홈피 웹 아키텍처** — Next.js 기반 단일 웹 저장소에서 어드민과 전문가용 공개 프로필 페이지(WebView 타겟) 동시 제공
+- [ ] **Supabase 실연결** (URL, anon key, service role key를 통한 Server-side 관리 및 RLS 설정)
+- [ ] **전문가 계정 초대 발송 시스템** — 운영자가 기본 인적 사항 입력 후 Supabase Auth를 통해 비밀번호 설정용 이메일 초대 링크 발송
+- [ ] **전문가 CRUD 및 상태/운영시간 관리** — 전문가 정보 추가/수정, 운영 시간(평일, 주말, 야간) 및 상담 상태(3종) 관리
+- [ ] **전문가 일괄 등록** — CSV 업로드 및 파싱, 스키마 정합성(운영시간 포함) 검증 후 일괄 등록 기능
+- [ ] **상담 요청 모니터링** — Flutter 앱에서 적재되는 `requests` 테이블 데이터 조회 및 수락/거절 결과 확인
+- [ ] **어드민 인증 및 권한 제어** — Supabase Auth 기반 관리자(super_admin / operator) 로그인 처리 및 감사 로그(Audit Log) 적재
 
 ### 2.2 Out of Scope (차기)
+
 
 - KPI·차트 대시보드(이중 KPI — 전략 Phase 2, 시각화 도구는 이때 검토)
 - platform-domains 10개 도메인 전체(콘텐츠 파이프라인·감수·정산·CRM)
@@ -70,26 +69,25 @@ version_project: 0.1.0
 
 | ID | Requirement | Priority | Status |
 |----|-------------|----------|--------|
-| FR-01 | 어드민 소스/라우트/인증을 소비자 앱과 분리 (혼선 방지) | High | Pending |
-| FR-02 | Supabase 실연결 + `experts` 테이블·RLS | High | Pending |
-| FR-03 | 전문가 목록·등록·수정·활성토글 (영속) | High | Pending |
-| FR-04 | Supabase Auth 어드민 로그인 (하드코딩/단순비번 폐기) | High | Pending |
-| FR-05 | 역할 기반 접근(super_admin/operator) | Medium | Pending |
-| FR-06 | 관리 행위 감사 로그 적재·조회 | Medium | Pending |
-| FR-07 | 접속자(관리자 세션·행위) 조회 화면 | Medium | Pending |
-| FR-08 | 전문가 노출 정책은 랜덤 추천 유지 — 어드민에 품질 랭킹 UI 비노출 | Medium | Pending |
-| FR-09 | 전문가 CSV 일괄 업로드: 행 단위 스키마 검증·오류 리포트·미리보기 후 일괄 insert | High | Pending |
-| FR-10 | 표준 템플릿(CSV) 다운로드 제공 (컬럼·예시·작성 규칙 포함) | High | Pending |
-| FR-11 | Excel(.xlsx) 업로드 지원 (CSV로 정규화 처리) | Low | Pending |
+| **FR-01** | 어드민 영역(`/admin`)과 공개 미니홈피 영역(`/profile`)의 명확한 라우팅 및 레이아웃 분리 | High | Pending |
+| **FR-02** | Supabase 연결 및 `experts`, `requests`, `likes`, `audit_log` 테이블 스키마/RLS 적용 | High | Pending |
+| **FR-03** | 전문가 상세 정보 CRUD (활동 분야, 평일/주말 운영시간, 야간 상담 가능 여부 포함) | High | Pending |
+| **FR-04** | 전문가 이메일 초대 발송 시스템 (Supabase Auth 기반 임시 계정 및 활성화 이메일 발송) | High | Pending |
+| **FR-05** | Supabase Auth 기반 어드민 로그인 및 역할 제어 (super_admin, operator) | High | Pending |
+| **FR-06** | 어드민 내 관리자 활동(등록, 수정, 활성 변경 등) 감사 로그 자동 기록 | Medium | Pending |
+| **FR-07** | 일반 사용자가 보낸 상담 요청(`requests`) 리스트 실시간 모니터링 | Medium | Pending |
+| **FR-08** | 전문가 CSV 일괄 업로드 (성명, 직군, 상세 운영시간, 상태 필드 유효성 강검증) | High | Pending |
+| **FR-09** | 어드민 내부 데이터 템플릿(CSV) 다운로드 기능 제공 | High | Pending |
 
 ### 3.2 Non-Functional Requirements
 
 | Category | Criteria | Method |
 |----------|----------|--------|
-| Security | 어드민 라우트 미인증 100% 차단(미들웨어), 소비자 경로와 인증 격리 | 수동/접근 테스트 |
-| Privacy | 전문가 연락처=PII, RLS·역할로 접근 통제, 감사 로그 | RLS 정책 검토 |
-| Separation | 소비자 빌드/번들에 어드민 코드 미포함(또는 명확 격리) | 번들·구조 점검 |
-| Cost | Supabase Free + 기존 Vercel 내 — 추가 비용 0 시작 | 청구서 |
+| **Security** | 미인증 사용자 어드민 경로(`/admin`) 접근 완전 차단 (Next.js Middleware 활용) | 로그인 세션 가드 테스트 |
+| **Privacy** | 전문가 연락처 및 개인 정보 RLS(Row Level Security)로 조회 권한 엄격 통제 | Supabase RLS Policy 검증 |
+| **Separation** | 공개 미니홈피 웹뷰 경로(`/profile/[id]`)와 어드민 경로의 번들/인증 정보 공유 엄금 | 번들 분리 상태 점검 |
+| **Cost** | Supabase Free tier 및 Vercel Hobby tier 내에서 추가 비용 없이 구동 | 리소스 모니터링 및 청구서 |
+
 
 ---
 
@@ -165,34 +163,35 @@ version_project: 0.1.0
 ### 6.3 Clean Architecture
 
 ```
-Dynamic — 소비자/어드민 디렉토리·라우트·인증 분리(§6.4)
+Dynamic — 어드민 영역과 공개 미니홈피 영역의 디렉토리·라우트·인증 분리(§6.4)
 ```
 
 ### 6.4 소스 분리 전략 ⭐ (핵심 요구)
 
-**원칙: "소비자 앱과 어드민은 같은 저장소·배포라도 코드·라우트·인증이 절대 섞이지 않는다."**
+**원칙: "공개 미니홈피 프로필 영역과 어드민 대시보드 영역은 코드·라우트·인증 경계를 완벽히 분리한다."**
 
-| 영역 | 소비자 (기존, 무로그인) | 어드민 (신규, 인증필수) |
+| 영역 | 공개 미니홈피 (`/profile`, 공개) | 어드민 대시보드 (`/admin`, 인증필수) |
 |------|------------------------|------------------------|
-| 라우트 | `app/(site)/` 또는 `app/` 루트(`/`, `/result`, `/expert`) | **`app/(admin)/admin/...`** 라우트 그룹 (전용 layout) |
-| API | `app/api/classify`, `app/api/experts` | **`app/api/admin/**`** (전부 인증 가드) |
-| 컴포넌트 | `components/` (기존) | **`components/admin/`** 전용 |
-| 로직 | `lib/` (gemini, audio 등) | **`lib/admin/`** (queries, auth, audit) |
-| 타입 | `lib/types.ts` (공유 도메인) | 공유 + `lib/admin/types.ts` (어드민 전용) |
-| 인증 경계 | 없음(공개) | `middleware.ts`에서 `/admin`·`/api/admin` 매처로 세션 검증 |
-| 네이밍 규약 | — | 어드민 파일/폴더는 항상 `admin/` 하위. 루트 혼재 금지 |
+| **라우트** | `app/(profile)/profile/[id]` (웹뷰/공유 뷰) | **`app/(admin)/admin/...`** 라우트 그룹 (전용 layout) |
+| **API** | `app/api/profile/**` (조회 전용) | **`app/api/admin/**`** (감사로그/인증 가드) |
+| **컴포넌트** | `components/profile/` | **`components/admin/`** |
+| **로직/쿼리** | `lib/profile/` | **`lib/admin/`** (queries, auth, audit) |
+| **인증 경계** | 없음 (공개 접근) | `middleware.ts`에서 `/admin` 및 `/api/admin` 세션 검증 |
 
-- **대안(문서화만, 미채택)**: pnpm/turbo 모노레포 `apps/web` + `apps/admin` + `packages/shared`. 규모·팀 확장 시 전환. 지금은 인앱 분리가 비용 0·즉시.
-- **검증 포인트**: 소비자 번들에 어드민 코드 미혼입(라우트 그룹·동적 import), 소비자 E2E 회귀 0.
+- **검증 포인트**: 공개 미니홈피 웹뷰의 페이지 번들에 관리자 전용 어드민 모듈/코드가 누출되지 않도록 최적화.
 
-### 6.5 전문가 일괄 업로드 설계 방향 (FR-09~11)
+### 6.5 전문가 일괄 업로드 설계 방향 (FR-08~09)
 
-- **포맷**: CSV 주(主) — UTF-8(BOM 허용). Excel은 선택: 클라이언트에서 SheetJS로 CSV 정규화 후 동일 파이프라인. 의존성 최소화 위해 MVP는 CSV 우선, xlsx는 Low.
-- **템플릿**: `experts` 스키마 기준 헤더 고정 CSV 다운로드 — `name,vertical,specialties,region,phone,experience_years,bio,youtube_url,is_available,is_active`. 예시행·작성규칙 포함.
-- **배열 컬럼 인코딩**: `specialties`(Postgres `text[]`)는 CSV에서 **`|` 구분**(예: `형사|성범죄|사기`). 규칙을 템플릿·검증에 명시.
-- **검증(서버, `lib/admin/`)**: 행 단위 — `vertical` ∈ {lawyer,labor,adjuster,tax,doctor}, 필수값(name/vertical/region/phone), `experience_years` 정수, 전화 형식, 중복(phone 기준) 감지. **오류 행은 사유와 함께 리포트**.
-- **흐름**: 업로드 → 파싱·검증 → **미리보기(정상/오류 행 구분)** → 운영자 확정 → 정상 행만 일괄 insert(부분 성공 허용) → 결과 요약 + 감사 로그(FR-06) 적재.
-- **위치**: `app/api/admin/experts/import` + `lib/admin/csv.ts` + `components/admin/` — §6.4 분리 경계 준수. 파일 크기 상한·서버 검증 필수(보안).
+- **포맷**: CSV (UTF-8, BOM 허용)
+- **템플릿**: `experts` 스키마 기준 헤더 고정 CSV 다운로드 — `name,vertical,specialties,region,phone,experience_years,bio,youtube_url,weekday_start,weekday_end,weekend_available,night_available,status`.
+- **운영시간 및 상태 포맷**:
+  - `weekday_start/end`: HH:mm 형식 (예: `09:00`, `18:00`)
+  - `weekend_available` / `night_available`: `Y` 또는 `N`
+  - `status`: `available`(상담 가능), `delayed`(응답 지연 가능), `unavailable`(상담 불가)
+  - `specialties`(배열형): `|` 구분 기호 사용 (예: `교통사고|손해배상|개인회생`)
+- **검증(서버)**: 행 단위 스키마 검증 진행. 유효하지 않은 포맷이나 잘못된 enum 값은 에러 리포트에 기재하여 다운로드 제공.
+- **흐름**: 업로드 → 서버 검증 및 파싱 → 미리보기(오류 발생 행 및 원인 명시) → 운영자 승인 → 일괄 등록 처리.
+
 
 ---
 
@@ -207,19 +206,22 @@ Dynamic — 소비자/어드민 디렉토리·라우트·인증 분리(§6.4)
 | # | 항목 | 담당 |
 |---|------|------|
 | D-01 | 실 Supabase 프로젝트 + URL/키 발급, `.env.local`·Vercel 등록 | 운영자/개발 |
-| D-02 | `experts` 테이블 + RLS + (필요시) `audit_log` 스키마 적용 (`supabase-setup.sql` 기반 확장) | 개발 |
-| D-03 | Supabase Auth 활성 + 최초 super_admin 계정 | 운영자 |
-| D-04 | ✅ 확정: **shadcn/ui + TanStack Table** (2026-05-19) | 결정 완료 |
-| D-05 | ✅ 확정 2026-05-19 — design §4.1 (헤더 고정, `specialties` `|`, phone `^[0-9-]{7,20}$` 중복키, vertical 5종 enum, 기본값 규칙) | 결정 완료 |
+| D-02 | `experts`, `requests`, `likes`, `audit_log` 테이블 스키마 및 RLS 정책 적용 | 개발 |
+| D-03 | Supabase Auth 이메일 초대 템플릿(비밀번호 재설정 페이지 링크 포함) 및 SMTP 설정 | 운영자/개발 |
+| D-04 | ✅ 확정: **shadcn/ui + TanStack Table** 적용 | 결정 완료 |
+| D-05 | ✅ 확정: CSV 일괄 업로드 컬럼 스키마 및 데이터 유효성 검증 포맷 정의 | 결정 완료 |
 
 ---
 
 ## 8. Next Steps
 
-1. [ ] D-04(어드민 UI 방식) 사용자 결정
-2. [ ] `/pdca design admin-dashboard` — §6.4 분리 구조·인증·스키마 상세 설계
-3. [ ] D-01~D-03 선결 환경 준비
-4. [ ] 구현 → 검증(소비자 회귀 0 포함)
+1. [ ] Supabase Database에 `experts`, `requests`, `likes`, `audit_log` 테이블 생성 및 RLS 정책 적용 (`supabase-setup.sql` 기반 수정)
+2. [ ] Next.js 어드민용 이메일 발송 기능을 위한 Supabase Auth/SMTP 연동 확인
+3. [ ] shadcn/ui 기반의 어드민 UI 레이아웃 빌딩 및 라우팅 격리 적용
+4. [ ] 전문가 CRUD 및 이메일 초대 링크 발송 기능 구현
+5. [ ] CSV 파서(`lib/admin/csv.ts`) 및 일괄 업로드 폼 모듈 개발
+6. [ ] 일반 사용자 상담 요청(`requests`) 리스트 모니터링 화면 개발
+
 
 ---
 

@@ -21,16 +21,17 @@ version_project: 0.1.0
 
 ---
 
-## 0. 두 저장소의 관계 (가장 먼저 이해할 것)
+## 0. 전체 서비스 구성 및 아키텍처 (가장 먼저 이해할 것)
 
-| 저장소 | 역할 | 산출물 |
-|--------|------|--------|
-| `Projects/golgoru` | **전략·기획 워크스페이스** (코드 없음) | 비즈니스 전망, 제품 전략 SSoT, 콘텐츠/도메인/브랜드 전략, 린 검증 방법론 |
-| `Projects/golgoru-sos` | **실제 구현 (이 저장소)** | SOS 전문가 매칭 웹앱 = 전략의 **수요 엔진(Demand Engine) Phase 1 MVP** |
+| 영역 | 플랫폼 | 주요 역할 | 산출물 및 특징 |
+|---|---|---|---|
+| **모바일 앱** | **Flutter (Android/iOS)** | 일반 사용자 상황 입력, AI 추천 결과 확인, 전문가용 로그인 및 상담 관리 | 진짜 네이티브 모바일 앱 (초기 단일 앱으로 통합 구현) |
+| **백엔드** | **Supabase** | Auth, Database, Storage, Edge Functions, Realtime | API Serverless 아키처 (Gemini API Key는 Edge Functions에서 보안 관리) |
+| **관리자 페이지** | **Next.js + Vercel** | 전문가 등록/관리, 상담 요청 내역 모니터링 | 운영자 전용 어드민 대시보드 웹 |
+| **전문가 미니홈피** | **Next.js + Vercel** | 전문가별 공개 프로필 및 상세 정보 제공 | 독립 웹페이지. Flutter 앱 내에서는 **WebView** 또는 외부 링크로 호출 |
 
-- `golgoru`의 SSoT는 [`product-strategy-foundation.md`]이며, 모든 제품 결정은 그 원칙과 충돌 불가.
-- `golgoru-sos`는 그 전략 중 **"문제 → 전문가 매칭"** 한 조각을 먼저 검증하는 실행체다.
-- 따라서 이 저장소의 기능 결정은 §4 전략 원칙을 **설계 제약**으로 받는다.
+- 모든 제품 결정은 `Projects/golgoru`의 SSoT인 [`product-strategy-foundation.md`] 원칙을 준수합니다.
+- 이 저장소(`golgoru-sos`)는 위 하이브리드 구성 요소들의 전체 소스코드와 기획 설계를 통합 관리합니다.
 
 ---
 
@@ -38,9 +39,9 @@ version_project: 0.1.0
 
 ### 1.1 Purpose
 
-> "긴급 상황에서 30초 안에 적합한 전문가 전화번호를 받는 SOS 앱"
+> "긴급 상황에서 30초 안에 적합한 전문가를 확인하고 상담 요청을 보내는 SOS 서비스"
 
-소비자가 자연어(텍스트/음성)로 상황을 입력하면, AI가 5개 버티컬 중 적합한 전문가군과 긴급도를 분류하고, 즉시 통화 가능한 전문가 1~3명을 추천·연결한다.
+소비자가 자연어(텍스트/음성)로 상황을 입력하면, AI가 의미를 분석하여 적합한 전문가군과 긴급도를 분류하고, 즉시 대응 가능한 전문가 3~5명을 추천합니다. 사용자는 전문가의 미니홈피(웹뷰)를 확인하고 전화, 문자, 또는 상담 요청을 보낼 수 있습니다.
 
 ### 1.2 Background (Why — 왜 이 사업이 되는가)
 
@@ -70,26 +71,31 @@ version_project: 0.1.0
 
 ### 2.1 In Scope (SOS MVP v1.0 — 수요 엔진)
 
-| # | 기능 | 우선순위 | 구현 상태(현재) |
-|---|------|----------|----------------|
-| F-01 | 자연어 텍스트 입력 | P0 | ✅ 구현됨 (`SosInput.tsx`) |
-| F-02 | 음성 입력 | P0 | ⚠️ Web Speech API(iOS 미지원) → `voice-input-gemini`로 개선 설계 완료 |
-| F-03 | AI 버티컬 분류 + 긴급도 판단 | P0 | ✅ Gemini 2.5 Flash-Lite(thinking off, ~1.5s) + 로컬 키워드 폴백 (`lib/gemini.ts`) |
-| F-04 | 전문가 추천 1~3명 표시 | P0 | ✅ (`/result`, `ExpertCard`) |
-| F-05 | 전화번호 표시 + tel: 연결 | P0 | ✅ (`CallButton`) |
-| F-06 | 전문가 프로필 상세 | P1 | ✅ (`/expert/[id]`) |
-| F-07 | 유튜브 영상 링크 | P1 | ✅ |
-| F-08 | 전문가 DB 어드민 | P1 | ✅ (`/admin`, 단순 비밀번호 인증) |
+| # | 기능 | 우선순위 | 설명 |
+|---|------|----------|------|
+| **F-01** | 자연어 텍스트/음성 입력 | P0 | Flutter 모바일 앱에서 사용자 상황을 자연어로 텍스트 혹은 음성 입력 |
+| **F-02** | AI 버티컬 분류 + 긴급도 판단 | P0 | Gemini API 기반 자연어 분석을 통해 5개 직군 분류 및 긴급도 자동 산출 (Supabase Edge Function 경유) |
+| **F-03** | 전문가 추천 3~5명 표시 | P0 | 기본 모드(분야 적합도 우선) 및 긴급 모드(지역/거리/상태 가중) 기반의 카드형 추천 UI 제공 |
+| **F-04** | 전문가 상세 미니홈피 웹뷰 | P0 | Next.js로 구축된 독립 웹 프로필을 Flutter 앱 내부 WebView로 표시 |
+| **F-05** | 상담 요청 프로세스 | P0 | 사용자가 전문가에게 상담 요청을 전송하고, 전문가는 Flutter 앱 내에서 요청 목록을 확인하여 수락/거절 및 간단 답변 전송 |
+| **F-06** | 전문가 DB 어드민 | P1 | Next.js 기반 어드민 대시보드에서 전문가 추가/수정, 초대 링크 발송 기능 제공 |
+| **F-07** | 전문가 상태 및 운영시간 관리 | P1 | 평일/야간/주말 운영 시간 스키마 설계 및 상담 상태(3종: 가능, 지연, 불가) 매칭 적용 |
+| **F-08** | 가입자 기반 '좋아요' 평가 | P1 | **비즈니스 규칙**: 실제 상담 요청(연결 시도) 이력이 존재하는 사용자(세션 UUID 또는 계정)만 좋아요 평가 기능 권한 부여 |
+
+> **⚠️ 구현 시점 유의사항 (중요)**
+> - **실제 전화/문자 연결 (`tel:`, `sms:`) 및 푸시 알림 (FCM/APNs/알림톡)**은 MVP 구현의 가장 마지막 단계(배포 직전 디바이스 테스트 단계)에 도입합니다. 
+> - **현재 개발 단계**에서는 알림 및 실제 전화/문자 연동 없이, UI 및 데이터 상태 전송(상담 요청 등록 -> 전문가 앱 내 요청 목록 수동 갱신/상태 업데이트) 중심으로 핵심 비즈니스 로직을 구축합니다.
 
 ### 2.2 Out of Scope (v2 이후 — 전략상 Phase 2~3)
 
-- 앱 내 채팅/영상통화, 소비자 회원가입/로그인, 결제·매칭 수수료
-- 리뷰/평점, 매칭 이력 DB(problems/matches 테이블), 푸시 알림
-- 공급 엔진 풀셋(심사·감수 워크플로우·정산), 콘텐츠 파이프라인, 이중 KPI 대시보드
-- 네이티브 앱(현재 웹/PWA 우선, RN은 후순위)
+- 앱 내 실시간 1:1 채팅방 및 화상통화 기능 (상담 요청 + 전문가 답변 메시지 1회까지만 MVP 스코프)
+- 유료 결제 및 매칭 수수료 과금 모델
+- 전문가 본인의 미니홈피 직접 프로필 수정 기능 (MVP는 어드민 등록 및 관리만 지원)
+- 별점 평가 방식 (좋아요만 도입)
+- AI 추천 이유 필수 표시 기능 (차기 업그레이드 검토)
 
-> **주의**: 전략 문서의 `problems`/`matches` 테이블·스코어링 가중치·데이터 플라이휠은
-> Phase 2 이후. 현재 DB는 `experts` 단일 테이블만 존재(매칭 기록 미적재).
+> **주의**: 전략 문서의 `problems`/`matches` 테이블·스코어링 가중치·데이터 플라이휠은 Phase 2 이후. 현재 DB는 `experts` 및 `requests` (상담 요청용) 테이블만 존재(완전한 데이터 플라이휠 누적은 미적재).
+
 
 ---
 
@@ -99,22 +105,25 @@ version_project: 0.1.0
 
 | ID | Requirement | Priority | Status |
 |----|-------------|----------|--------|
-| FR-01 | 자연어 입력 → 버티컬+긴급도 분류 (5버티컬: lawyer/labor/adjuster/tax/doctor) | High | Done |
-| FR-02 | 음성 입력 전 브라우저 지원 (iOS Safari 포함) | High | Designed (voice-input-gemini) |
-| FR-03 | 분류 결과 기반 전문가 Top 1~3 추천 (is_available 우선, 경력 내림차순) | High | Done |
-| FR-04 | tel: 링크로 즉시 전화 연결 | High | Done |
-| FR-05 | 운영자 전문가 CRUD 어드민 | Medium | Done |
-| FR-06 | Gemini 장애 시 로컬 키워드 폴백으로 서비스 지속 | High | Done |
+| **FR-01** | 자연어 입력 → 버티컬+긴급도 분류 (5버티컬: lawyer/labor/adjuster/tax/doctor) | High | Gemini API 연동 완료 (Edge Function 구현 필요) |
+| **FR-02** | 음성 입력 모바일 지원 (Flutter 마이크 및 미디어 레코더 활용) | High | Designed (voice-input-gemini) |
+| **FR-03** | AI 분류 기반 전문가 Top 3~5명 추천 (기본 모드 vs 긴급 모드 추천 룰 적용) | High | Pending |
+| **FR-04** | 전문가 미니홈피 웹뷰 표시 및 `tel:`, `sms:` URL Scheme 네이티브 연동 | High | Pending (WebView 기기 기능 트리거 필요) |
+| **FR-05** | 상담 요청 프로세스 (상담 요청 생성 -> 전문가 앱 내 목록 조회 -> 수락/거절 및 답변) | High | Pending |
+| **FR-06** | 실제 상담 연결(요청) 이력이 있는 사용자만 '좋아요' 평가 기능 제공 | High | Pending |
+| **FR-07** | 어드민을 통한 전문가 등록/수정 및 초대 이메일 발송 | Medium | Pending |
+| **FR-08** | Gemini 장애 시 로컬 키워드 폴백으로 서비스 지속 | High | Done |
 
 ### 3.2 Non-Functional Requirements
 
-| Category | Criteria | Measurement |
+| Category | Criteria | Measurement / Method |
 |----------|----------|-------------|
-| Performance | 입력 → 추천 결과 도달 10초 이내 (Gemini 응답 포함) | 수동/QA 측정 |
-| Compatibility | iPhone SE(375px)~Pro Max(430px) 모바일 정상, iOS Safari 음성 동작 | 실기기 |
-| Cost | MVP 거의 무료 (Vercel Hobby + Supabase Free + Gemini Free) | 청구서 |
-| Reliability | 외부 AI 장애 시에도 분류 결과 반환(폴백) | 장애 주입 |
-| Compliance | 추천이 "중개·알선"이 아닌 "정보 제공" 구조 (§5 규제) | 법무 검토 |
+| **Performance** | 상황 입력 → AI 분석 → 추천 결과 화면 도달 8초 이내 | 실기기 및 에뮬레이터 QA 측정 |
+| **Compatibility** | Android 및 iOS 모바일 디바이스 지원 (다양한 해상도 최적화) | Android/iOS 실기기 테스트 |
+| **WebView Integration** | 웹뷰 내부의 전화/문자 버튼이 네이티브 다이얼러 및 문자앱을 정상 호출 | Flutter WebView Controller URL Scheme 파싱 가드 |
+| **Security** | Gemini API Key 등 민감 정보의 안전한 백엔드 관리 | Supabase Edge Functions 서버 측 호출만 허용 |
+| **Compliance** | 추천이 "중개·알선"이 아닌 "정보 제공/단순 연결" 구조 유지 | 법무 자문 및 수수료 수취 배제 |
+
 
 ---
 
@@ -157,27 +166,33 @@ version_project: 0.1.0
 | Level | Selected |
 |-------|:--------:|
 | Starter | ☐ |
-| **Dynamic** (BaaS 연동 풀스택) | ☑ |
+| **Dynamic** (Flutter + BaaS 하이브리드) | ☑ |
 | Enterprise | ☐ |
 
-### 6.2 Key Architectural Decisions (as-built)
+### 6.2 Key Architectural Decisions
 
 | Decision | Selected | Rationale |
 |----------|----------|-----------|
-| Framework | Next.js 16 App Router + React 19 | 모래시계 단일 입구·SSR·API Route 일체화 |
-| AI 분류 | 텍스트=Gemini 2.5 Flash-Lite(thinking off), 오디오=2.5 Flash(thinking off) + 로컬 폴백 | 무료 티어(2.0-flash는 limit:0), thinking off로 7s→~1.5s, 장애 내성 |
-| Backend/DB | Supabase (Postgres + RLS, `experts` 단일 테이블) | 자동 REST·무료 시작·운영 부담 0 |
-| 음성 | (현행) Web Speech API → (개선) MediaRecorder + Gemini 오디오 | iOS Safari 지원 확보 |
-| 호스팅 | Vercel (Hobby 무료 → Pro 단계 승급) | 가성비 + 자동 확장, Next.js 정합 |
-| 어드민 인증 | 환경변수 단순 비밀번호 | MVP 범위, 복잡 auth 배제 |
+| **Framework** | Flutter (Mobile App) + Next.js (Admin/Webview Web) | Android/iOS 네이티브 앱 제공 및 웹 기반의 관리자/공개 프로필 연동 |
+| **AI 분류** | Supabase Edge Function + Gemini API (Flash-Lite) | API Key의 안전한 관리를 위해 서버 측(Edge Function)에서 Gemini API 호출 |
+| **Backend/DB** | Supabase (Postgres + RLS + Auth + Edge Functions) | 서버 구축 비용 최소화 및 Flutter/Next.js 통합 백엔드 활용 |
+| **인증** | Supabase Auth | 전문가 Flutter 앱 로그인 및 어드민 로그인 통합 인증 |
+| **상태 관리/운영시간** | DB 스키마 설계 반영 | 평일/주말 운영시간 및 야간 상담 여부를 전문가 테이블에 포함하여 관리 |
+| **웹뷰 기기 연동** | WebView Controller URL Scheme 파싱 가드 | 웹뷰(Next.js) 내 `tel:`, `sms:` 클릭 시 단말기 다이얼러/문자 앱 연결 핸들링 |
 
-### 6.3 데이터 모델 현황 vs 전략 목표
+### 6.3 데이터 모델 현황 vs MVP 최종 목표
 
 ```
-[현재 구현]  experts (단일 테이블, RLS: 활성 전문가 공개 조회)
-[전략 목표]  experts + problems(문제 제출) + matches(매칭 결과) → 데이터 플라이휠
-             → Phase 2 진입 시 추가. 현재는 매칭 기록 미적재(검증 단계라 의도적).
+[현재 구현 계획] 
+- experts: 전문가 기본 인적 사항, 활동 분야, 상세 운영시간, 상담 상태
+- requests: 사용자의 상담 요청 사항, 매칭 전문가 ID, 수락/거절 상태 및 답변 메시지
+- likes: 상담 요청/연결 완료 이력이 확인된 사용자의 좋아요 평가 내역 (중복 방지 정책 적용)
+
+[전략 목표 (Phase 2 이후)]
+- problems(소비자 상세 문제 분석 데이터) + matches(실제 매칭 및 피드백 로그 데이터)
+- 데이터 플라이휠 고도화 및 추천 알고리즘 딥러닝 전환
 ```
+
 
 ---
 
@@ -205,11 +220,14 @@ version_project: 0.1.0
 
 ## 9. Next Steps
 
-1. [ ] 본 통합 플랜을 후속 PDCA의 맥락 기준 문서로 사용
-2. [ ] `voice-input-gemini` 설계 검토 → `/pdca do voice-input-gemini` 구현 진입
-3. [ ] (전략 병행) 수요 검증: 전화1→매칭1→결제1 수동 실험, 미끼 AI 진단 A/B
-4. [ ] 수익화 착수 전 변호사법/의료법 법무 자문 (구조 합법성 확정)
-5. [ ] Phase 2 진입 조건 충족 시 `problems`/`matches` 스키마 → `/phase-1-schema`
+1. [ ] Flutter 모바일 프로젝트 생성 및 Supabase SDK 연동 기초 설정
+2. [ ] Supabase Edge Function을 통한 Gemini API Key 프록시 기능 구현
+3. [ ] experts 및 requests, likes DB 테이블 스키마 생성 및 RLS 정책 정의
+4. [ ] Next.js 기반 어드민 대시보드(전문가 등록 및 초대 링크 이메일 발송) 개발
+5. [ ] Flutter WebView의 `tel:`, `sms:` URL Scheme 핸들러 가드 연동 설계
+6. [ ] MVP 핵심 기능 개발 완료 후, 배포 직전 단계에서 FCM/APNs 푸시 알림 및 실제 기기 전화 연결 테스트 진행
+7. [ ] 수익화 착수 전 변호사법/의료법 법무 자문 (구조 합법성 확정)
+
 
 ---
 
