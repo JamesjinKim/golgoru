@@ -22,6 +22,7 @@ export interface ExpertInput {
   weekday_end?: string | null;
   weekend_available: boolean;
   night_available: boolean;
+  category_codes: string[]; // CSV 선택 컬럼 (빈 값이면 [])
   is_active: boolean;
 }
 

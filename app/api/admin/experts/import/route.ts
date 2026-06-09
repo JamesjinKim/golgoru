@@ -54,19 +54,44 @@ export async function POST(req: NextRequest) {
   const skippedExisting = result.valid.length - toInsert.length;
 
   let inserted = 0;
+  let categoriesLinked = 0;
   if (toInsert.length) {
-    const { data, error } = await supabaseAdmin.from('experts').insert(toInsert).select('id');
+    // experts 테이블엔 category_codes 컬럼이 없으므로 분리해서 insert
+    const expertRows = toInsert.map((v) => {
+      const r: Record<string, unknown> = { ...v };
+      delete r.category_codes;
+      return r;
+    });
+    const { data, error } = await supabaseAdmin.from('experts').insert(expertRows).select('id,phone');
     if (error) {
       console.error('[admin/import] insert error:', error);
       return NextResponse.json({ error: '일괄 등록 실패' }, { status: 500 });
     }
     inserted = data?.length ?? 0;
+
+    // 카테고리 연결: DB에 존재하는 코드만 expert_categories 로
+    const idByPhone = new Map((data ?? []).map((r: { id: string; phone: string }) => [r.phone, r.id]));
+    const { data: cats } = await supabaseAdmin.from('categories').select('code');
+    const known = new Set((cats ?? []).map((c: { code: string }) => c.code));
+    const ecRows: { expert_id: string; category_code: string }[] = [];
+    for (const row of toInsert) {
+      const id = idByPhone.get(row.phone);
+      if (!id) continue;
+      for (const code of row.category_codes ?? []) {
+        if (known.has(code)) ecRows.push({ expert_id: id, category_code: code });
+      }
+    }
+    if (ecRows.length) {
+      const { error: ecErr } = await supabaseAdmin.from('expert_categories').insert(ecRows);
+      if (!ecErr) categoriesLinked = ecRows.length;
+      else console.error('[admin/import] expert_categories error:', ecErr);
+    }
   }
 
   await logAudit({
     actorId: guard.identity.userId, actorEmail: guard.identity.email,
     action: 'expert.import', targetTable: 'experts',
-    detail: { total: result.total, inserted, skippedExisting, rowErrors: result.errors.length },
+    detail: { total: result.total, inserted, skippedExisting, categoriesLinked, rowErrors: result.errors.length },
   });
 
   return NextResponse.json({
@@ -74,6 +99,7 @@ export async function POST(req: NextRequest) {
     total: result.total,
     inserted,
     skippedExisting,
+    categoriesLinked,
     rowErrors: result.errors.length,
     errors: result.errors.slice(0, 200),
   });

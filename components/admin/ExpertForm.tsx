@@ -1,8 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { ConsultStatus, Expert, Vertical } from '@/lib/types';
 import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
+
+type CategoryOption = { code: string; vertical: string; level: number; label: string };
 
 const VERTICALS: Vertical[] = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'];
 const STATUSES: ConsultStatus[] = ['available', 'delayed', 'unavailable'];
@@ -47,7 +49,26 @@ export function ExpertForm({
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // 카테고리: 전체 로드 후 선택 vertical 의 중분류(level 1)만 노출
+  const [allCats, setAllCats] = useState<CategoryOption[]>([]);
+  const [categoryCodes, setCategoryCodes] = useState<string[]>(initial?.category_codes ?? []);
+  useEffect(() => {
+    fetch('/api/admin/categories')
+      .then((r) => r.json())
+      .then((d) => setAllCats(d.categories ?? []))
+      .catch(() => {});
+  }, []);
+  const verticalCats = allCats.filter((c) => c.level === 1 && c.vertical === form.vertical);
+  const toggleCat = (code: string) =>
+    setCategoryCodes((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
+
   const set = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
+
+  // vertical 변경 시 다른 직업의 카테고리 선택 해제
+  const changeVertical = (v: Vertical) => {
+    set('vertical', v);
+    setCategoryCodes((prev) => prev.filter((code) => allCats.some((c) => c.code === code && c.vertical === v)));
+  };
 
   const submit = async () => {
     setError('');
@@ -61,6 +82,7 @@ export function ExpertForm({
       bio: parsed.data.bio || null,
       weekday_start: parsed.data.weekday_start || null,
       weekday_end: parsed.data.weekday_end || null,
+      category_codes: categoryCodes,
     };
     const res = await fetch(
       initial ? `/api/admin/experts/${initial.id}` : '/api/admin/experts',
@@ -85,7 +107,7 @@ export function ExpertForm({
         </h2>
         <div className="grid grid-cols-2 gap-3">
           <input className={field} placeholder="이름" value={form.name} onChange={(e) => set('name', e.target.value)} />
-          <select className={field} value={form.vertical} onChange={(e) => set('vertical', e.target.value)}>
+          <select className={field} value={form.vertical} onChange={(e) => changeVertical(e.target.value as Vertical)}>
             {VERTICALS.map((v) => <option key={v} value={v}>{VERTICAL_LABEL[v]} ({v})</option>)}
           </select>
           <input className={field} placeholder="지역" value={form.region} onChange={(e) => set('region', e.target.value)} />
@@ -94,6 +116,27 @@ export function ExpertForm({
           <input className={field} placeholder="전문분야 (형사|사기)" value={form.specialties} onChange={(e) => set('specialties', e.target.value)} />
           <input className={`${field} col-span-2`} placeholder="유튜브 URL (선택)" value={form.youtube_url} onChange={(e) => set('youtube_url', e.target.value)} />
           <textarea className={`${field} col-span-2`} rows={2} placeholder="소개 (선택)" value={form.bio} onChange={(e) => set('bio', e.target.value)} />
+
+          <div className="col-span-2">
+            <div className="mb-1 text-xs text-slate-500">
+              전문 카테고리 <span className="text-slate-400">({VERTICAL_LABEL[form.vertical]} · 복수 선택, {categoryCodes.length}개)</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 rounded-md border border-slate-200 p-2">
+              {verticalCats.length === 0 ? (
+                <span className="text-xs text-slate-400">카테고리 없음</span>
+              ) : verticalCats.map((c) => {
+                const on = categoryCodes.includes(c.code);
+                return (
+                  <button
+                    type="button" key={c.code} onClick={() => toggleCat(c.code)}
+                    className={`rounded-full border px-2.5 py-1 text-xs ${on ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 text-slate-600 hover:bg-slate-50'}`}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <label className="col-span-2 flex flex-col gap-1 text-xs text-slate-500">
             상담 상태

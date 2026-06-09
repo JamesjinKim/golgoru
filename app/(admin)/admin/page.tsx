@@ -5,8 +5,15 @@ import {
 } from '@tanstack/react-table';
 import { Expert } from '@/lib/types';
 import { ExpertForm } from '@/components/admin/ExpertForm';
+import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
 
 const col = createColumnHelper<Expert>();
+
+const STATUS_BADGE: Record<string, string> = {
+  available: 'bg-green-100 text-green-700',
+  delayed: 'bg-amber-100 text-amber-700',
+  unavailable: 'bg-slate-200 text-slate-500',
+};
 
 export default function AdminExpertsPage() {
   const [rows, setRows] = useState<Expert[]>([]);
@@ -41,7 +48,28 @@ export default function AdminExpertsPage() {
 
   const columns = useMemo(() => [
     col.accessor('name', { header: '이름' }),
-    col.accessor('vertical', { header: '버티컬' }),
+    col.accessor('vertical', {
+      header: '직업',
+      cell: (c) => VERTICAL_LABEL[c.getValue()] ?? c.getValue(),
+    }),
+    col.accessor('status', {
+      header: '상담상태',
+      cell: (c) => {
+        const s = c.getValue();
+        return (
+          <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[s] ?? 'bg-slate-100 text-slate-600'}`}>
+            {STATUS_LABEL[s] ?? s}
+          </span>
+        );
+      },
+    }),
+    col.accessor('category_codes', {
+      header: '카테고리',
+      cell: (c) => {
+        const codes = c.getValue() ?? [];
+        return <span className="text-xs text-slate-500">{codes.length ? codes.join(', ') : '—'}</span>;
+      },
+    }),
     col.accessor('region', { header: '지역' }),
     col.accessor('phone', { header: '전화' }),
     col.accessor('experience_years', { header: '경력' }),
@@ -98,7 +126,7 @@ export default function AdminExpertsPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td className="px-3 py-6 text-slate-400" colSpan={7}>불러오는 중…</td></tr>
+              <tr><td className="px-3 py-6 text-slate-400" colSpan={9}>불러오는 중…</td></tr>
             ) : table.getRowModel().rows.map((r) => (
               <tr key={r.id} className="border-t border-slate-100">
                 {r.getVisibleCells().map((cell) => (

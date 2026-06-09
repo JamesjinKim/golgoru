@@ -28,6 +28,7 @@ export interface Expert {
   night_available: boolean;
   is_active: boolean;
   created_at: string;
+  category_codes?: string[]; // 어드민 조회 시 expert_categories 조인 결과 (표시·편집용)
 }
 
 // ── 핵심 루프 엔티티 (supabase-schema-v2.sql) ────────────────────────

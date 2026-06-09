@@ -2,12 +2,16 @@ import Papa from 'papaparse';
 import { z } from 'zod';
 import { ExpertInput } from './types';
 
-// D-05 / 설계 §6.5 — CSV 계약 (운영시간·3단계 상태 포함)
+// D-05 / 설계 §6.5 — CSV 계약 (운영시간·3단계 상태·카테고리 포함)
 export const CSV_HEADERS = [
   'name', 'vertical', 'specialties', 'region', 'phone',
   'experience_years', 'bio', 'youtube_url',
-  'weekday_start', 'weekday_end', 'weekend_available', 'night_available', 'status', 'is_active',
+  'weekday_start', 'weekday_end', 'weekend_available', 'night_available', 'status',
+  'category_codes', 'is_active',
 ] as const;
+
+// category_codes 는 선택 컬럼 — 없는 CSV도 허용(헤더 누락 검사에서 제외)
+const OPTIONAL_HEADERS = ['category_codes'];
 
 const VERTICALS = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'] as const;
 const STATUSES = ['available', 'delayed', 'unavailable'] as const;
@@ -53,6 +57,11 @@ const rowSchema = z.object({
     (v) => { const s = String(v ?? '').trim().toLowerCase(); return s === '' ? 'available' : s; },
     z.enum(STATUSES, { message: `status는 ${STATUSES.join('|')} 중 하나` }),
   ),
+  // 카테고리 코드: '|' 구분, 형식 예) LAW-01 또는 TAX-02-01. 빈 값이면 []
+  category_codes: z.preprocess(
+    (v) => String(v ?? '').split('|').map((s) => s.trim().toUpperCase()).filter(Boolean),
+    z.array(z.string().regex(/^[A-Z]{3}-\d{2}(-\d{2})?$/, '카테고리 코드 형식(예: LAW-01)')),
+  ),
   is_active: boolField(true),
 });
 
@@ -72,7 +81,7 @@ export function parseExpertsCsv(text: string): ParseResult {
   });
 
   const headers = parsed.meta.fields ?? [];
-  const missing = CSV_HEADERS.filter((h) => !headers.includes(h));
+  const missing = CSV_HEADERS.filter((h) => !OPTIONAL_HEADERS.includes(h) && !headers.includes(h));
   if (missing.length) {
     return {
       total: 0, valid: [], duplicatePhonesInFile: [],
@@ -111,7 +120,7 @@ export function buildTemplateCsv(): string {
   const example = [
     '김변호', 'lawyer', '형사|성범죄|사기', '서울 강남', '02-1234-5678',
     '12', '형사 전문 12년', 'https://youtube.com/@example',
-    '09:00', '18:00', 'N', 'N', 'available', 'true',
+    '09:00', '18:00', 'N', 'N', 'available', 'LAW-01|LAW-02', 'true',
   ];
   return `${CSV_HEADERS.join(',')}\n${example.join(',')}\n`;
 }

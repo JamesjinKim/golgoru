@@ -20,9 +20,22 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   if (error) return NextResponse.json({ error: '수정 실패' }, { status: 500 });
   if (!data) return NextResponse.json({ error: '대상 없음' }, { status: 404 });
 
+  // 카테고리 동기화 (body.category_codes 가 배열일 때만 — 전부 교체)
+  if (Array.isArray(body.category_codes)) {
+    const codes = [...new Set(
+      (body.category_codes as unknown[]).filter((c): c is string => typeof c === 'string' && c.length > 0),
+    )];
+    await supabaseAdmin.from('expert_categories').delete().eq('expert_id', id);
+    if (codes.length) {
+      await supabaseAdmin.from('expert_categories')
+        .insert(codes.map((category_code) => ({ expert_id: id, category_code })));
+    }
+  }
+
   await logAudit({
     actorId: guard.identity.userId, actorEmail: guard.identity.email,
-    action: 'expert.update', targetTable: 'experts', targetId: id, detail: patch,
+    action: 'expert.update', targetTable: 'experts', targetId: id,
+    detail: { ...patch, category_codes: body.category_codes ?? undefined },
   });
   return NextResponse.json(data);
 }
