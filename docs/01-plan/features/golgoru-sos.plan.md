@@ -23,15 +23,18 @@ version_project: 0.1.0
 
 ## 0. 전체 서비스 구성 및 아키텍처 (가장 먼저 이해할 것)
 
+> **⚠️ 아키텍처 결정 (2026-06-09 정정)**: MVP 검증 단계의 소비자 앱은 **Next.js 웹(PWA)** 으로 구현·검증한다. 저장소에 이미 동작하는 웹 소비자 플로우([app/(site)/](../../../app/(site)/))·어드민·웹 기반 음성입력이 존재하며, 전략 원칙 #1("만들지 말고 팔아라 — MVP는 검증 도구")·#4("유튜브 유입") 및 "거의 무료" 예산과 1인 자원 제약상 두 번째 코드베이스(Flutter) 도입은 검증을 지연시킨다. **Flutter 네이티브 앱은 수요 검증 이후 Phase 2의 옵션으로 미룬다**(아래 표 참조). 푸시 알림 등 Flutter 고유 가치 항목은 §2가 이미 "배포 직전 마지막 단계"로 분리해 둠.
+
 | 영역 | 플랫폼 | 주요 역할 | 산출물 및 특징 |
 |---|---|---|---|
-| **모바일 앱** | **Flutter (Android/iOS)** | 일반 사용자 상황 입력, AI 추천 결과 확인, 전문가용 로그인 및 상담 관리 | 진짜 네이티브 모바일 앱 (초기 단일 앱으로 통합 구현) |
-| **백엔드** | **Supabase** | Auth, Database, Storage, Edge Functions, Realtime | API Serverless 아키처 (Gemini API Key는 Edge Functions에서 보안 관리) |
-| **관리자 페이지** | **Next.js + Vercel** | 전문가 등록/관리, 상담 요청 내역 모니터링 | 운영자 전용 어드민 대시보드 웹 |
-| **전문가 미니홈피** | **Next.js + Vercel** | 전문가별 공개 프로필 및 상세 정보 제공 | 독립 웹페이지. Flutter 앱 내에서는 **WebView** 또는 외부 링크로 호출 |
+| **소비자 앱 (MVP)** | **Next.js 웹 / PWA (Vercel)** | 일반 사용자 상황 입력(텍스트/음성), AI 추천 결과 확인, 상담 요청 | 모바일 브라우저 우선. `tel:`/`sms:`는 모바일 브라우저 네이티브 동작. 홈 화면 추가(PWA)로 앱 유사 체감 |
+| **백엔드** | **Supabase** | Auth, Database, Storage, Edge Functions, Realtime | API Serverless 아키처 (Gemini API Key는 Edge Functions/서버 라우트에서 보안 관리) |
+| **관리자 페이지** | **Next.js + Vercel** | 전문가 등록/관리, 상담 요청 내역 모니터링 | 운영자 전용 어드민 대시보드 웹 ([app/(admin)/](../../../app/(admin)/) 구현됨) |
+| **전문가 미니홈피** | **Next.js + Vercel** | 전문가별 공개 프로필 및 상세 정보 제공 | 웹 라우트로 제공([app/(site)/expert/[id]](../../../app/(site)/expert/)). 향후 네이티브 앱 도입 시 WebView 타겟 |
+| **(Phase 2 옵션) 네이티브 앱** | **Flutter (Android/iOS)** | 푸시 알림(FCM/APNs) 등 네이티브 고유 기능이 검증으로 필요해질 때 | 수요 검증 완료 후 착수 결정. MVP 범위 아님 |
 
 - 모든 제품 결정은 `Projects/golgoru`의 SSoT인 [`product-strategy-foundation.md`] 원칙을 준수합니다.
-- 이 저장소(`golgoru-sos`)는 위 하이브리드 구성 요소들의 전체 소스코드와 기획 설계를 통합 관리합니다.
+- 이 저장소(`golgoru-sos`)는 위 구성 요소들(소비자 웹 + 어드민 + 미니홈피)의 전체 소스코드와 기획 설계를 통합 관리합니다.
 
 ---
 
@@ -73,11 +76,11 @@ version_project: 0.1.0
 
 | # | 기능 | 우선순위 | 설명 |
 |---|------|----------|------|
-| **F-01** | 자연어 텍스트/음성 입력 | P0 | Flutter 모바일 앱에서 사용자 상황을 자연어로 텍스트 혹은 음성 입력 |
-| **F-02** | AI 버티컬 분류 + 긴급도 판단 | P0 | Gemini API 기반 자연어 분석을 통해 5개 직군 분류 및 긴급도 자동 산출 (Supabase Edge Function 경유) |
+| **F-01** | 자연어 텍스트/음성 입력 | P0 | 소비자 웹앱에서 사용자 상황을 자연어로 텍스트 혹은 음성 입력 ([SosInput.tsx](../../../components/SosInput.tsx)) |
+| **F-02** | AI 버티컬 분류 + 긴급도 판단 | P0 | Gemini API 기반 자연어 분석을 통해 5개 직군 분류 및 긴급도 자동 산출 (서버 라우트 `/api/classify` 경유, 키 서버 보관) |
 | **F-03** | 전문가 추천 3~5명 표시 | P0 | 기본 모드(분야 적합도 우선) 및 긴급 모드(지역/거리/상태 가중) 기반의 카드형 추천 UI 제공 |
-| **F-04** | 전문가 상세 미니홈피 웹뷰 | P0 | Next.js로 구축된 독립 웹 프로필을 Flutter 앱 내부 WebView로 표시 |
-| **F-05** | 상담 요청 프로세스 | P0 | 사용자가 전문가에게 상담 요청을 전송하고, 전문가는 Flutter 앱 내에서 요청 목록을 확인하여 수락/거절 및 간단 답변 전송 |
+| **F-04** | 전문가 상세 미니홈피 | P0 | Next.js 웹 라우트로 전문가 공개 프로필 표시 (네이티브 앱 도입 시 WebView 타겟) |
+| **F-05** | 상담 요청 프로세스 | P0 | 사용자가 전문가에게 상담 요청을 전송하고, 전문가는 요청 목록을 확인하여 수락/거절 및 간단 답변 전송 |
 | **F-06** | 전문가 DB 어드민 | P1 | Next.js 기반 어드민 대시보드에서 전문가 추가/수정, 초대 링크 발송 기능 제공 |
 | **F-07** | 전문가 상태 및 운영시간 관리 | P1 | 평일/야간/주말 운영 시간 스키마 설계 및 상담 상태(3종: 가능, 지연, 불가) 매칭 적용 |
 | **F-08** | 가입자 기반 '좋아요' 평가 | P1 | **비즈니스 규칙**: 실제 상담 요청(연결 시도) 이력이 존재하는 사용자(세션 UUID 또는 계정)만 좋아요 평가 기능 권한 부여 |
@@ -106,9 +109,9 @@ version_project: 0.1.0
 | ID | Requirement | Priority | Status |
 |----|-------------|----------|--------|
 | **FR-01** | 자연어 입력 → 버티컬+긴급도 분류 (5버티컬: lawyer/labor/adjuster/tax/doctor) | High | Gemini API 연동 완료 (Edge Function 구현 필요) |
-| **FR-02** | 음성 입력 모바일 지원 (Flutter 마이크 및 미디어 레코더 활용) | High | Designed (voice-input-gemini) |
+| **FR-02** | 음성 입력 (웹 하이브리드 STT: Web Speech API + iOS Safari Gemini 오디오 폴백) | High | Designed/Implemented (voice-input-gemini) |
 | **FR-03** | AI 분류 기반 전문가 Top 3~5명 추천 (기본 모드 vs 긴급 모드 추천 룰 적용) | High | Pending |
-| **FR-04** | 전문가 미니홈피 웹뷰 표시 및 `tel:`, `sms:` URL Scheme 네이티브 연동 | High | Pending (WebView 기기 기능 트리거 필요) |
+| **FR-04** | 전문가 미니홈피 표시 및 `tel:`, `sms:` 링크 연동 (모바일 브라우저 네이티브 동작) | High | Pending |
 | **FR-05** | 상담 요청 프로세스 (상담 요청 생성 -> 전문가 앱 내 목록 조회 -> 수락/거절 및 답변) | High | Pending |
 | **FR-06** | 실제 상담 연결(요청) 이력이 있는 사용자만 '좋아요' 평가 기능 제공 | High | Pending |
 | **FR-07** | 어드민을 통한 전문가 등록/수정 및 초대 이메일 발송 | Medium | Pending |
@@ -173,8 +176,8 @@ version_project: 0.1.0
 
 | Decision | Selected | Rationale |
 |----------|----------|-----------|
-| **Framework** | Flutter (Mobile App) + Next.js (Admin/Webview Web) | Android/iOS 네이티브 앱 제공 및 웹 기반의 관리자/공개 프로필 연동 |
-| **AI 분류** | Supabase Edge Function + Gemini API (Flash-Lite) | API Key의 안전한 관리를 위해 서버 측(Edge Function)에서 Gemini API 호출 |
+| **Framework** | Next.js 16 웹/PWA (소비자 + 어드민 + 미니홈피 단일 저장소) | MVP 검증 속도·무비용·유튜브 유입 정합. Flutter는 Phase 2 옵션(§0) |
+| **AI 분류** | Next.js 서버 라우트 `/api/classify` + Gemini API (Flash-Lite, thinking off) | API Key의 안전한 관리를 위해 서버 측에서 Gemini 호출. 향후 Supabase Edge Function 이관 가능 |
 | **Backend/DB** | Supabase (Postgres + RLS + Auth + Edge Functions) | 서버 구축 비용 최소화 및 Flutter/Next.js 통합 백엔드 활용 |
 | **인증** | Supabase Auth | 전문가 Flutter 앱 로그인 및 어드민 로그인 통합 인증 |
 | **상태 관리/운영시간** | DB 스키마 설계 반영 | 평일/주말 운영시간 및 야간 상담 여부를 전문가 테이블에 포함하여 관리 |
@@ -220,13 +223,14 @@ version_project: 0.1.0
 
 ## 9. Next Steps
 
-1. [ ] Flutter 모바일 프로젝트 생성 및 Supabase SDK 연동 기초 설정
-2. [ ] Supabase Edge Function을 통한 Gemini API Key 프록시 기능 구현
-3. [ ] experts 및 requests, likes DB 테이블 스키마 생성 및 RLS 정책 정의
-4. [ ] Next.js 기반 어드민 대시보드(전문가 등록 및 초대 링크 이메일 발송) 개발
-5. [ ] Flutter WebView의 `tel:`, `sms:` URL Scheme 핸들러 가드 연동 설계
-6. [ ] MVP 핵심 기능 개발 완료 후, 배포 직전 단계에서 FCM/APNs 푸시 알림 및 실제 기기 전화 연결 테스트 진행
+1. [ ] **(선결 1순위)** 실 Supabase 프로젝트 연결 + experts/requests/likes/audit_log 테이블 스키마·RLS·Auth 활성 (admin-dashboard D-01)
+2. [ ] 소비자 핵심 루프 E2E 완성: 입력 → `/api/classify` 분류 → 추천 3~5명 → 상담요청(`requests`) 등록을 실데이터로
+3. [ ] Next.js 어드민 대시보드(전문가 등록 + 초대 링크 이메일 발송) 실연결 마무리
+4. [ ] 소비자 웹앱 PWA화(매니페스트·홈 화면 추가·기본 오프라인 셸)로 모바일 앱 유사 체감 확보
+5. [ ] 수동 검증 실험 병행("전화1→매칭1") — WTP/유튜브 전환 실측 (코드 완성과 무관하게 즉시)
+6. [ ] MVP 핵심 기능 완료 후, 배포 직전 단계에서 웹 푸시/알림톡 등 알림 및 실제 전화 연결 테스트
 7. [ ] 수익화 착수 전 변호사법/의료법 법무 자문 (구조 합법성 확정)
+8. [ ] (Phase 2 옵션) 수요 검증 후 Flutter 네이티브 앱 필요성 재평가 — 푸시/스토어 노출이 검증으로 확인될 때만
 
 
 ---
@@ -236,3 +240,4 @@ version_project: 0.1.0
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
 | 0.1 | 2026-05-19 | golgoru 전략 문서 8종 분석·통합 초안 (맥락 전달용) | Kim KJ |
+| 0.2 | 2026-06-09 | **아키텍처 정정**: MVP 소비자 앱 = Next.js 웹/PWA로 확정(코드 현실 정합). Flutter는 Phase 2 옵션으로 강등. §0·F-01~05·FR-02~04·§6.2·§9 갱신 | Kim KJ |

@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logAudit } from '@/lib/admin/audit';
 
-const SELECT = 'id,name,vertical,specialties,region,phone,experience_years,bio,youtube_url,is_available,is_active,created_at';
+const SELECT = 'id,name,vertical,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at';
 
 export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const guard = await requireAdmin();
@@ -12,8 +12,8 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '잘못된 요청' }, { status: 400 });
 
-  const patch = (({ name, vertical, specialties, region, phone, experience_years, bio, youtube_url, is_available, is_active }) =>
-    ({ name, vertical, specialties, region, phone, experience_years, bio, youtube_url, is_available, is_active }))(body);
+  const patch = (({ name, vertical, specialties, region, phone, experience_years, bio, youtube_url, status, weekday_start, weekday_end, weekend_available, night_available, is_active }) =>
+    ({ name, vertical, specialties, region, phone, experience_years, bio, youtube_url, status, weekday_start, weekday_end, weekend_available, night_available, is_active }))(body);
 
   const { data, error } = await supabaseAdmin
     .from('experts').update(patch).eq('id', id).select(SELECT).single();

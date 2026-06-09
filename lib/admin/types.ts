@@ -1,4 +1,4 @@
-import { Vertical } from '@/lib/types';
+import { ConsultStatus, Vertical } from '@/lib/types';
 
 export type AdminRole = 'super_admin' | 'operator';
 
@@ -17,7 +17,11 @@ export interface ExpertInput {
   experience_years: number;
   bio?: string;
   youtube_url?: string;
-  is_available: boolean;
+  status: ConsultStatus;
+  weekday_start?: string | null;
+  weekday_end?: string | null;
+  weekend_available: boolean;
+  night_available: boolean;
   is_active: boolean;
 }
 

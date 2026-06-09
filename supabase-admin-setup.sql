@@ -14,6 +14,7 @@ create table if not exists admin_users (
 alter table admin_users enable row level security;
 
 -- 본인 행 조회 / super_admin 은 전체 조회
+drop policy if exists "admin self select" on admin_users;
 create policy "admin self select" on admin_users
   for select using (
     auth.uid() = id
@@ -35,6 +36,7 @@ create table if not exists audit_log (
 alter table audit_log enable row level security;
 
 -- 인증된 어드민만 조회. insert 는 서버(service role, RLS 우회)만.
+drop policy if exists "audit select for admins" on audit_log;
 create policy "audit select for admins" on audit_log
   for select using (
     exists (select 1 from admin_users a where a.id = auth.uid())

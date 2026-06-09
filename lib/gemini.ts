@@ -7,15 +7,31 @@ function getAI() {
   return _ai;
 }
 
+// 직업별 카테고리 코드 (level-1 중분류). experts-taxonomy.design.md §4 와 동기화.
+const CATEGORY_GUIDE = `카테고리 코드 (선택한 vertical 안에서 가장 맞는 1개):
+- lawyer: LAW-01 형사 | LAW-02 민사·계약 | LAW-03 부동산·임대차 | LAW-04 가사 | LAW-05 기업법무 | LAW-06 행정 | LAW-07 의료(소송) | LAW-08 IT·지식재산(저작권·개인정보) | LAW-09 기타(회생·파산 등)
+- doctor: MED-01 응급·급성증상 | MED-02 내과·만성질환 | MED-03 정신건강 | MED-04 건강검진·예방 | MED-05 진료과안내·세컨드오피니언
+- labor: LAB-01 부당해고 | LAB-02 임금체불 | LAB-03 퇴직금 | LAB-04 징계 | LAB-05 직장내괴롭힘 | LAB-06 산업재해
+- patent: PAT-01 특허 | PAT-02 상표 | PAT-03 디자인 | PAT-04 실용신안 | PAT-05 해외출원·PCT
+- tax: TAX-01 기장 | TAX-02 재산제세(양도·상속·증여) | TAX-03 조사불복(세무조사) | TAX-04 컨설팅(가지급금·이익소각)
+- adjuster: INS-01 보험금청구 | INS-02 자동차 | INS-03 재산(화재·침수·도난) | INS-04 배상책임 | INS-05 특수보험
+- appraiser: APR-01 부동산감정평가 | APR-02 토지보상·수용 | APR-03 경매·담보감정 | APR-04 자산·동산평가`;
+
 const CLASSIFY_PROMPT = `당신은 골고루 SOS 서비스의 AI 분류기입니다.
 사용자가 처한 긴급 상황을 분석하여 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 절대 포함하지 마세요.
 
-버티컬 분류 기준:
-- lawyer: 법적 분쟁, 경찰, 형사, 민사, 계약, 사기, 이혼, 성추행, 폭행 등
-- labor: 해고, 임금체불, 직장 내 괴롭힘, 노동 분쟁, 근로계약 등
-- adjuster: 교통사고, 산재, 보험금, 손해배상, 화재 등
-- tax: 세무조사, 세금, 절세, 상속, 세금계산서, 부가세 등
-- doctor: 증상, 응급, 진단, 처방, 건강 이상, 병원 등
+버티컬(직업) 분류 기준:
+- lawyer(변호사): 형사·민사·계약·사기·이혼·성추행·폭행, 그리고 의료'소송'·행정소송 등 법적 분쟁
+- doctor(의사): 증상·응급·진단·건강 이상 등 건강 상담 (의료 '소송'은 lawyer)
+- labor(노무사): 해고·임금체불·퇴직금·직장 내 괴롭힘·징계·산업재해
+- patent(변리사): 특허·상표·디자인·실용신안 등 지식재산권 출원·침해
+- tax(세무사): 세무조사·세금신고·기장·양도/상속/증여세·절세 컨설팅
+- adjuster(손해사정사): 교통사고·산재·화재·재산 보험금, 배상책임 등 보험 손해사정
+- appraiser(감정평가사): 부동산 감정평가·토지 보상/수용·경매 감정
+
+규칙: 노동→labor, 세금→tax, 특허·상표→patent 로 보낸다(변호사 아님). 단 의료'소송'·행정소송은 lawyer.
+
+${CATEGORY_GUIDE}
 
 긴급도 기준:
 - 즉시: 경찰/병원/사고현장 등 지금 당장 필요한 상황
@@ -23,7 +39,7 @@ const CLASSIFY_PROMPT = `당신은 골고루 SOS 서비스의 AI 분류기입니
 - 일반: 며칠 내 상담으로 충분한 상황
 
 응답 형식 (JSON만, 마크다운 코드블록 없이):
-{"vertical":"...","category":"...","urgency":"...","keywords":[...],"summary":"..."}`;
+{"vertical":"...","category_code":"...","category":"...","urgency":"...","keywords":[...],"summary":"..."}`;
 
 // 오디오 입력용: 받아쓰기 + 분류를 1콜로 (설계 §4.2)
 const AUDIO_CLASSIFY_PROMPT = `${CLASSIFY_PROMPT}
@@ -42,22 +58,26 @@ export class GeminiConfigError extends Error {
 }
 
 // ── 로컬 키워드 분류기 (Gemini 할당량 초과 시 폴백) ──────────────────
-type Rule = { vertical: Vertical; category: string; urgency: Urgency; keywords: string[] };
+type Rule = { vertical: Vertical; code: string; category: string; urgency: Urgency; keywords: string[] };
 
 const RULES: Rule[] = [
-  { vertical: 'labor',    category: '부당해고',       urgency: '즉시', keywords: ['해고', '해직', '권고사직', '잘렸', '잘리'] },
-  { vertical: 'labor',    category: '임금체불',        urgency: '당일', keywords: ['월급', '임금', '급여', '체불', '안 줘', '못 받'] },
-  { vertical: 'labor',    category: '직장 내 괴롭힘',  urgency: '당일', keywords: ['직장', '괴롭힘', '상사', '갑질', '왕따'] },
-  { vertical: 'adjuster', category: '교통사고',        urgency: '즉시', keywords: ['교통사고', '사고 났', '차 사고', '충돌', '접촉사고'] },
-  { vertical: 'adjuster', category: '보험금 분쟁',     urgency: '당일', keywords: ['보험', '보험금', '산재', '손해'] },
-  { vertical: 'tax',      category: '세무조사',        urgency: '즉시', keywords: ['세무조사', '세무서', '국세청', '세금조사'] },
-  { vertical: 'tax',      category: '세금 상담',       urgency: '일반', keywords: ['세금', '부가세', '종합소득세', '상속세', '절세'] },
-  { vertical: 'doctor',   category: '응급 증상',       urgency: '즉시', keywords: ['응급', '쓰러', '호흡', '심장', '의식'] },
-  { vertical: 'doctor',   category: '건강 상담',       urgency: '당일', keywords: ['증상', '아파', '통증', '병원', '진단'] },
-  { vertical: 'lawyer',   category: '성범죄 무고',     urgency: '즉시', keywords: ['성추행', '성희롱', '무고', '강제추행', '성폭력'] },
-  { vertical: 'lawyer',   category: '형사 사건',       urgency: '즉시', keywords: ['경찰', '조사', '체포', '고소', '형사'] },
-  { vertical: 'lawyer',   category: '사기 피해',       urgency: '당일', keywords: ['사기', '속았', '피해', '돈 떼'] },
-  { vertical: 'lawyer',   category: '이혼/가사',       urgency: '일반', keywords: ['이혼', '양육', '가사', '위자료', '친권'] },
+  { vertical: 'labor',    code: 'LAB-01', category: '부당해고',      urgency: '즉시', keywords: ['해고', '해직', '권고사직', '잘렸', '잘리'] },
+  { vertical: 'labor',    code: 'LAB-02', category: '임금체불',      urgency: '당일', keywords: ['월급', '임금', '급여', '체불', '안 줘', '못 받'] },
+  { vertical: 'labor',    code: 'LAB-05', category: '직장 내 괴롭힘', urgency: '당일', keywords: ['직장', '괴롭힘', '상사', '갑질', '왕따'] },
+  { vertical: 'adjuster', code: 'INS-02', category: '교통사고 보험', urgency: '즉시', keywords: ['교통사고', '사고 났', '차 사고', '충돌', '접촉사고'] },
+  { vertical: 'adjuster', code: 'INS-01', category: '보험금 청구',   urgency: '당일', keywords: ['보험', '보험금', '산재', '손해사정'] },
+  { vertical: 'tax',      code: 'TAX-03', category: '조사불복',      urgency: '즉시', keywords: ['세무조사', '세무서', '국세청', '세금조사'] },
+  { vertical: 'tax',      code: 'TAX-02', category: '재산제세',      urgency: '일반', keywords: ['세금', '양도세', '상속세', '증여세', '절세'] },
+  { vertical: 'doctor',   code: 'MED-01', category: '응급 증상',     urgency: '즉시', keywords: ['응급', '쓰러', '호흡', '심장', '의식', '가슴통증'] },
+  { vertical: 'doctor',   code: 'MED-02', category: '건강 상담',     urgency: '당일', keywords: ['증상', '아파', '통증', '병원', '진단'] },
+  { vertical: 'lawyer',   code: 'LAW-01', category: '형사(성범죄)',  urgency: '즉시', keywords: ['성추행', '성희롱', '무고', '강제추행', '성폭력'] },
+  { vertical: 'lawyer',   code: 'LAW-01', category: '형사 사건',     urgency: '즉시', keywords: ['경찰', '조사', '체포', '고소', '형사', '사기', '속았', '돈 떼'] },
+  { vertical: 'lawyer',   code: 'LAW-04', category: '이혼/가사',     urgency: '일반', keywords: ['이혼', '양육', '가사', '위자료', '친권'] },
+  { vertical: 'lawyer',   code: 'LAW-03', category: '부동산·임대차', urgency: '일반', keywords: ['전세', '보증금', '임대차', '명도', '권리금'] },
+  { vertical: 'patent',   code: 'PAT-01', category: '특허',          urgency: '일반', keywords: ['특허', '실용신안', '지식재산', '특허침해'] },
+  { vertical: 'patent',   code: 'PAT-02', category: '상표',          urgency: '일반', keywords: ['상표', '브랜드 도용', '디자인권'] },
+  { vertical: 'appraiser', code: 'APR-01', category: '부동산 감정평가', urgency: '일반', keywords: ['감정평가', '부동산 평가', '시가 산정'] },
+  { vertical: 'appraiser', code: 'APR-02', category: '토지보상·수용', urgency: '일반', keywords: ['토지 보상', '수용', '보상금 산정', '경매 감정'] },
 ];
 
 function localClassify(query: string): ClassifyResult {
@@ -65,6 +85,7 @@ function localClassify(query: string): ClassifyResult {
     if (rule.keywords.some(kw => query.includes(kw))) {
       return {
         vertical: rule.vertical,
+        category_code: rule.code,
         category: rule.category,
         urgency: rule.urgency,
         keywords: rule.keywords.filter(kw => query.includes(kw)),
@@ -72,7 +93,7 @@ function localClassify(query: string): ClassifyResult {
       };
     }
   }
-  // 기본값: 법률 일반
+  // 기본값: 법률 일반 (코드 없이 vertical 폴백)
   return {
     vertical: 'lawyer',
     category: '법률 상담',
@@ -103,6 +124,7 @@ export async function classifyQuery(query: string): Promise<ClassifyResult> {
 
     return {
       vertical: parsed.vertical as Vertical,
+      category_code: parsed.category_code ?? undefined,
       category: parsed.category,
       urgency: parsed.urgency as Urgency,
       keywords: parsed.keywords,
@@ -159,6 +181,7 @@ export async function classifyAudio(
 
   return {
     vertical: parsed.vertical as Vertical,
+    category_code: parsed.category_code ?? undefined,
     category: parsed.category ?? '법률 상담',
     urgency: parsed.urgency as Urgency,
     keywords: parsed.keywords ?? [],

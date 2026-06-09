@@ -3,7 +3,12 @@ import { notFound } from 'next/navigation';
 import CallButton from '@/components/CallButton';
 import { getExpertRepository } from '@/lib/experts/repository';
 import { G, SHADOW_CARD } from '@/lib/tokens';
-import { VERTICAL_LABEL } from '@/lib/constants';
+import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
+
+// 'HH:mm[:ss]' → 'HH:mm'
+function hhmm(t?: string | null): string | null {
+  return t ? t.slice(0, 5) : null;
+}
 
 export default async function ExpertPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -61,7 +66,7 @@ export default async function ExpertPage({ params }: { params: Promise<{ id: str
             }}>
               <ShieldIcon /> 골고루 인증 멤버
             </span>
-            {expert.is_available && (
+            {expert.status === 'available' && (
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 background: 'rgba(255,255,255,0.10)', color: '#fff',
@@ -69,7 +74,7 @@ export default async function ExpertPage({ params }: { params: Promise<{ id: str
                 fontSize: 11, fontWeight: 700, letterSpacing: '-0.16px',
               }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', animation: 'gg-blink 1.4s ease-in-out infinite' }}/>
-                지금 통화 가능
+                {STATUS_LABEL[expert.status]}
               </span>
             )}
           </div>
@@ -103,6 +108,28 @@ export default async function ExpertPage({ params }: { params: Promise<{ id: str
               {expert.phone}
               <span style={{ marginLeft: 'auto', fontSize: 11, color: G.greenAccent, fontWeight: 700 }}>탭하면 연결</span>
             </a>
+          </Section>
+
+          {/* 운영 시간 */}
+          <Section title="상담 가능 시간">
+            <div style={{ background: '#fff', borderRadius: 12, boxShadow: SHADOW_CARD, padding: 4, display: 'flex', flexDirection: 'column' }}>
+              {[
+                ['평일', hhmm(expert.weekday_start) && hhmm(expert.weekday_end)
+                  ? `${hhmm(expert.weekday_start)} ~ ${hhmm(expert.weekday_end)}`
+                  : '운영시간 미등록'],
+                ['주말 상담', expert.weekend_available ? '가능' : '불가'],
+                ['야간 상담', expert.night_available ? '가능' : '불가'],
+                ['현재 상태', STATUS_LABEL[expert.status]],
+              ].map(([label, value], i, arr) => (
+                <div key={label} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 14px',
+                  borderBottom: i < arr.length - 1 ? `1px solid ${G.hairline}` : 'none',
+                }}>
+                  <span style={{ fontSize: 13, color: G.textSoft, letterSpacing: '-0.16px' }}>{label}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: G.textBlack, letterSpacing: '-0.16px' }}>{value}</span>
+                </div>
+              ))}
+            </div>
           </Section>
 
           {/* 소개 */}

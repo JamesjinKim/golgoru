@@ -4,7 +4,11 @@ import { mockExpertRepository } from './mock-repository';
 import { supabaseExpertRepository } from './supabase-repository';
 
 export interface ExpertRepository {
-  listRecommended(input: { vertical: Vertical; urgency?: Urgency | string | null }): Promise<Expert[]>;
+  listRecommended(input: {
+    vertical: Vertical;
+    urgency?: Urgency | string | null;
+    categoryCode?: string | null;
+  }): Promise<Expert[]>;
   findById(id: string): Promise<Expert | null>;
 }
 

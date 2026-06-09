@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logAudit } from '@/lib/admin/audit';
 
-const SELECT = 'id,name,vertical,specialties,region,phone,experience_years,bio,youtube_url,is_available,is_active,created_at';
+const SELECT = 'id,name,vertical,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at';
 
 export async function GET(req: NextRequest) {
   const guard = await requireAdmin();
@@ -41,7 +41,11 @@ export async function POST(req: NextRequest) {
       experience_years: body.experience_years ?? 0,
       bio: body.bio ?? null,
       youtube_url: body.youtube_url ?? null,
-      is_available: body.is_available ?? true,
+      status: body.status ?? 'available',
+      weekday_start: body.weekday_start ?? null,
+      weekday_end: body.weekday_end ?? null,
+      weekend_available: body.weekend_available ?? false,
+      night_available: body.night_available ?? false,
       is_active: body.is_active ?? true,
     })
     .select(SELECT)

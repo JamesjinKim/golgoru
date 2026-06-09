@@ -82,20 +82,10 @@ create trigger set_experts_updated_at
 -- 공개 읽기 허용 (소비자 조회용)
 alter table experts enable row level security;
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_policies
-    where schemaname = 'public'
-      and tablename = 'experts'
-      and policyname = '누구나 활성 전문가 조회 가능'
-  ) then
-    create policy "누구나 활성 전문가 조회 가능"
-      on experts for select
-      using (is_active = true);
-  end if;
-end $$;
+drop policy if exists "누구나 활성 전문가 조회 가능" on experts;
+create policy "누구나 활성 전문가 조회 가능"
+  on experts for select
+  using (is_active = true);
 
 -- 샘플 데이터 (테스트용 — 실제 데이터로 교체 필요)
 insert into experts (name, vertical, specialties, region, phone, experience_years, bio, is_available) values

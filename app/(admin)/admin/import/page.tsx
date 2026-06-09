@@ -36,7 +36,7 @@ export default function CsvImportPage() {
 
       <ol className="mb-5 space-y-1 text-sm text-slate-600">
         <li>① <a href="/api/admin/experts/template" className="text-blue-600">템플릿 CSV 다운로드</a> (헤더·예시 포함)</li>
-        <li>② specialties는 <code>|</code> 구분 (예: 형사|사기), vertical은 lawyer/labor/adjuster/tax/doctor</li>
+        <li>② specialties는 <code>|</code> 구분 (예: 형사|사기), vertical은 lawyer/doctor/labor/patent/tax/adjuster/appraiser</li>
         <li>③ 파일 선택 → 검증 → 미리보기 확인 → 등록</li>
       </ol>
 

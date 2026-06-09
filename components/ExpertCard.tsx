@@ -2,9 +2,10 @@
 import Link from 'next/link';
 import { Expert } from '@/lib/types';
 import { G, SHADOW_CARD, SHADOW_HIGHLIGHT } from '@/lib/tokens';
-import { VERTICAL_LABEL } from '@/lib/constants';
+import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
 
 export default function ExpertCard({ expert, highlight }: { expert: Expert; highlight?: boolean }) {
+  const live = expert.status === 'available';
   return (
     <div style={{
       background: '#fff', borderRadius: 16,
@@ -33,11 +34,6 @@ export default function ExpertCard({ expert, highlight }: { expert: Expert; high
                 <span style={{ fontSize: 16, fontWeight: 800, color: G.textBlack, letterSpacing: '-0.16px' }}>
                   {expert.name} {VERTICAL_LABEL[expert.vertical]}
                 </span>
-                {typeof expert.rating === 'number' && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 12, color: G.gold, fontWeight: 700 }}>
-                    <StarIcon /> {expert.rating.toFixed(1)}
-                  </span>
-                )}
               </div>
               <div style={{ fontSize: 12, color: G.textSoft, marginTop: 2, letterSpacing: '-0.16px' }}>
                 {expert.specialties?.slice(0, 2).join(' · ')} 전문
@@ -52,24 +48,19 @@ export default function ExpertCard({ expert, highlight }: { expert: Expert; high
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: expert.is_available ? G.greenLight : 'rgba(203,162,88,0.15)',
-              color: expert.is_available ? G.starbucksGreen : '#7a5a1a',
+              background: live ? G.greenLight : 'rgba(203,162,88,0.15)',
+              color: live ? G.starbucksGreen : '#7a5a1a',
               padding: '5px 10px', borderRadius: 50,
               fontSize: 11, fontWeight: 800, letterSpacing: '-0.16px',
             }}>
               <span style={{
                 width: 6, height: 6, borderRadius: '50%',
-                background: expert.is_available ? G.greenAccent : G.gold,
-                boxShadow: expert.is_available ? '0 0 0 3px rgba(0,117,74,0.18)' : 'none',
-                animation: expert.is_available ? 'gg-blink 1.4s ease-in-out infinite' : 'none',
+                background: live ? G.greenAccent : G.gold,
+                boxShadow: live ? '0 0 0 3px rgba(0,117,74,0.18)' : 'none',
+                animation: live ? 'gg-blink 1.4s ease-in-out infinite' : 'none',
               }}/>
-              {expert.is_available ? '지금 통화 가능' : '15분 내 회신'}
+              {STATUS_LABEL[expert.status]}
             </span>
-            {typeof expert.case_count === 'number' && (
-              <span style={{ fontSize: 11, color: G.textSoft, letterSpacing: '-0.16px' }}>
-                상담 {expert.case_count}건
-              </span>
-            )}
           </div>
         </div>
       </Link>
@@ -89,8 +80,8 @@ export default function ExpertCard({ expert, highlight }: { expert: Expert; high
           onClick={e => e.stopPropagation()}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            background: expert.is_available ? G.greenAccent : '#fff',
-            color: expert.is_available ? '#fff' : G.greenAccent,
+            background: live ? G.greenAccent : '#fff',
+            color: live ? '#fff' : G.greenAccent,
             border: `1.5px solid ${G.greenAccent}`,
             borderRadius: 50, padding: '9px 16px',
             fontSize: 13, fontWeight: 800, letterSpacing: '-0.16px',
@@ -108,13 +99,6 @@ export default function ExpertCard({ expert, highlight }: { expert: Expert; high
   );
 }
 
-function StarIcon() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-    </svg>
-  );
-}
 function PhoneIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">

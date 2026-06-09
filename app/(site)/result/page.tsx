@@ -30,7 +30,7 @@ export default function ResultPage() {
     const t2 = setTimeout(() => setStep(2), 700);
     const t3 = setTimeout(() => setStep(3), 1100);
 
-    fetch(`/api/experts?vertical=${result.vertical}&urgency=${result.urgency}`)
+    fetch(`/api/experts?vertical=${result.vertical}&urgency=${result.urgency}&category=${result.category_code ?? ''}`)
       .then(r => r.json())
       .then(data => {
         setTimeout(() => { setExperts(data.experts ?? []); setLoading(false); }, 1300);

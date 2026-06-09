@@ -1,20 +1,27 @@
 'use client';
 import { useState } from 'react';
 import { z } from 'zod';
-import { Expert, Vertical } from '@/lib/types';
+import { ConsultStatus, Expert, Vertical } from '@/lib/types';
+import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
 
-const VERTICALS: Vertical[] = ['lawyer', 'labor', 'adjuster', 'tax', 'doctor'];
+const VERTICALS: Vertical[] = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'];
+const STATUSES: ConsultStatus[] = ['available', 'delayed', 'unavailable'];
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const schema = z.object({
   name: z.string().trim().min(1, '이름 필수').max(50),
-  vertical: z.enum(['lawyer', 'labor', 'adjuster', 'tax', 'doctor']),
+  vertical: z.enum(['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser']),
   specialties: z.string(),
   region: z.string().trim().min(1, '지역 필수').max(50),
   phone: z.string().trim().regex(/^[0-9-]{7,20}$/, '전화 형식(숫자·하이픈 7~20)'),
   experience_years: z.coerce.number().int().min(0).max(80),
   bio: z.string().max(300).optional(),
   youtube_url: z.string().url('URL 형식').or(z.literal('')).optional(),
-  is_available: z.boolean(),
+  status: z.enum(['available', 'delayed', 'unavailable']),
+  weekday_start: z.string().regex(HHMM, 'HH:mm').or(z.literal('')).optional(),
+  weekday_end: z.string().regex(HHMM, 'HH:mm').or(z.literal('')).optional(),
+  weekend_available: z.boolean(),
+  night_available: z.boolean(),
   is_active: z.boolean(),
 });
 
@@ -30,7 +37,11 @@ export function ExpertForm({
     experience_years: String(initial?.experience_years ?? 0),
     bio: initial?.bio ?? '',
     youtube_url: initial?.youtube_url ?? '',
-    is_available: initial?.is_available ?? true,
+    status: (initial?.status ?? 'available') as ConsultStatus,
+    weekday_start: initial?.weekday_start?.slice(0, 5) ?? '09:00',
+    weekday_end: initial?.weekday_end?.slice(0, 5) ?? '18:00',
+    weekend_available: initial?.weekend_available ?? false,
+    night_available: initial?.night_available ?? false,
     is_active: initial?.is_active ?? true,
   });
   const [error, setError] = useState('');
@@ -48,6 +59,8 @@ export function ExpertForm({
       specialties: parsed.data.specialties.split('|').map((s) => s.trim()).filter(Boolean),
       youtube_url: parsed.data.youtube_url || null,
       bio: parsed.data.bio || null,
+      weekday_start: parsed.data.weekday_start || null,
+      weekday_end: parsed.data.weekday_end || null,
     };
     const res = await fetch(
       initial ? `/api/admin/experts/${initial.id}` : '/api/admin/experts',
@@ -73,7 +86,7 @@ export function ExpertForm({
         <div className="grid grid-cols-2 gap-3">
           <input className={field} placeholder="이름" value={form.name} onChange={(e) => set('name', e.target.value)} />
           <select className={field} value={form.vertical} onChange={(e) => set('vertical', e.target.value)}>
-            {VERTICALS.map((v) => <option key={v} value={v}>{v}</option>)}
+            {VERTICALS.map((v) => <option key={v} value={v}>{VERTICAL_LABEL[v]} ({v})</option>)}
           </select>
           <input className={field} placeholder="지역" value={form.region} onChange={(e) => set('region', e.target.value)} />
           <input className={field} placeholder="전화 (02-1234-5678)" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
@@ -81,8 +94,26 @@ export function ExpertForm({
           <input className={field} placeholder="전문분야 (형사|사기)" value={form.specialties} onChange={(e) => set('specialties', e.target.value)} />
           <input className={`${field} col-span-2`} placeholder="유튜브 URL (선택)" value={form.youtube_url} onChange={(e) => set('youtube_url', e.target.value)} />
           <textarea className={`${field} col-span-2`} rows={2} placeholder="소개 (선택)" value={form.bio} onChange={(e) => set('bio', e.target.value)} />
+
+          <label className="col-span-2 flex flex-col gap-1 text-xs text-slate-500">
+            상담 상태
+            <select className={field} value={form.status} onChange={(e) => set('status', e.target.value)}>
+              {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]} ({s})</option>)}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-slate-500">
+            평일 시작
+            <input type="time" className={field} value={form.weekday_start} onChange={(e) => set('weekday_start', e.target.value)} />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-slate-500">
+            평일 종료
+            <input type="time" className={field} value={form.weekday_end} onChange={(e) => set('weekday_end', e.target.value)} />
+          </label>
           <label className="flex items-center gap-2 text-sm text-slate-600">
-            <input type="checkbox" checked={form.is_available} onChange={(e) => set('is_available', e.target.checked)} /> 통화가능
+            <input type="checkbox" checked={form.weekend_available} onChange={(e) => set('weekend_available', e.target.checked)} /> 주말 상담
+          </label>
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <input type="checkbox" checked={form.night_available} onChange={(e) => set('night_available', e.target.checked)} /> 야간 상담
           </label>
           <label className="flex items-center gap-2 text-sm text-slate-600">
             <input type="checkbox" checked={form.is_active} onChange={(e) => set('is_active', e.target.checked)} /> 활성

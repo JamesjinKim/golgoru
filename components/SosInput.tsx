@@ -22,7 +22,10 @@ const EXAMPLES = [
   { tag: '형사', text: '성추행 오해 받았어요' },
   { tag: '노동', text: '갑자기 해고 통보 받았어요' },
   { tag: '교통', text: '교통사고 방금 났어요' },
+  { tag: '의료', text: '갑자기 가슴통증이 있어요' },
   { tag: '세무', text: '갑자기 세무조사가 나왔어요' },
+  { tag: '특허', text: '특허를 경쟁사가 무단 도용했어요' },
+  { tag: '감정', text: '토지 보상 부동산 감정평가가 필요해요' },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
