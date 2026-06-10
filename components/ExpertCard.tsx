@@ -12,7 +12,7 @@ export default function ExpertCard({ expert, highlight }: { expert: Expert; high
       boxShadow: highlight ? SHADOW_HIGHLIGHT : SHADOW_CARD,
       overflow: 'hidden', animation: 'gg-fade 0.4s ease',
     }}>
-      <Link href={`/expert/${expert.id}`} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+      <Link href={`/expert/${expert.id}?from=result`} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
         <div
           style={{ padding: '16px 16px 12px', display: 'flex', flexDirection: 'column', gap: 10 }}
           onPointerDown={e => (e.currentTarget.style.background = '#f9f9f9')}

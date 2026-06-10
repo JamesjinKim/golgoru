@@ -10,8 +10,12 @@ function hhmm(t?: string | null): string | null {
   return t ? t.slice(0, 5) : null;
 }
 
-export default async function ExpertPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ExpertPage({ params, searchParams }: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
+}) {
   const { id } = await params;
+  const inFlow = (await searchParams).from === 'result'; // 추천 플로우 진입 vs 단독(미니홈피) 진입
   const expert = await getExpertRepository().findById(id);
   if (!expert) notFound();
 
@@ -23,11 +27,11 @@ export default async function ExpertPage({ params }: { params: Promise<{ id: str
         display: 'flex', alignItems: 'center', gap: 12,
         borderBottom: `1px solid ${G.hairline}`, background: G.cream,
       }}>
-        <Link href="/result" style={{ color: G.textSoft, textDecoration: 'none', display: 'flex', alignItems: 'center', padding: 4 }}>
+        <Link href={inFlow ? '/result' : '/'} style={{ color: G.textSoft, textDecoration: 'none', display: 'flex', alignItems: 'center', padding: 4 }}>
           <ChevronLeftIcon />
         </Link>
         <span style={{ fontSize: 15, fontWeight: 700, color: G.textBlack, letterSpacing: '-0.16px' }}>전문가 프로필</span>
-        <span style={{ marginLeft: 'auto', fontSize: 12, color: G.textSoft, fontWeight: 600 }}>3 / 3</span>
+        {inFlow && <span style={{ marginLeft: 'auto', fontSize: 12, color: G.textSoft, fontWeight: 600 }}>3 / 3</span>}
       </header>
 
       <div style={{ flex: 1, paddingBottom: 120 }}>
