@@ -11,7 +11,7 @@ function getAI() {
 const CATEGORY_GUIDE = `카테고리 코드 (선택한 vertical 안에서 가장 맞는 1개):
 - lawyer: LAW-01 형사 | LAW-02 민사·계약 | LAW-03 부동산·임대차 | LAW-04 가사 | LAW-05 기업법무 | LAW-06 행정 | LAW-07 의료(소송) | LAW-08 IT·지식재산(저작권·개인정보) | LAW-09 기타(회생·파산 등)
 - doctor: MED-01 응급·급성증상 | MED-02 내과·만성질환 | MED-03 정신건강 | MED-04 건강검진·예방 | MED-05 진료과안내·세컨드오피니언
-- labor: LAB-01 부당해고 | LAB-02 임금체불 | LAB-03 퇴직금 | LAB-04 징계 | LAB-05 직장내괴롭힘 | LAB-06 산업재해
+- labor: LAB-01 노동사건(부당해고·임금체불·퇴직금·징계·직장내괴롭힘·노동위) | LAB-02 산재 | LAB-03 기업노무자문 | LAB-04 HR컨설팅 | LAB-05 산업안전 | LAB-06 노사관계 | LAB-07 건설노무
 - patent: PAT-01 특허 | PAT-02 상표 | PAT-03 디자인 | PAT-04 실용신안 | PAT-05 해외출원·PCT
 - tax: TAX-01 기장 | TAX-02 재산제세(양도·상속·증여) | TAX-03 조사불복(세무조사) | TAX-04 컨설팅(가지급금·이익소각)
 - adjuster: INS-01 보험금청구 | INS-02 자동차 | INS-03 재산(화재·침수·도난) | INS-04 배상책임 | INS-05 특수보험
@@ -61,9 +61,10 @@ export class GeminiConfigError extends Error {
 type Rule = { vertical: Vertical; code: string; category: string; urgency: Urgency; keywords: string[] };
 
 const RULES: Rule[] = [
-  { vertical: 'labor',    code: 'LAB-01', category: '부당해고',      urgency: '즉시', keywords: ['해고', '해직', '권고사직', '잘렸', '잘리'] },
-  { vertical: 'labor',    code: 'LAB-02', category: '임금체불',      urgency: '당일', keywords: ['월급', '임금', '급여', '체불', '안 줘', '못 받'] },
-  { vertical: 'labor',    code: 'LAB-05', category: '직장 내 괴롭힘', urgency: '당일', keywords: ['직장', '괴롭힘', '상사', '갑질', '왕따'] },
+  { vertical: 'labor',    code: 'LAB-01', category: '노동사건(부당해고)',  urgency: '즉시', keywords: ['해고', '해직', '권고사직', '잘렸', '잘리'] },
+  { vertical: 'labor',    code: 'LAB-01', category: '노동사건(임금체불)',  urgency: '당일', keywords: ['월급', '임금', '급여', '체불', '안 줘', '못 받', '퇴직금'] },
+  { vertical: 'labor',    code: 'LAB-01', category: '노동사건(괴롭힘)',    urgency: '당일', keywords: ['직장', '괴롭힘', '상사', '갑질', '왕따'] },
+  { vertical: 'labor',    code: 'LAB-02', category: '산재',                urgency: '당일', keywords: ['산재', '업무상 재해', '산업재해', '산재 신청'] },
   { vertical: 'adjuster', code: 'INS-02', category: '교통사고 보험', urgency: '즉시', keywords: ['교통사고', '사고 났', '차 사고', '충돌', '접촉사고'] },
   { vertical: 'adjuster', code: 'INS-01', category: '보험금 청구',   urgency: '당일', keywords: ['보험', '보험금', '산재', '손해사정'] },
   { vertical: 'tax',      code: 'TAX-03', category: '조사불복',      urgency: '즉시', keywords: ['세무조사', '세무서', '국세청', '세금조사'] },
