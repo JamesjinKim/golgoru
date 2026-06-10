@@ -17,7 +17,7 @@ delete from experts
 
 -- ── 3) 분야별 10명 생성 (7 분야 × 10 = 70) ──────────────────────────
 insert into experts
-  (name, vertical, specialties, region, phone, experience_years, bio, status,
+  (name, vertical, specialties, region, phone, experience_years, bio, youtube_url, status,
    weekday_start, weekday_end, weekend_available, night_available, is_active)
 select
   v.label || ' ' || lpad(g::text, 2, '0'),
@@ -28,6 +28,7 @@ select
   '02-' || lpad((v.idx * 100 + g)::text, 4, '0') || '-' || lpad((v.idx * 100 + g)::text, 4, '0'),
   4 + (g * 2),
   v.label || ' 분야 테스트 전문가입니다. (시드 데이터)',
+  'https://youtu.be/q8ywJUQtAmk?si=cJ4Ome5Et-Nr1mBq',   -- 테스트 공용 샘플 (실 전문가는 어드민에서 교체)
   case when g <= 6 then 'available'
        when g <= 8 then 'delayed'
        else 'unavailable' end,
