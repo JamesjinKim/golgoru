@@ -32,5 +32,7 @@ export type AuditAction =
   | 'expert.deactivate'
   | 'expert.delete'
   | 'expert.import'
+  | 'category.create'
+  | 'category.update'
   | 'auth.login.success'
   | 'auth.login.fail';

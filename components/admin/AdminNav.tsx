@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 const LINKS = [
   { href: '/admin', label: '전문가' },
+  { href: '/admin/categories', label: '카테고리' },
   { href: '/admin/import', label: 'CSV 일괄등록' },
   { href: '/admin/audit', label: '감사·접속' },
 ];
