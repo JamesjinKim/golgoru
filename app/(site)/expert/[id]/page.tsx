@@ -12,10 +12,16 @@ function hhmm(t?: string | null): string | null {
 
 export default async function ExpertPage({ params, searchParams }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ from?: string }>;
+  searchParams: Promise<{ from?: string; back?: string }>;
 }) {
   const { id } = await params;
-  const inFlow = (await searchParams).from === 'result'; // 추천 플로우 진입 vs 단독(미니홈피) 진입
+  const sp = await searchParams;
+  const inFlow = sp.from === 'result'; // 추천 플로우 진입 vs 단독(미니홈피) 진입
+  // 뒤로가기: 추천 플로우 → /result, 둘러보기 진입 → back(둘러보기 필터 보존), 그 외 → 홈
+  const fromBrowse = !inFlow && !!sp.back && sp.back.startsWith('/experts');
+  const backHref = inFlow ? '/result' : (sp.back && sp.back.startsWith('/') ? sp.back : '/');
+  // 화살표 옆 라벨 = 돌아갈 곳 (현재 페이지명이 아니라 목적지를 표기)
+  const backLabel = inFlow ? '추천 결과' : fromBrowse ? '전문가 목록' : '홈';
   const expert = await getExpertRepository().findById(id);
   if (!expert) notFound();
 
@@ -27,10 +33,10 @@ export default async function ExpertPage({ params, searchParams }: {
         display: 'flex', alignItems: 'center', gap: 12,
         borderBottom: `1px solid ${G.hairline}`, background: G.cream,
       }}>
-        <Link href={inFlow ? '/result' : '/'} style={{ color: G.textSoft, textDecoration: 'none', display: 'flex', alignItems: 'center', padding: 4 }}>
+        <Link href={backHref} style={{ color: G.textBlack, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, padding: 4, margin: -4 }}>
           <ChevronLeftIcon />
+          <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.16px' }}>{backLabel}</span>
         </Link>
-        <span style={{ fontSize: 15, fontWeight: 700, color: G.textBlack, letterSpacing: '-0.16px' }}>전문가 프로필</span>
         {inFlow && <span style={{ marginLeft: 'auto', fontSize: 12, color: G.textSoft, fontWeight: 600 }}>3 / 3</span>}
       </header>
 

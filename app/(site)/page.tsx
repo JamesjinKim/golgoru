@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import SosInput from '@/components/SosInput';
 import { G } from '@/lib/tokens';
 
@@ -18,12 +19,22 @@ export default function Home() {
             골고루
           </span>
         </div>
-        <div style={{
-          width: 32, height: 32, borderRadius: '50%',
-          border: `1px solid ${G.hairline}`, background: '#fff',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: G.textSoft, fontWeight: 700, fontSize: 13, cursor: 'pointer',
-        }}>유</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Link href="/experts" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            fontSize: 13, fontWeight: 700, color: G.starbucksGreen,
+            textDecoration: 'none', letterSpacing: '-0.16px',
+          }}>
+            전문가 둘러보기
+            <ChevronIcon />
+          </Link>
+          <div style={{
+            width: 32, height: 32, borderRadius: '50%',
+            border: `1px solid ${G.hairline}`, background: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: G.textSoft, fontWeight: 700, fontSize: 13, cursor: 'pointer',
+          }}>유</div>
+        </div>
       </header>
 
       <main style={{ flex: 1, padding: '16px 20px 24px' }}>
@@ -87,6 +98,15 @@ function SosIcon() {
       <circle cx="14" cy="14" r="13" fill="#c82014"/>
       <text x="14" y="16.5" textAnchor="middle" fontSize="8.5" fontWeight="800"
             fontFamily="'NanumSquareNeo', 'Inter', sans-serif" fill="#fff" letterSpacing="0.3">SOS</text>
+    </svg>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6" />
     </svg>
   );
 }

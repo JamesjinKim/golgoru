@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import type { Expert, Urgency, Vertical } from '@/lib/types';
-import type { ExpertRepository } from './repository';
+import { BROWSE_PAGE_SIZE, type ExpertRepository } from './repository';
 
 const SELECT = 'id,name,vertical,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at';
 
@@ -11,6 +11,21 @@ function shuffleExperts(experts: Expert[]): Expert[] {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
+}
+
+// 둘러보기 커서: 정렬키(status,name,id) 마지막 항목을 opaque base64 로 인코딩
+type BrowseCursor = { s: string; n: string; i: string };
+function encodeCursor(c: BrowseCursor): string {
+  return Buffer.from(JSON.stringify(c)).toString('base64url');
+}
+function decodeCursor(raw: string): BrowseCursor | null {
+  try {
+    const c = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8'));
+    if (typeof c?.s === 'string' && typeof c?.n === 'string' && typeof c?.i === 'string') return c;
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 export const supabaseExpertRepository: ExpertRepository = {
@@ -55,6 +70,57 @@ export const supabaseExpertRepository: ExpertRepository = {
     }
 
     return shuffleExperts(experts).slice(0, 3);
+  },
+
+  async listBrowse({ vertical, categoryCode, cursor, limit = BROWSE_PAGE_SIZE }) {
+    // 카테고리 필터: 해당 코드를 보유한 전문가 id 수집 (0명이면 빈 결과)
+    let categoryIds: string[] | null = null;
+    if (categoryCode) {
+      const { data: tagged } = await supabaseAdmin
+        .from('expert_categories')
+        .select('expert_id')
+        .eq('category_code', categoryCode);
+      categoryIds = (tagged ?? []).map((t: { expert_id: string }) => t.expert_id);
+      if (categoryIds.length === 0) return { experts: [], nextCursor: null };
+    }
+
+    let query = supabaseAdmin
+      .from('experts')
+      .select(SELECT)
+      .eq('is_active', true)
+      // status 알파벳순(available<delayed<unavailable) = 상담가능 우선, 이어서 가나다, id
+      .order('status', { ascending: true })
+      .order('name', { ascending: true })
+      .order('id', { ascending: true })
+      .limit(limit + 1); // 다음 페이지 존재 여부 판단용 +1
+
+    if (vertical) query = query.eq('vertical', vertical);
+    if (categoryIds) query = query.in('id', categoryIds);
+
+    if (cursor) {
+      const c = decodeCursor(cursor);
+      if (c) {
+        // keyset: (status,name,id) > 커서. PostgREST or() 안의 콤마는 항목 구분자
+        query = query.or(
+          `status.gt.${c.s},and(status.eq.${c.s},name.gt.${c.n}),and(status.eq.${c.s},name.eq.${c.n},id.gt.${c.i})`
+        );
+      }
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('[experts] supabase browse error:', error);
+      return { experts: [], nextCursor: null };
+    }
+
+    const rows = (data ?? []) as unknown as Expert[];
+    const hasMore = rows.length > limit;
+    const experts = hasMore ? rows.slice(0, limit) : rows;
+    const last = experts[experts.length - 1];
+    const nextCursor = hasMore && last
+      ? encodeCursor({ s: last.status, n: last.name, i: last.id })
+      : null;
+    return { experts, nextCursor };
   },
 
   async findById(id: string) {

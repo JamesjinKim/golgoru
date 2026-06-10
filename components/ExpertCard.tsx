@@ -4,15 +4,17 @@ import { Expert } from '@/lib/types';
 import { G, SHADOW_CARD, SHADOW_HIGHLIGHT } from '@/lib/tokens';
 import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
 
-export default function ExpertCard({ expert, highlight }: { expert: Expert; highlight?: boolean }) {
+export default function ExpertCard({ expert, highlight, href }: { expert: Expert; highlight?: boolean; href?: string }) {
   const live = expert.status === 'available';
+  // 기본: 추천 흐름(?from=result). 둘러보기 등 독립 진입은 href 로 override (예: /expert/[id])
+  const linkHref = href ?? `/expert/${expert.id}?from=result`;
   return (
     <div style={{
       background: '#fff', borderRadius: 16,
       boxShadow: highlight ? SHADOW_HIGHLIGHT : SHADOW_CARD,
       overflow: 'hidden', animation: 'gg-fade 0.4s ease',
     }}>
-      <Link href={`/expert/${expert.id}?from=result`} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+      <Link href={linkHref} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
         <div
           style={{ padding: '16px 16px 12px', display: 'flex', flexDirection: 'column', gap: 10 }}
           onPointerDown={e => (e.currentTarget.style.background = '#f9f9f9')}
