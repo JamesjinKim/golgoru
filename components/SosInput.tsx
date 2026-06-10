@@ -86,6 +86,7 @@ export default function SosInput() {
       const result: ClassifyResult = await res.json();
       sessionStorage.setItem('classifyResult', JSON.stringify(result));
       sessionStorage.setItem('sosQuery', text);
+      sessionStorage.removeItem('recommendedExperts'); // 새 검색 → 추천 캐시 비움(결과화면이 새로 조회)
       router.push(`/result?q=${encodeURIComponent(text)}`);
     } catch {
       setError('잠시 후 다시 시도해주세요.');

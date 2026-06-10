@@ -18,6 +18,31 @@ export default function ResultPage() {
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
 
+  // 추천 조회 → state + sessionStorage 캐시에 저장 (delay: 분석 애니메이션과 동기화용)
+  const loadExperts = (result: ClassifyResult, delay = 0) => {
+    fetch(`/api/experts?vertical=${result.vertical}&urgency=${result.urgency}&category=${result.category_code ?? ''}`)
+      .then(r => r.json())
+      .then(data => {
+        const list: Expert[] = data.experts ?? [];
+        setTimeout(() => {
+          setExperts(list);
+          sessionStorage.setItem('recommendedExperts', JSON.stringify(list));
+          setLoading(false);
+        }, delay);
+      })
+      .catch(() => { setError('전문가 정보를 불러오지 못했습니다.'); setLoading(false); });
+  };
+
+  // "새로 추천 받기" — 명시적 재셔플 (뒤로가기와 구분)
+  const reshuffle = () => {
+    if (!classify) return;
+    sessionStorage.removeItem('recommendedExperts');
+    setError('');
+    setLoading(true);
+    setExperts([]);
+    loadExperts(classify, 200);
+  };
+
   useEffect(() => {
     const stored = sessionStorage.getItem('classifyResult');
     const query = sessionStorage.getItem('sosQuery') ?? '';
@@ -26,18 +51,24 @@ export default function ResultPage() {
     setClassify(result);
     setSosQuery(query);
 
+    // 캐시된 추천이 있으면 복원 → 뒤로가기 시 같은 3인 유지 (재호출·재셔플 없음)
+    const cached = sessionStorage.getItem('recommendedExperts');
+    if (cached) {
+      try {
+        setExperts(JSON.parse(cached));
+        setStep(3);
+        setLoading(false);
+        return;
+      } catch { /* 파싱 실패 시 아래로 falls through → 새로 조회 */ }
+    }
+
     const t1 = setTimeout(() => setStep(1), 300);
     const t2 = setTimeout(() => setStep(2), 700);
     const t3 = setTimeout(() => setStep(3), 1100);
-
-    fetch(`/api/experts?vertical=${result.vertical}&urgency=${result.urgency}&category=${result.category_code ?? ''}`)
-      .then(r => r.json())
-      .then(data => {
-        setTimeout(() => { setExperts(data.experts ?? []); setLoading(false); }, 1300);
-      })
-      .catch(() => { setError('전문가 정보를 불러오지 못했습니다.'); setLoading(false); });
+    loadExperts(result, 1300);
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   return (
@@ -125,10 +156,24 @@ export default function ResultPage() {
         )}
 
         <div>
-          <div style={{
-            fontSize: 12, fontWeight: 700, color: G.textSoft,
-            letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 12,
-          }}>추천 전문가</div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+            <span style={{
+              fontSize: 12, fontWeight: 700, color: G.textSoft,
+              letterSpacing: '0.08em', textTransform: 'uppercase' as const,
+            }}>추천 전문가</span>
+            {!loading && !error && experts.length > 0 && (
+              <button
+                onClick={reshuffle}
+                style={{
+                  marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4,
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  color: G.greenAccent, fontSize: 12, fontWeight: 700, letterSpacing: '-0.16px', padding: 4,
+                }}
+              >
+                <RefreshIcon /> 새로 추천
+              </button>
+            )}
+          </div>
 
           {error && (
             <p style={{ color: G.red, fontSize: 13, textAlign: 'center', padding: '16px 0', letterSpacing: '-0.16px' }}>
@@ -230,6 +275,15 @@ function BoltIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  );
+}
+function RefreshIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 4 23 10 17 10"/>
+      <polyline points="1 20 1 14 7 14"/>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
     </svg>
   );
 }
