@@ -13,23 +13,23 @@ interface CommitRes {
 }
 type Cat = { code: string; vertical: Vertical; level: number; label: string };
 
-// 컬럼 가이드 (CSV_HEADERS 순서와 동일)
+// 컬럼 가이드 (한글 헤더 기준 · 템플릿과 동일 순서)
 const COLS: { key: string; desc: string; required: boolean; example: string }[] = [
-  { key: 'name', desc: '전문가 이름', required: true, example: '김변호' },
-  { key: 'vertical', desc: '직업 코드 (아래 표 참고)', required: true, example: 'lawyer' },
-  { key: 'specialties', desc: '전문분야(표시용 텍스트), | 로 구분', required: false, example: '형사|사기' },
-  { key: 'region', desc: '활동 지역', required: true, example: '서울 강남' },
-  { key: 'phone', desc: '전화번호 (숫자·하이픈, 중복 불가)', required: true, example: '02-1234-5678' },
-  { key: 'experience_years', desc: '경력(년), 숫자', required: false, example: '12' },
-  { key: 'bio', desc: '한 줄 소개', required: false, example: '형사 전문 12년' },
-  { key: 'youtube_url', desc: '유튜브 URL', required: false, example: 'https://youtube.com/@..' },
-  { key: 'weekday_start', desc: '평일 상담 시작 (HH:mm)', required: false, example: '09:00' },
-  { key: 'weekday_end', desc: '평일 상담 종료 (HH:mm)', required: false, example: '18:00' },
-  { key: 'weekend_available', desc: '주말 상담 가능 (Y/N)', required: false, example: 'N' },
-  { key: 'night_available', desc: '야간 상담 가능 (Y/N)', required: false, example: 'N' },
-  { key: 'status', desc: '상담 상태: available(가능)·delayed(지연)·unavailable(불가)', required: false, example: 'available' },
-  { key: 'category_codes', desc: '전문 카테고리 코드, | 로 구분 (아래 표 참고)', required: false, example: 'LAW-01|LAW-03' },
-  { key: 'is_active', desc: '노출 여부 (Y/N)', required: false, example: 'true' },
+  { key: '이름', desc: '전문가 이름', required: true, example: '김변호' },
+  { key: '직업', desc: '변호사·의사·노무사·변리사·세무사·손해사정사·감정평가사 (영문코드도 가능)', required: true, example: '변호사' },
+  { key: '전문분야', desc: '표시용 텍스트, | 로 구분', required: false, example: '형사|사기' },
+  { key: '지역', desc: '활동 지역', required: true, example: '서울 강남' },
+  { key: '전화번호', desc: '숫자·하이픈, 중복 불가', required: true, example: '02-1234-5678' },
+  { key: '경력', desc: '경력(년), 숫자', required: false, example: '12' },
+  { key: '소개', desc: '한 줄 소개', required: false, example: '형사 전문 12년' },
+  { key: '유튜브URL', desc: '유튜브 링크', required: false, example: 'https://youtu.be/..' },
+  { key: '평일시작', desc: '평일 상담 시작 (HH:mm)', required: false, example: '09:00' },
+  { key: '평일종료', desc: '평일 상담 종료 (HH:mm)', required: false, example: '18:00' },
+  { key: '주말상담', desc: '주말 가능 (Y/N)', required: false, example: 'N' },
+  { key: '야간상담', desc: '야간 가능 (Y/N)', required: false, example: 'N' },
+  { key: '상담상태', desc: '가능·지연·불가 (영문 available/delayed/unavailable도 가능)', required: false, example: '가능' },
+  { key: '카테고리코드', desc: '전문 분야 코드, | 로 구분 (아래 표 참고)', required: false, example: 'LAW-01|LAW-03' },
+  { key: '노출', desc: '노출 여부 (Y/N)', required: false, example: 'Y' },
 ];
 
 const VORDER: Vertical[] = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'];
@@ -105,7 +105,7 @@ export default function CsvImportPage() {
           <b>형식 규칙</b> · 여러 값은 <code className="rounded bg-amber-100 px-1">|</code> 로 구분 (예: <code className="rounded bg-amber-100 px-1">형사|사기</code>)
           · 예/아니오는 <code className="rounded bg-amber-100 px-1">Y</code>/<code className="rounded bg-amber-100 px-1">N</code> (또는 true/false)
           · 시간은 <code className="rounded bg-amber-100 px-1">HH:mm</code> · 빈 칸은 기본값 적용
-          · <b>category_codes</b> 는 비워도 되며, 비우면 전문가 등록 후 <b>수정 화면에서 칩으로 선택</b> 가능
+          · <b>카테고리코드</b> 는 비워도 되며, 비우면 전문가 등록 후 <b>수정 화면에서 칩으로 선택</b> 가능
         </div>
       </section>
 
@@ -113,7 +113,7 @@ export default function CsvImportPage() {
       <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="mb-1 text-sm font-bold text-slate-900">🏷 카테고리 코드 (직업별)</h2>
         <p className="mb-3 text-xs text-slate-500">
-          전문가가 다루는 분야 코드를 <code className="rounded bg-slate-100 px-1">category_codes</code> 칸에 <code className="rounded bg-slate-100 px-1">|</code> 로 넣으세요. 직업(vertical)에 맞는 코드만 인정됩니다.
+          전문가가 다루는 분야 코드를 <code className="rounded bg-slate-100 px-1">카테고리코드</code> 칸에 <code className="rounded bg-slate-100 px-1">|</code> 로 넣으세요. 직업에 맞는 코드만 인정됩니다.
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
           {VORDER.map((v) => {
