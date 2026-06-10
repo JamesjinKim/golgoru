@@ -5,7 +5,7 @@ import { ExpertInput } from './types';
 // D-05 / 설계 §6.5 — CSV 계약 (운영시간·3단계 상태·카테고리 포함)
 // 내부 표준 키는 영문(컬럼 순서 기준). 한글 헤더·값은 아래 별칭으로 흡수.
 export const CSV_HEADERS = [
-  'name', 'vertical', 'specialties', 'region', 'phone',
+  'name', 'vertical', 'license', 'specialties', 'region', 'phone',
   'experience_years', 'bio', 'youtube_url',
   'weekday_start', 'weekday_end', 'weekend_available', 'night_available', 'status',
   'category_codes', 'is_active',
@@ -13,20 +13,21 @@ export const CSV_HEADERS = [
 
 // 다운로드 템플릿에 쓰는 한글 헤더 (CSV_HEADERS 와 1:1 순서)
 export const KOREAN_HEADERS = [
-  '이름', '직업', '전문분야', '지역', '전화번호',
+  '이름', '직업', '자격', '전문분야', '지역', '전화번호',
   '경력', '소개', '유튜브URL',
   '평일시작', '평일종료', '주말상담', '야간상담', '상담상태',
   '카테고리코드', '노출',
 ] as const;
 
-// category_codes 는 선택 컬럼 — 없는 CSV도 허용(헤더 누락 검사에서 제외)
-const OPTIONAL_HEADERS: string[] = ['category_codes'];
+// 선택 컬럼 — 없는 CSV도 허용(헤더 누락 검사에서 제외)
+const OPTIONAL_HEADERS: string[] = ['category_codes', 'license'];
 
 // 헤더 별칭: 한글/변형 → 표준 영문 키 (영문 헤더는 그대로 통과)
 const HEADER_ALIASES: Record<string, string> = {
   ...Object.fromEntries(KOREAN_HEADERS.map((k, i) => [k, CSV_HEADERS[i]])),
   '전화': 'phone', '유튜브': 'youtube_url', '주말': 'weekend_available', '야간': 'night_available',
   '상태': 'status', '카테고리': 'category_codes', '활성': 'is_active', '노출여부': 'is_active',
+  '자격증': 'license', '직함': 'license',
 };
 
 const VERTICALS = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'] as const;
@@ -35,7 +36,7 @@ const STATUSES = ['available', 'delayed', 'unavailable'] as const;
 // 값 별칭: 한글 → 영문 코드 (영문도 그대로 허용)
 const VERTICAL_ALIAS: Record<string, string> = {
   '변호사': 'lawyer', '의사': 'doctor', '노무사': 'labor', '변리사': 'patent',
-  '세무사': 'tax', '손해사정사': 'adjuster', '감정평가사': 'appraiser',
+  '세무사': 'tax', '회계사': 'tax', '세무·회계': 'tax', '손해사정사': 'adjuster', '감정평가사': 'appraiser',
 };
 const STATUS_ALIAS: Record<string, string> = {
   '가능': 'available', '상담가능': 'available',
@@ -66,8 +67,10 @@ const rowSchema = z.object({
   name: z.string().trim().min(1, '이름 필수').max(50),
   vertical: z.preprocess(
     (v) => { const s = String(v ?? '').trim(); return VERTICAL_ALIAS[s] ?? s; },
-    z.enum(VERTICALS, { message: `직업은 변호사·의사·노무사·변리사·세무사·손해사정사·감정평가사 (또는 영문코드) 중 하나` }),
+    z.enum(VERTICALS, { message: `직업은 변호사·의사·노무사·변리사·세무사·회계사·손해사정사·감정평가사 (또는 영문코드) 중 하나` }),
   ),
+  // 표시용 자격명(선택). 비면 직역 라벨 사용. 세무 도메인은 세무사/회계사 구분에 사용
+  license: z.preprocess((v) => String(v ?? '').trim() || undefined, z.string().max(30).optional()),
   specialties: z.preprocess(
     (v) => String(v ?? '').split('|').map((s) => s.trim()).filter(Boolean),
     z.array(z.string()),
@@ -154,12 +157,17 @@ export function parseExpertsCsv(text: string): ParseResult {
 }
 
 export function buildTemplateCsv(): string {
-  // 한글 헤더 + 한글 값 예시 (직업=변호사, 상담상태=가능). 영문 코드도 허용됨.
-  const example = [
-    '김변호', '변호사', '형사|성범죄|사기', '서울 강남', '02-1234-5678',
+  // 한글 헤더 + 한글 값 예시 2행. '자격'은 비우면 직업명 사용(예시: 변호사=빈칸, 세무=회계사).
+  const example1 = [
+    '김변호', '변호사', '', '형사|성범죄|사기', '서울 강남', '02-1234-5678',
     '12', '형사 전문 12년', 'https://youtu.be/q8ywJUQtAmk',
     '09:00', '18:00', 'N', 'N', '가능', 'LAW-01|LAW-02', 'Y',
   ];
+  const example2 = [
+    '박회계', '회계사', '회계사', '법인세|세무조사|가지급금', '서울 영등포', '02-2345-6789',
+    '9', '회계감사·세무 9년', '',
+    '09:00', '18:00', 'N', 'N', '가능', 'TAX-01|TAX-03', 'Y',
+  ];
   // 앞에 UTF-8 BOM(﻿) → Excel(Windows)에서 한글 안 깨짐. 업로드 파서는 BOM을 벗겨냄.
-  return `﻿${KOREAN_HEADERS.join(',')}\n${example.join(',')}\n`;
+  return `﻿${KOREAN_HEADERS.join(',')}\n${example1.join(',')}\n${example2.join(',')}\n`;
 }

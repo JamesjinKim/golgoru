@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import CallButton from '@/components/CallButton';
 import { getExpertRepository } from '@/lib/experts/repository';
 import { G, SHADOW_CARD } from '@/lib/tokens';
-import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
+import { STATUS_LABEL, expertTitle } from '@/lib/constants';
 
 // 'HH:mm[:ss]' → 'HH:mm'
 function hhmm(t?: string | null): string | null {
@@ -56,7 +56,7 @@ export default async function ExpertPage({ params, searchParams }: {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.4px' }}>
-                {expert.name} {VERTICAL_LABEL[expert.vertical]}
+                {expert.name} {expertTitle(expert)}
               </div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4, letterSpacing: '-0.16px' }}>
                 {expert.specialties[0]} 전문 · 경력 {expert.experience_years}년
@@ -190,7 +190,7 @@ export default async function ExpertPage({ params, searchParams }: {
         padding: '12px 20px 32px',
         background: `linear-gradient(180deg, rgba(242,240,235,0) 0%, ${G.cream} 30%)`,
       }}>
-        <CallButton phone={expert.phone} name={expert.name} vertical={expert.vertical} />
+        <CallButton phone={expert.phone} name={expert.name} vertical={expert.vertical} license={expert.license} />
         <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: G.textSoft, letterSpacing: '-0.16px' }}>
           연결 후 첫 15분은 무료입니다
         </div>

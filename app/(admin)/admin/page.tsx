@@ -50,7 +50,11 @@ export default function AdminExpertsPage() {
     col.accessor('name', { header: '이름' }),
     col.accessor('vertical', {
       header: '직업',
-      cell: (c) => VERTICAL_LABEL[c.getValue()] ?? c.getValue(),
+      cell: (c) => {
+        const v = VERTICAL_LABEL[c.getValue()] ?? c.getValue();
+        const lic = c.row.original.license;
+        return lic ? `${v} · ${lic}` : v;
+      },
     }),
     col.accessor('status', {
       header: '상담상태',

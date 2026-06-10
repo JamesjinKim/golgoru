@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Expert } from '@/lib/types';
 import { G, SHADOW_CARD, SHADOW_HIGHLIGHT } from '@/lib/tokens';
-import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
+import { STATUS_LABEL, expertTitle } from '@/lib/constants';
 
 export default function ExpertCard({ expert, highlight, href }: { expert: Expert; highlight?: boolean; href?: string }) {
   const live = expert.status === 'available';
@@ -34,7 +34,7 @@ export default function ExpertCard({ expert, highlight, href }: { expert: Expert
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' as const }}>
                 <span style={{ fontSize: 16, fontWeight: 800, color: G.textBlack, letterSpacing: '-0.16px' }}>
-                  {expert.name} {VERTICAL_LABEL[expert.vertical]}
+                  {expert.name} {expertTitle(expert)}
                 </span>
               </div>
               <div style={{ fontSize: 12, color: G.textSoft, marginTop: 2, letterSpacing: '-0.16px' }}>

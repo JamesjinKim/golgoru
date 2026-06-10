@@ -13,6 +13,7 @@ const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 const schema = z.object({
   name: z.string().trim().min(1, '이름 필수').max(50),
   vertical: z.enum(['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser']),
+  license: z.string().trim().max(30).optional(),
   specialties: z.string(),
   region: z.string().trim().min(1, '지역 필수').max(50),
   phone: z.string().trim().regex(/^[0-9-]{7,20}$/, '전화 형식(숫자·하이픈 7~20)'),
@@ -33,6 +34,7 @@ export function ExpertForm({
   const [form, setForm] = useState({
     name: initial?.name ?? '',
     vertical: (initial?.vertical ?? 'lawyer') as Vertical,
+    license: initial?.license ?? '',
     specialties: (initial?.specialties ?? []).join('|'),
     region: initial?.region ?? '',
     phone: initial?.phone ?? '',
@@ -78,6 +80,7 @@ export function ExpertForm({
     const payload = {
       ...parsed.data,
       specialties: parsed.data.specialties.split('|').map((s) => s.trim()).filter(Boolean),
+      license: parsed.data.license?.trim() || null,
       youtube_url: parsed.data.youtube_url || null,
       bio: parsed.data.bio || null,
       weekday_start: parsed.data.weekday_start || null,
@@ -110,6 +113,7 @@ export function ExpertForm({
           <select className={field} value={form.vertical} onChange={(e) => changeVertical(e.target.value as Vertical)}>
             {VERTICALS.map((v) => <option key={v} value={v}>{VERTICAL_LABEL[v]} ({v})</option>)}
           </select>
+          <input className={`${field} col-span-2`} placeholder="자격 표시명 (세무·회계는 세무사/회계사 입력 · 비우면 직업명)" value={form.license} onChange={(e) => set('license', e.target.value)} />
           <input className={field} placeholder="지역" value={form.region} onChange={(e) => set('region', e.target.value)} />
           <input className={field} placeholder="전화 (02-1234-5678)" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
           <input className={field} placeholder="경력(년)" value={form.experience_years} onChange={(e) => set('experience_years', e.target.value)} />

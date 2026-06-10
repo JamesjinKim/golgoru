@@ -1,9 +1,9 @@
 'use client';
 import { Vertical } from '@/lib/types';
 import { G, SHADOW_FRAP } from '@/lib/tokens';
-import { VERTICAL_CALL_LABEL } from '@/lib/constants';
+import { expertCallLabel } from '@/lib/constants';
 
-export default function CallButton({ phone, name, vertical }: { phone: string; name: string; vertical: Vertical }) {
+export default function CallButton({ phone, name, vertical, license }: { phone: string; name: string; vertical: Vertical; license?: string | null }) {
   return (
     <a
       href={`tel:${phone}`}
@@ -21,7 +21,7 @@ export default function CallButton({ phone, name, vertical }: { phone: string; n
       onPointerLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
     >
       <PhoneIcon />
-      {name} {VERTICAL_CALL_LABEL[vertical]}
+      {name} {expertCallLabel({ vertical, license })}
     </a>
   );
 }

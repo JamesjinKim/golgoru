@@ -11,6 +11,7 @@ export interface AdminIdentity {
 export interface ExpertInput {
   name: string;
   vertical: Vertical;
+  license?: string | null; // 표시용 자격명(세무사/회계사 등). 비면 직역 라벨
   specialties: string[];
   region: string;
   phone: string;
