@@ -10,7 +10,7 @@ version_project: 0.1.0
 
 # golgoru-sos Planning Document (프로젝트 맥락 통합본)
 
-> **Summary**: 골고루 5개 전문직 버티컬을 잇는 "문제 → 전문가 매칭 엔진"의 첫 구현체. 이 저장소(golgoru-sos)는 전략 워크스페이스 `../golgoru`에서 도출된 **수요 엔진(Demand Engine) SOS MVP**를 실제 코드로 구현한다.
+> **Summary**: 골고루 7개 전문직 버티컬(변호사·의사·노무사·변리사·세무사·손해사정사·감정평가사)을 잇는 "문제 → 전문가 매칭 엔진"의 첫 구현체. 이 저장소(golgoru-sos)는 전략 워크스페이스 `../golgoru`에서 도출된 **수요 엔진(Demand Engine) SOS MVP**를 실제 코드로 구현한다.
 >
 > **Project**: golgoru-sos
 > **Version**: 0.1.0
@@ -28,7 +28,7 @@ version_project: 0.1.0
 | 영역 | 플랫폼 | 주요 역할 | 산출물 및 특징 |
 |---|---|---|---|
 | **소비자 앱 (MVP)** | **Next.js 웹 / PWA (Vercel)** | 일반 사용자 상황 입력(텍스트/음성), AI 추천 결과 확인, 상담 요청 | 모바일 브라우저 우선. `tel:`/`sms:`는 모바일 브라우저 네이티브 동작. 홈 화면 추가(PWA)로 앱 유사 체감 |
-| **백엔드** | **Supabase** | Auth, Database, Storage, Edge Functions, Realtime | API Serverless 아키처 (Gemini API Key는 Edge Functions/서버 라우트에서 보안 관리) |
+| **백엔드** | **Supabase** | Auth, Database, Storage, RLS, Realtime | Serverless 백엔드. **Gemini는 Next.js 서버 라우트(`/api/classify`)에서 호출**, 키 서버 보관 |
 | **관리자 페이지** | **Next.js + Vercel** | 전문가 등록/관리, 상담 요청 내역 모니터링 | 운영자 전용 어드민 대시보드 웹 ([app/(admin)/](../../../app/(admin)/) 구현됨) |
 | **전문가 미니홈피** | **Next.js + Vercel** | 전문가별 공개 프로필 및 상세 정보 제공 | 웹 라우트로 제공([app/(site)/expert/[id]](../../../app/(site)/expert/)). 향후 네이티브 앱 도입 시 WebView 타겟 |
 | **(Phase 2 옵션) 네이티브 앱** | **Flutter (Android/iOS)** | 푸시 알림(FCM/APNs) 등 네이티브 고유 기능이 검증으로 필요해질 때 | 수요 검증 완료 후 착수 결정. MVP 범위 아님 |
@@ -48,7 +48,7 @@ version_project: 0.1.0
 
 ### 1.2 Background (Why — 왜 이 사업이 되는가)
 
-- (주)골고루보상은 변호사·공인노무사·손해사정사·세무사·의사 5개 전문직을 유료 멤버로 보유, 유튜브 5채널 운영 중.
+- (주)골고루보상은 변호사·공인노무사·손해사정사·세무사·의사 등 전문직을 유료 멤버로 보유, 유튜브 채널 운영 중. (플랫폼 직업 분류는 현재 **7개로 확장**: 위 5개 + 변리사·감정평가사. 카테고리 정규화는 [experts-taxonomy.design.md](../../02-design/features/experts-taxonomy.design.md))
 - **공급(전문가) 측 수요는 이미 검증됨** — 전문가는 "인지도 + 자기만족 + 고객 유치" 3중 효과에 반응. 더 이상 검증 대상 아님.
 - **미검증 핵심 4질문 (이 MVP가 답해야 할 것)**:
   1. 일반 소비자가 돈 내고 쓸 것인가? (B2C WTP)
@@ -60,7 +60,7 @@ version_project: 0.1.0
 ### 1.3 Related Documents (전략 출처)
 
 - SSoT: `../golgoru/docs/product-strategy-foundation.md` — 통합 전략 원칙
-- Why: `../golgoru/docs/business-analysis.md` — 5버티컬 시장 전망
+- Why: `../golgoru/docs/business-analysis.md` — 전문직 버티컬 시장 전망
 - 도메인: `../golgoru/docs/platform-domains.md` — 10개 관리 도메인 (매칭 엔진 = Phase 1 핵심)
 - 콘텐츠: `../golgoru/docs/viral-hybrid-strategy.md` — 70:30 유입 미끼 전략
 - 브랜드: `../golgoru/docs/brand-positioning-discussion.md` — 평평한 입구/수직 프로필, 7→49→343→777 로드맵
@@ -77,7 +77,7 @@ version_project: 0.1.0
 | # | 기능 | 우선순위 | 설명 |
 |---|------|----------|------|
 | **F-01** | 자연어 텍스트/음성 입력 | P0 | 소비자 웹앱에서 사용자 상황을 자연어로 텍스트 혹은 음성 입력 ([SosInput.tsx](../../../components/SosInput.tsx)) |
-| **F-02** | AI 버티컬 분류 + 긴급도 판단 | P0 | Gemini API 기반 자연어 분석을 통해 5개 직군 분류 및 긴급도 자동 산출 (서버 라우트 `/api/classify` 경유, 키 서버 보관) |
+| **F-02** | AI 직업·카테고리 분류 + 긴급도 판단 | P0 | Gemini 자연어 분석으로 7개 직군 + 카테고리 코드(category_code) + 긴급도 산출 (서버 라우트 `/api/classify` 경유, 키 서버 보관) |
 | **F-03** | 전문가 추천 3~5명 표시 | P0 | 기본 모드(분야 적합도 우선) 및 긴급 모드(지역/거리/상태 가중) 기반의 카드형 추천 UI 제공 |
 | **F-04** | 전문가 상세 미니홈피 | P0 | Next.js 웹 라우트로 전문가 공개 프로필 표시 (네이티브 앱 도입 시 WebView 타겟) |
 | **F-05** | 상담 요청 프로세스 | P0 | 사용자가 전문가에게 상담 요청을 전송하고, 전문가는 요청 목록을 확인하여 수락/거절 및 간단 답변 전송 |
@@ -108,7 +108,7 @@ version_project: 0.1.0
 
 | ID | Requirement | Priority | Status |
 |----|-------------|----------|--------|
-| **FR-01** | 자연어 입력 → 버티컬+긴급도 분류 (5버티컬: lawyer/labor/adjuster/tax/doctor) | High | Gemini API 연동 완료 (Edge Function 구현 필요) |
+| **FR-01** | 자연어 입력 → 직업+카테고리+긴급도 분류 (7직업: lawyer/doctor/labor/patent/tax/adjuster/appraiser) | High | ✅ Done (`/api/classify` 서버 라우트, category_code 포함) |
 | **FR-02** | 음성 입력 (웹 하이브리드 STT: Web Speech API + iOS Safari Gemini 오디오 폴백) | High | Designed/Implemented (voice-input-gemini) |
 | **FR-03** | AI 분류 기반 전문가 Top 3~5명 추천 (기본 모드 vs 긴급 모드 추천 룰 적용) | High | Pending |
 | **FR-04** | 전문가 미니홈피 표시 및 `tel:`, `sms:` 링크 연동 (모바일 브라우저 네이티브 동작) | High | Pending |
@@ -123,8 +123,8 @@ version_project: 0.1.0
 |----------|----------|-------------|
 | **Performance** | 상황 입력 → AI 분석 → 추천 결과 화면 도달 8초 이내 | 실기기 및 에뮬레이터 QA 측정 |
 | **Compatibility** | Android 및 iOS 모바일 디바이스 지원 (다양한 해상도 최적화) | Android/iOS 실기기 테스트 |
-| **WebView Integration** | 웹뷰 내부의 전화/문자 버튼이 네이티브 다이얼러 및 문자앱을 정상 호출 | Flutter WebView Controller URL Scheme 파싱 가드 |
-| **Security** | Gemini API Key 등 민감 정보의 안전한 백엔드 관리 | Supabase Edge Functions 서버 측 호출만 허용 |
+| **모바일 연동** | 전화/문자 버튼이 모바일 브라우저에서 네이티브 다이얼러/문자앱을 호출 | `tel:`/`sms:` 링크(브라우저 기본 동작). 네이티브 앱 도입 시 WebView 가드 |
+| **Security** | Gemini API Key 등 민감 정보의 안전한 백엔드 관리 | Next.js 서버 라우트(서버 전용 env)에서만 호출 |
 | **Compliance** | 추천이 "중개·알선"이 아닌 "정보 제공/단순 연결" 구조 유지 | 법무 자문 및 수수료 수취 배제 |
 
 
@@ -136,7 +136,7 @@ version_project: 0.1.0
 
 1. **만들지 말고 팔아라** — 코드보다 검증 우선. MVP는 검증 도구.
 2. **전문가 직업군 선택은 시스템의 몫** — 소비자는 "내 문제"만 입력. 홈에 전문직 카테고리 타일 금지, 자연어 입력창 단일 진입(모래시계 아키텍처).
-3. **공급은 독립, 수요는 통합** — 소비자 입구 1개 → AI 분류 → 5버티컬 백엔드(멀티테넌트).
+3. **공급은 독립, 수요는 통합** — 소비자 입구 1개 → AI 분류 → 7직업 백엔드(멀티테넌트).
 4. **매칭이 심장, 콘텐츠는 연료** — 유튜브/콘텐츠는 유입 미끼, 매칭이 수익 엔진. (이 저장소 = 매칭/심장)
 5. **룰 70% + AI 30%** — MVP는 LLM 1콜 분류 + 단순 룰 추천. 딥러닝 금지. 데이터 플라이휠로 후에 정교화.
 6. **규제는 설계 제약** — 합법 구조가 기능보다 먼저(§5).
@@ -169,7 +169,7 @@ version_project: 0.1.0
 | Level | Selected |
 |-------|:--------:|
 | Starter | ☐ |
-| **Dynamic** (Flutter + BaaS 하이브리드) | ☑ |
+| **Dynamic** (Next.js 웹/PWA + BaaS) | ☑ |
 | Enterprise | ☐ |
 
 ### 6.2 Key Architectural Decisions
@@ -178,18 +178,20 @@ version_project: 0.1.0
 |----------|----------|-----------|
 | **Framework** | Next.js 16 웹/PWA (소비자 + 어드민 + 미니홈피 단일 저장소) | MVP 검증 속도·무비용·유튜브 유입 정합. Flutter는 Phase 2 옵션(§0) |
 | **AI 분류** | Next.js 서버 라우트 `/api/classify` + Gemini API (Flash-Lite, thinking off) | API Key의 안전한 관리를 위해 서버 측에서 Gemini 호출. 향후 Supabase Edge Function 이관 가능 |
-| **Backend/DB** | Supabase (Postgres + RLS + Auth + Edge Functions) | 서버 구축 비용 최소화 및 Flutter/Next.js 통합 백엔드 활용 |
-| **인증** | Supabase Auth | 전문가 Flutter 앱 로그인 및 어드민 로그인 통합 인증 |
+| **Backend/DB** | Supabase (Postgres + RLS + Auth) | 서버 구축 비용 최소화, Next.js 통합 백엔드 (Flutter는 Phase 2 옵션) |
+| **인증** | Supabase Auth | 어드민 로그인 통합 인증 (전문가 로그인은 Post-MVP) |
 | **상태 관리/운영시간** | DB 스키마 설계 반영 | 평일/주말 운영시간 및 야간 상담 여부를 전문가 테이블에 포함하여 관리 |
 | **웹뷰 기기 연동** | WebView Controller URL Scheme 파싱 가드 | 웹뷰(Next.js) 내 `tel:`, `sms:` 클릭 시 단말기 다이얼러/문자 앱 연결 핸들링 |
 
 ### 6.3 데이터 모델 현황 vs MVP 최종 목표
 
 ```
-[현재 구현 계획] 
-- experts: 전문가 기본 인적 사항, 활동 분야, 상세 운영시간, 상담 상태
-- requests: 사용자의 상담 요청 사항, 매칭 전문가 ID, 수락/거절 상태 및 답변 메시지
-- likes: 상담 요청/연결 완료 이력이 확인된 사용자의 좋아요 평가 내역 (중복 방지 정책 적용)
+[현재 구현됨] 
+- experts: 전문가 인적사항, 활동분야(specialties), 운영시간, 3단계 상담상태(status)
+- categories: 직업별 계층 카테고리 코드 (자기참조) — 정규화 분류
+- expert_categories: 전문가 ↔ 카테고리 다대다 매칭(score 없음, 랜덤 추천)
+- admin_users / audit_log: 어드민 역할·감사 로그
+- requests / likes: 테이블 생성됨. **상담요청 루프·좋아요는 Post-MVP**(전문가 응답 측 미구현)
 
 [전략 목표 (Phase 2 이후)]
 - problems(소비자 상세 문제 분석 데이터) + matches(실제 매칭 및 피드백 로그 데이터)
@@ -241,3 +243,4 @@ version_project: 0.1.0
 |---------|------|---------|--------|
 | 0.1 | 2026-05-19 | golgoru 전략 문서 8종 분석·통합 초안 (맥락 전달용) | Kim KJ |
 | 0.2 | 2026-06-09 | **아키텍처 정정**: MVP 소비자 앱 = Next.js 웹/PWA로 확정(코드 현실 정합). Flutter는 Phase 2 옵션으로 강등. §0·F-01~05·FR-02~04·§6.2·§9 갱신 | Kim KJ |
+| 0.3 | 2026-06-11 | **코드 정합화**: 5버티컬→**7직업**(변리사·감정평가사 추가, 회계사 제외), AI 분류에 **category_code** 반영, Edge Function 언급→Next.js 서버 라우트, 데이터모델에 categories/expert_categories 추가, requests/likes를 Post-MVP로 명시 | Kim KJ |
