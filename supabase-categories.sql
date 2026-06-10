@@ -54,13 +54,14 @@ insert into categories (code, parent_code, vertical, level, label) values
   ('MED-03', null, 'doctor', 1, '정신건강'),
   ('MED-04', null, 'doctor', 1, '건강검진·예방'),
   ('MED-05', null, 'doctor', 1, '진료과안내·세컨드오피니언'),
-  -- 노무사
-  ('LAB-01', null, 'labor', 1, '부당해고'),
-  ('LAB-02', null, 'labor', 1, '임금체불'),
-  ('LAB-03', null, 'labor', 1, '퇴직금'),
-  ('LAB-04', null, 'labor', 1, '징계'),
-  ('LAB-05', null, 'labor', 1, '직장내괴롭힘'),
-  ('LAB-06', null, 'labor', 1, '산업재해'),
+  -- 노무사 (v2: 노동사건 승격 — level-2 세부는 supabase-labor-categories.sql)
+  ('LAB-01', null, 'labor', 1, '노동사건'),
+  ('LAB-02', null, 'labor', 1, '산재'),
+  ('LAB-03', null, 'labor', 1, '기업 노무 자문'),
+  ('LAB-04', null, 'labor', 1, 'HR 컨설팅'),
+  ('LAB-05', null, 'labor', 1, '산업안전'),
+  ('LAB-06', null, 'labor', 1, '노사관계'),
+  ('LAB-07', null, 'labor', 1, '건설노무'),
   -- 변리사
   ('PAT-01', null, 'patent', 1, '특허'),
   ('PAT-02', null, 'patent', 1, '상표'),

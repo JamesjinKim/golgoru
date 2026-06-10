@@ -3,7 +3,7 @@
 create table if not exists experts (
   id uuid default gen_random_uuid() primary key,
   name text not null,
-  vertical text not null constraint experts_vertical_check check (vertical in ('lawyer', 'labor', 'adjuster', 'tax', 'doctor')),
+  vertical text not null constraint experts_vertical_check check (vertical in ('lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser')),
   specialties text[] not null default '{}',
   region text not null,
   phone text not null,
