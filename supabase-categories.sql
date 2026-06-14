@@ -46,7 +46,7 @@ insert into categories (code, parent_code, vertical, level, label) values
   ('LAW-05', null, 'lawyer', 1, '기업법무'),
   ('LAW-06', null, 'lawyer', 1, '행정'),
   ('LAW-07', null, 'lawyer', 1, '의료'),
-  ('LAW-08', null, 'lawyer', 1, 'IT·지식재산'),
+  ('LAW-08', null, 'lawyer', 1, 'IT·금융·지식재산'),
   ('LAW-09', null, 'lawyer', 1, '기타'),
   -- 의사
   ('MED-01', null, 'doctor', 1, '응급·급성증상'),
@@ -68,6 +68,7 @@ insert into categories (code, parent_code, vertical, level, label) values
   ('PAT-03', null, 'patent', 1, '디자인'),
   ('PAT-04', null, 'patent', 1, '실용신안'),
   ('PAT-05', null, 'patent', 1, '해외출원·PCT'),
+  ('PAT-06', null, 'patent', 1, '저작권(등록·상담)'),
   -- 세무사
   ('TAX-01', null, 'tax', 1, '기장'),
   ('TAX-02', null, 'tax', 1, '재산제세'),

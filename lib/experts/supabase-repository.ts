@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase';
-import type { Expert, Urgency, Vertical } from '@/lib/types';
+import type { Category, Expert, Urgency, Vertical } from '@/lib/types';
 import { BROWSE_PAGE_SIZE, type ExpertRepository } from './repository';
 
 const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at';
@@ -136,5 +136,29 @@ export const supabaseExpertRepository: ExpertRepository = {
     }
 
     return data as unknown as Expert;
+  },
+
+  // 미니홈피 표시용: 전문가 등록 카테고리(level-1, 라벨 포함). 추천 매칭과 동일한 소스
+  async findCategoriesByExpertId(id: string) {
+    const { data: tags } = await supabaseAdmin
+      .from('expert_categories')
+      .select('category_code')
+      .eq('expert_id', id);
+    const codes = (tags ?? []).map((t: { category_code: string }) => t.category_code);
+    if (codes.length === 0) return [];
+
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .select('code,parent_code,vertical,level,label,is_active')
+      .in('code', codes)
+      .eq('is_active', true)
+      .eq('level', 1)
+      .order('code', { ascending: true });
+
+    if (error) {
+      console.error('[experts] supabase categories error:', error);
+      return [];
+    }
+    return (data ?? []) as Category[];
   },
 };

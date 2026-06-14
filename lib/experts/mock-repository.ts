@@ -59,4 +59,9 @@ export const mockExpertRepository: ExpertRepository = {
   async findById(id: string) {
     return MOCK_EXPERTS.find((expert) => expert.id === id) ?? null;
   },
+
+  // mock 데이터는 카테고리 태깅이 없음 → 빈 배열. 미니홈피는 specialties 폴백 표시
+  async findCategoriesByExpertId() {
+    return [];
+  },
 };

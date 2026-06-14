@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import CallButton from '@/components/CallButton';
 import { getExpertRepository } from '@/lib/experts/repository';
 import { G, SHADOW_CARD } from '@/lib/tokens';
-import { STATUS_LABEL, expertTitle } from '@/lib/constants';
+import { STATUS_LABEL, expertTitle, categoryChipLabel } from '@/lib/constants';
 
 // 'HH:mm[:ss]' → 'HH:mm'
 function hhmm(t?: string | null): string | null {
@@ -22,8 +22,17 @@ export default async function ExpertPage({ params, searchParams }: {
   const backHref = inFlow ? '/result' : (sp.back && sp.back.startsWith('/') ? sp.back : '/');
   // 화살표 옆 라벨 = 돌아갈 곳 (현재 페이지명이 아니라 목적지를 표기)
   const backLabel = inFlow ? '추천 결과' : fromBrowse ? '전문가 목록' : '홈';
-  const expert = await getExpertRepository().findById(id);
+  const repo = getExpertRepository();
+  const [expert, categories] = await Promise.all([
+    repo.findById(id),
+    repo.findCategoriesByExpertId(id),
+  ]);
   if (!expert) notFound();
+
+  // 전문 분야 = 등록 카테고리(추천 매칭과 동일 소스). 미등록 전문가는 specialties 폴백
+  const hasCats = categories.length > 0;
+  const fieldChips = hasCats ? categories.map((c) => categoryChipLabel(c.label)) : expert.specialties;
+  const primaryField = fieldChips[0];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: G.cream }}>
@@ -59,7 +68,7 @@ export default async function ExpertPage({ params, searchParams }: {
                 {expert.name} {expertTitle(expert)}
               </div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4, letterSpacing: '-0.16px' }}>
-                {expert.specialties[0]} 전문 · 경력 {expert.experience_years}년
+                {primaryField ? `${primaryField} 전문 · ` : ''}경력 {expert.experience_years}년
               </div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', letterSpacing: '-0.16px' }}>
                 {expert.region}
@@ -91,10 +100,10 @@ export default async function ExpertPage({ params, searchParams }: {
         </div>
 
         <div style={{ padding: '20px 20px 0' }}>
-          {/* 전문 분야 */}
+          {/* 전문 분야 = 등록 카테고리(추천 매칭과 동일 소스). 미등록 시 specialties 폴백 */}
           <Section title="전문 분야">
             <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8 }}>
-              {expert.specialties.map(s => (
+              {fieldChips.map(s => (
                 <span key={s} style={{
                   background: '#fff', color: G.textBlack,
                   border: `1px solid ${G.hairline}`,
@@ -105,6 +114,22 @@ export default async function ExpertPage({ params, searchParams }: {
               ))}
             </div>
           </Section>
+
+          {/* 세부 강점 = 자유 텍스트 specialties (카테고리가 있을 때만 보조로 노출) */}
+          {hasCats && expert.specialties.length > 0 && (
+            <Section title="세부 강점">
+              <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8 }}>
+                {expert.specialties.map(s => (
+                  <span key={s} style={{
+                    background: 'transparent', color: G.textSoft,
+                    border: `1px solid ${G.hairline}`,
+                    padding: '5px 11px', borderRadius: 50,
+                    fontSize: 12, fontWeight: 600, letterSpacing: '-0.16px',
+                  }}>{s}</span>
+                ))}
+              </div>
+            </Section>
+          )}
 
           {/* 연락처 */}
           <Section title="연락처">

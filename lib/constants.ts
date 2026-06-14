@@ -38,3 +38,9 @@ export function expertCallLabel(e: { vertical: Vertical; license?: string | null
   const lic = e.license?.trim();
   return lic ? `${lic}에게 전화하기` : VERTICAL_CALL_LABEL[e.vertical];
 }
+
+// 카테고리 라벨을 칩 표시용으로 정리: 라우팅용 괄호 부연 제거
+// 예) '저작권(등록·상담)' → '저작권', '민사·계약' → '민사·계약'(변화 없음)
+export function categoryChipLabel(label: string): string {
+  return label.replace(/\s*\([^)]*\)\s*$/, '').trim();
+}

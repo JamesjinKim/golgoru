@@ -1,4 +1,4 @@
-import type { Expert, Urgency, Vertical } from '@/lib/types';
+import type { Category, Expert, Urgency, Vertical } from '@/lib/types';
 import { getExpertDataSource } from './data-source';
 import { mockExpertRepository } from './mock-repository';
 import { supabaseExpertRepository } from './supabase-repository';
@@ -25,6 +25,8 @@ export interface ExpertRepository {
     limit?: number;
   }): Promise<BrowsePage>;
   findById(id: string): Promise<Expert | null>;
+  // 미니홈피 '전문 분야' 표시용 — 전문가가 등록한 카테고리(level-1, 라벨 포함). 없으면 []
+  findCategoriesByExpertId(id: string): Promise<Category[]>;
 }
 
 export function getExpertRepository(): ExpertRepository {
