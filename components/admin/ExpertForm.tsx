@@ -76,10 +76,14 @@ export function ExpertForm({
     setError('');
     const parsed = schema.safeParse(form);
     if (!parsed.success) { setError(parsed.error.issues[0].message); return; }
+    // 운영 필수: 전문분야·전문 카테고리는 1개 이상 (추천 매칭·미니홈피 표시 기준)
+    const specialties = parsed.data.specialties.split('|').map((s) => s.trim()).filter(Boolean);
+    if (specialties.length === 0) { setError('전문분야를 1개 이상 입력하세요 (예: 형사|사기)'); return; }
+    if (categoryCodes.length === 0) { setError('전문 카테고리를 1개 이상 선택하세요'); return; }
     setSaving(true);
     const payload = {
       ...parsed.data,
-      specialties: parsed.data.specialties.split('|').map((s) => s.trim()).filter(Boolean),
+      specialties,
       license: parsed.data.license?.trim() || null,
       youtube_url: parsed.data.youtube_url || null,
       bio: parsed.data.bio || null,
@@ -117,13 +121,13 @@ export function ExpertForm({
           <input className={field} placeholder="지역" value={form.region} onChange={(e) => set('region', e.target.value)} />
           <input className={field} placeholder="전화 (02-1234-5678)" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
           <input className={field} placeholder="경력(년)" value={form.experience_years} onChange={(e) => set('experience_years', e.target.value)} />
-          <input className={field} placeholder="전문분야 (형사|사기)" value={form.specialties} onChange={(e) => set('specialties', e.target.value)} />
+          <input className={field} placeholder="전문분야 · 필수 (형사|사기)" value={form.specialties} onChange={(e) => set('specialties', e.target.value)} />
           <input className={`${field} col-span-2`} placeholder="유튜브 URL (선택)" value={form.youtube_url} onChange={(e) => set('youtube_url', e.target.value)} />
           <textarea className={`${field} col-span-2`} rows={2} placeholder="소개 (선택)" value={form.bio} onChange={(e) => set('bio', e.target.value)} />
 
           <div className="col-span-2">
             <div className="mb-1 text-xs text-slate-500">
-              전문 카테고리 <span className="text-slate-400">({VERTICAL_LABEL[form.vertical]} · 복수 선택, {categoryCodes.length}개)</span>
+              전문 카테고리 <span className="text-slate-400">({VERTICAL_LABEL[form.vertical]} · 필수 · 복수 선택, {categoryCodes.length}개)</span>
             </div>
             <div className="flex flex-wrap gap-1.5 rounded-md border border-slate-200 p-2">
               {verticalCats.length === 0 ? (

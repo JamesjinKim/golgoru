@@ -20,7 +20,8 @@ export const KOREAN_HEADERS = [
 ] as const;
 
 // 선택 컬럼 — 없는 CSV도 허용(헤더 누락 검사에서 제외)
-const OPTIONAL_HEADERS: string[] = ['category_codes', 'license'];
+// category_codes 는 운영 필수: 추천 매칭·미니홈피 표시의 기준이라 헤더 누락을 막는다.
+const OPTIONAL_HEADERS: string[] = ['license'];
 
 // 헤더 별칭: 한글/변형 → 표준 영문 키 (영문 헤더는 그대로 통과)
 const HEADER_ALIASES: Record<string, string> = {
@@ -73,7 +74,7 @@ const rowSchema = z.object({
   license: z.preprocess((v) => String(v ?? '').trim() || undefined, z.string().max(30).optional()),
   specialties: z.preprocess(
     (v) => String(v ?? '').split('|').map((s) => s.trim()).filter(Boolean),
-    z.array(z.string()),
+    z.array(z.string()).min(1, '전문분야 1개 이상 필요(예: 형사|사기)'),
   ),
   region: z.string().trim().min(1, '지역 필수').max(50),
   phone: z.string().trim().regex(/^[0-9-]{7,20}$/, '전화 형식(숫자·하이픈 7~20)'),
@@ -94,10 +95,11 @@ const rowSchema = z.object({
     (v) => { const s = String(v ?? '').trim(); return s === '' ? 'available' : (STATUS_ALIAS[s] ?? s.toLowerCase()); },
     z.enum(STATUSES, { message: `상담상태는 가능·지연·불가 (또는 available/delayed/unavailable) 중 하나` }),
   ),
-  // 카테고리 코드: '|' 구분, 형식 예) LAW-01 또는 TAX-02-01. 빈 값이면 []
+  // 카테고리 코드: '|' 구분, 형식 예) LAW-01 또는 TAX-02-01. 운영 필수 — 1개 이상.
   category_codes: z.preprocess(
     (v) => String(v ?? '').split('|').map((s) => s.trim().toUpperCase()).filter(Boolean),
-    z.array(z.string().regex(/^[A-Z]{3}-\d{2}(-\d{2})?$/, '카테고리 코드 형식(예: LAW-01)')),
+    z.array(z.string().regex(/^[A-Z]{3}-\d{2}(-\d{2})?$/, '카테고리 코드 형식(예: LAW-01)'))
+      .min(1, '카테고리 코드 1개 이상 필요(예: LAW-01)'),
   ),
   is_active: boolField(true),
 });
