@@ -10,7 +10,7 @@ export const STATUS_LABEL: Record<ConsultStatus, string> = {
 // 직역 라벨 = 문제 도메인. 세무는 세무사·회계사 두 자격을 포괄하므로 '세무·회계'
 export const VERTICAL_LABEL: Record<Vertical, string> = {
   lawyer:    '변호사',
-  doctor:    '의사',
+  doctor:    '병원',
   labor:     '노무사',
   patent:    '변리사',
   tax:       '세무·회계',
@@ -20,7 +20,7 @@ export const VERTICAL_LABEL: Record<Vertical, string> = {
 
 export const VERTICAL_CALL_LABEL: Record<Vertical, string> = {
   lawyer:    '변호사에게 전화하기',
-  doctor:    '의사에게 전화하기',
+  doctor:    '병원에 전화하기',
   labor:     '노무사에게 전화하기',
   patent:    '변리사에게 전화하기',
   tax:       '세무·회계 전문가에게 전화하기',
