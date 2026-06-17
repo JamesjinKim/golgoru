@@ -329,7 +329,7 @@ export default function SosInput() {
       </div>
 
       {/* 예시 상황 칩 */}
-      <div>
+      <div aria-hidden="true" style={{ display: 'none' }}>
         <div style={{
           fontSize: 12,
           fontWeight: 700,
@@ -387,6 +387,8 @@ export default function SosInput() {
 
       {/* 하단 전송 버튼 (pill) */}
       <button
+        aria-hidden="true"
+        data-testid="bottom-submit-hidden"
         onClick={handleSubmit}
         disabled={!canSubmit || loading || busy}
         onPointerDown={() => setSubmitPressed(true)}
@@ -405,7 +407,7 @@ export default function SosInput() {
           letterSpacing: '-0.16px',
           fontFamily: 'inherit',
           cursor: canSubmit && !busy ? 'pointer' : 'default',
-          display: 'flex',
+          display: 'none',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
