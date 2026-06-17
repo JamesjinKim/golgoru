@@ -28,6 +28,10 @@ const EXAMPLES = [
   { tag: '감정', text: '토지 보상 부동산 감정평가가 필요해요' },
 ];
 
+interface SosInputProps {
+  signedIn: boolean;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getSpeechRecognition(): any {
   if (typeof window === 'undefined') return null;
@@ -35,7 +39,7 @@ function getSpeechRecognition(): any {
   return (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition || null;
 }
 
-export default function SosInput() {
+export default function SosInput({ signedIn }: SosInputProps) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);      // 텍스트 분류 제출 중
   const [processing, setProcessing] = useState(false); // iOS 폴백: 받아쓰기 처리 중
@@ -71,9 +75,17 @@ export default function SosInput() {
     return () => { try { recognitionRef.current?.stop(); } catch {} };
   }, []);
 
+  const showLoginRequired = () => {
+    setError('로그인 후 사용할 수 있습니다.');
+  };
+
   const handleSubmit = async () => {
     const text = query.trim();
     if (!text || loading) return;
+    if (!signedIn) {
+      showLoginRequired();
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -169,6 +181,10 @@ export default function SosInput() {
   };
 
   const handleVoice = async () => {
+    if (!signedIn) {
+      showLoginRequired();
+      return;
+    }
     setError('');
     if (listening) { try { recognitionRef.current?.stop(); } catch {} return; }
     if (isRecording) { await stopAndTranscribe(); return; }
@@ -186,11 +202,11 @@ export default function SosInput() {
     ? '🎤 실시간 받아쓰는 중…'
     : isRecording
       ? '🎤 듣는 중…'
-      : processing
-        ? '받아쓰는 중…'
-        : query.length === 0
-          ? '비공개 · 암호화 전송'
-          : `${query.length}자`;
+        : processing
+          ? '받아쓰는 중…'
+          : query.length === 0
+            ? '비공개 · 암호화 전송'
+            : `${query.length}자`;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>

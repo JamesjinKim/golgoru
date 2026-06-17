@@ -76,7 +76,7 @@ export default async function Home() {
             }}>말하거나 입력하면, 적합한 전문가를 바로 추천해 드려요.</p>
           </div>
         </div>
-        <SosInput />
+        <SosInput signedIn={Boolean(profile)} />
       </main>
 
       <footer style={{

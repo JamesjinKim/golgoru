@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/lib/auth/profile';
 import { formatUserLabel } from '@/lib/auth/profile';
+import { startUserLogin } from '@/lib/auth/startUserLogin';
 import { userSupabaseBrowser } from '@/lib/auth/supabaseBrowser';
 import { G } from '@/lib/tokens';
 
@@ -20,15 +21,9 @@ export default function UserAuthChip({ profile }: UserAuthChipProps) {
   const login = async () => {
     setLoading(true);
     setError('');
-    const supabase = userSupabaseBrowser();
-    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    const redirectTo = `${window.location.origin}/auth/callback?returnTo=${encodeURIComponent(returnTo)}`;
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo },
-    });
-
-    if (oauthError) {
+    try {
+      await startUserLogin();
+    } catch {
       setError('로그인 연결에 실패했습니다.');
       setLoading(false);
     }
