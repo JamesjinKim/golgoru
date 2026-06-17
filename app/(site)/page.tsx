@@ -1,9 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import SosInput from '@/components/SosInput';
+import UserAuthChip from '@/components/UserAuthChip';
+import { getCurrentUserProfile } from '@/lib/auth/user';
 import { G } from '@/lib/tokens';
 
-export default function Home() {
+export default async function Home() {
+  const { profile } = await getCurrentUserProfile();
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: G.cream }}>
       <header style={{
@@ -28,16 +32,7 @@ export default function Home() {
             전문가 둘러보기
             <ChevronIcon />
           </Link>
-          {/* 로그인 칩 (디자인 확인용 — 인증 동작은 추후 §7.2 바텀시트로 연결) */}
-          <button style={{
-            display: 'inline-flex', alignItems: 'center', gap: 5,
-            padding: '7px 13px', borderRadius: 50,
-            background: '#fff', border: `1px solid ${G.hairline}`,
-            color: G.textSoft, fontSize: 13, fontWeight: 700,
-            letterSpacing: '-0.16px', cursor: 'pointer', fontFamily: 'inherit',
-          }}>
-            <PersonIcon /> 로그인
-          </button>
+          <UserAuthChip profile={profile} />
         </div>
       </header>
 
@@ -111,16 +106,6 @@ function ChevronIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
          stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="9 18 15 12 9 6" />
-    </svg>
-  );
-}
-
-function PersonIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
     </svg>
   );
 }
