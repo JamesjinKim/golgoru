@@ -1,6 +1,8 @@
 import type { User } from '@supabase/supabase-js';
 import { supabaseAdmin } from '@/lib/supabase';
+import { hasSupabasePublicConfig } from '@/lib/env';
 import { getUserServerSupabase } from './supabaseServer';
+import { isInvalidRefreshTokenError } from './cookies';
 import { mapAuthUserToProfileRow, type UserProfile } from './profile';
 
 export interface CurrentUserProfile {
@@ -41,8 +43,19 @@ export async function upsertUserProfileFromAuthUser(user: User): Promise<UserPro
 }
 
 export async function getCurrentUserProfile(): Promise<CurrentUserProfile> {
+  if (!hasSupabasePublicConfig()) {
+    return { user: null, profile: null };
+  }
+
   const supabase = await getUserServerSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError) {
+    if (!isInvalidRefreshTokenError(userError)) {
+      console.error('[auth] user lookup error:', userError);
+    }
+    return { user: null, profile: null };
+  }
 
   if (!user) {
     return { user: null, profile: null };

@@ -1,13 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://placeholder.supabase.co';
-const ANON = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? 'placeholder';
+import { getSupabasePublishableKey, getSupabaseUrl } from '@/lib/env';
 
 // 어드민 인증 경계 (Next 16: proxy 규칙). 소비자 라우트는 matcher 밖 → 무영향(§2.6).
 export async function proxy(req: NextRequest) {
   const res = NextResponse.next();
-  const supabase = createServerClient(URL, ANON, {
+  const supabase = createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
     cookies: {
       getAll: () => req.cookies.getAll(),
       setAll: (toSet) =>
