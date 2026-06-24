@@ -253,12 +253,65 @@ create policy expert_read on consultations
     </ul>
   </section>
 
+  <div class="callout ok" style="margin:32px 0 8px;">
+    ✅ <strong>코드 조사 완료 (2026-06-25)</strong> — 현재 <code>requests</code>/<code>likes</code>/<code>consultations</code>에
+    INSERT하는 코드가 한 곳도 없음. 즉 상담을 전문가에게 <strong>전송하는 기능 자체가 아직 미구현</strong>.
+    "잘못 저장 중인 걸 고치는" 상황이 아니라, <strong>전송 기능을 만들기 전에 개인정보 뼈대를 먼저 세우는</strong> 깨끗한 출발점.
+  </div>
+
+  <section>
+    <h2><span class="num">7</span>적용 설계안 (1/3): 범위 · 핵심 원칙 · 데이터 모델</h2>
+
+    <p><strong>문서 위치(예정):</strong> <code>docs/02-design/features/privacy-consent.design.md</code> (CLAUDE.md의 design-docs 컨벤션 준수)</p>
+    <p><strong>범위:</strong> 이번엔 <strong>설계서만</strong> 확정. 코드 변경 없음. 실제 구현은 "전문가 연결(전송) 기능" 개발 시 이 스펙을 따른다.</p>
+
+    <h3>핵심 원칙 (확정된 결정)</h3>
+    <ol>
+      <li><strong>의료(MED)는 상담 텍스트 비저장</strong> — 건강정보=민감정보(§23) 트랙 회피</li>
+      <li><strong>그 외 분야는 매칭된 전문가에게 제공</strong> — 법적 성격 = <strong>제3자 제공(§17)</strong>, 위탁 아님</li>
+      <li><strong>저장 항목은 최소화</strong>: 이름·전화번호·요청내용만</li>
+      <li><strong>보유기간 90일</strong> (상담 종료 후 90일 이내 파기)</li>
+      <li><strong>제공 시점 = 2개 포인트</strong>: ① 전화버튼 클릭 &nbsp;② 상담요청 버튼 클릭(미구현)</li>
+      <li><strong>동의 = 최초 로그인 직후 1회</strong> (4종)</li>
+    </ol>
+
+    <h3>데이터 모델 (<code>requests</code>로 통일)</h3>
+    <table>
+      <tr><th>테이블</th><th>역할</th><th>비고</th></tr>
+      <tr>
+        <td><code>requests</code> <span class="tag opt">기존 재사용</span></td>
+        <td>상담 본체. 항목: 이름·전화·query(요청내용)·vertical·urgency</td>
+        <td>의료 분리: <code>vertical='MED'</code>면 query 비저장 + <strong>DB CHECK 제약 + 서버 코드 이중 강제</strong></td>
+      </tr>
+      <tr>
+        <td><code>consent_log</code> <span class="tag req">신규</span></td>
+        <td>동의 이력 (누가·언제·어떤 버전 동의)</td>
+        <td>§4 스키마 초안 기준</td>
+      </tr>
+      <tr>
+        <td><code>provision_log</code> <span class="tag req">신규</span></td>
+        <td>제공 내역 (언제·누구에게 제공, retention_until)</td>
+        <td>제공 이벤트 2포인트에서 기록</td>
+      </tr>
+      <tr>
+        <td><code>consultations</code> <span class="tag" style="background:#eee;color:#777;">폐기</span></td>
+        <td>—</td>
+        <td><code>requests</code>로 통일하여 스키마 중복 제거</td>
+      </tr>
+    </table>
+
+    <div class="callout warn">
+      현재 <code>requests</code>에는 <code>name</code>·<code>phone</code> 컬럼이 없음(<code>query</code>·<code>session_id</code>만 존재).
+      → 이름·전화 컬럼 <strong>추가 필요</strong> (구현 시 마이그레이션).
+    </div>
+  </section>
+
   <div class="status">
     <strong>다음 단계 (추가 토의 후 진행)</strong>
     <ul>
-      <li>상담 텍스트의 현재 저장 경로·테이블 확인 (저장 라우트/함수)</li>
-      <li>experts 테이블 및 매칭 로직 존재 여부 확인</li>
-      <li>위 설계안과 현재 코드 구조의 갭 정리 → 실제 구현 적용</li>
+      <li>설계안 2/3: 동의 흐름 · 제공 이벤트 · 의료 분리 강제 메커니즘</li>
+      <li>설계안 3/3: 스키마 SQL · RLS · 보호조치 매핑</li>
+      <li>합의 완료 후 <code>docs/02-design/features/privacy-consent.design.md</code>로 정제 → 구현은 전송 기능 개발 시</li>
     </ul>
   </div>
 
