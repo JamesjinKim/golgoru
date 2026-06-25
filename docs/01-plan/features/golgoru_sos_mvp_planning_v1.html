@@ -167,15 +167,17 @@
     </section>
 
     <section class="card" style="border-color:#f59e0b;background:#fffbeb;">
-      <h2 style="border-color:#f59e0b;">⚠ 개정 안내 (2026-06-11) — 현재 코드 기준</h2>
-      <p>이 문서는 v1(2026-06-08) 초기 기획본입니다. 이후 코드가 다음과 같이 확정되어, 아래 내용으로 읽으십시오. <strong>정책(추천 3~5·기본/긴급 모드·좋아요 only·상태 3종+운영시간·어드민 등록·비회원)은 그대로 유효</strong>합니다.</p>
+      <h2 style="border-color:#f59e0b;">⚠ 개정 안내 (2026-06-16) — 로그인 정책 반영</h2>
+      <p>이 문서는 v1(2026-06-08) 초기 기획본입니다. 이후 코드와 기획 방향이 다음과 같이 확정되어, 아래 내용으로 읽으십시오. <strong>추천 3~5·기본/긴급 모드·좋아요 only·상태 3종+운영시간·어드민 등록 정책은 유지</strong>하되, 일반 사용자 정책은 <strong>게스트 탐색 + 로그인 후 AI 추천 확인/전문가 연결</strong>로 개정합니다.</p>
       <ul>
         <li><strong>MVP 소비자 앱 = Next.js 웹/PWA</strong> (Flutter 네이티브 앱은 수요 검증 후 <strong>Phase 2 옵션</strong>).</li>
         <li><strong>AI 분류 = Next.js 서버 라우트</strong>(<code>/api/classify</code>)에서 Gemini 호출 (Edge Function 아님). 직업+<strong>카테고리 코드</strong>+긴급도 산출.</li>
-        <li><strong>전문가 미니홈피 = 웹 라우트</strong>(<code>/expert/[id]</code>). 전화/문자는 모바일 브라우저 <code>tel:</code>/<code>sms:</code>.</li>
+        <li><strong>일반 사용자 로그인 = Supabase Auth OAuth</strong>. MVP에서는 카카오톡 로그인과 구글 인증 로그인만 제공한다.</li>
+        <li><strong>전문가 미니홈피 = 웹 라우트</strong>(<code>/expert/[id]</code>). 비로그인 일부 조회는 가능하나 전화/문자 연결은 로그인 후 모바일 브라우저 <code>tel:</code>/<code>sms:</code>로 실행한다.</li>
         <li><strong>직업 7개</strong>: 변호사·의사·노무사·변리사·세무사·손해사정사·감정평가사 (+ 직업별 카테고리 정규화).</li>
-        <li><strong>Post-MVP(향후)</strong>: 상담요청 루프·전문가 앱·푸시 알림·전문가 초대메일·좋아요 평가. (테이블만 선반영)</li>
+        <li><strong>Post-MVP(향후)</strong>: 상담 요청에 대한 전문가 응답 루프·전문가 앱·푸시 알림·전문가 초대메일·좋아요 평가. (테이블만 선반영)</li>
       </ul>
+      <div class="note">기존 <code>docs/02-design/features/auth-social-login.design.md</code>에는 “입력→추천→전화 비로그인” 정책이 남아 있으므로, 후속 설계 문서 동기화 시 동일한 로그인 게이트 정책으로 개정해야 합니다.</div>
       <p>최신 확정 플랜은 <code>golgoru-sos.plan.md</code> / <code>admin-dashboard.plan.md</code> 참조.</p>
     </section>
 
@@ -185,13 +187,15 @@
       <div class="decision">핵심 방향: 단순 전문가 검색이 아니라 “상황 기반 AI 전문가 추천·연결 서비스”로 정의한다.</div>
       <pre>사용자 상황 입력
 → Gemini 기반 의미 분석 (직업 + 카테고리)
+→ 로그인 확인 / 소셜 로그인 유도
 → 전문가 3~5명 추천
 → 전문가 프로필/미니홈피 확인
-→ 전화 / 문자 연결            ◀── 여기까지 MVP
+→ 전화 / 문자 연결
+→ 상담 요청 생성              ◀── 여기까지 MVP (로그인 사용자)
 ─────────────────────────────
-→ 상담 요청 + 전문가 답변      ┐
-→ 전문가 앱 푸시 알림          ├ Post-MVP (향후)
-→ 전문가 수락·거절·간단 답변   ┘</pre>
+→ 전문가 앱 푸시 알림          ┐
+→ 전문가 수락·거절·간단 답변   ├ Post-MVP (향후)
+→ 전문가 응답 이력 관리        ┘</pre>
     </section>
 
     <section class="card">
@@ -202,7 +206,7 @@
           <tr><th>영역</th><th>기술/도구</th><th>역할</th></tr>
         </thead>
         <tbody>
-          <tr><td>소비자 앱 (MVP)</td><td>Next.js 웹 / PWA</td><td>상황 입력·AI 추천·전화/문자 연결 (모바일 브라우저 우선)</td></tr>
+          <tr><td>소비자 앱 (MVP)</td><td>Next.js 웹 / PWA</td><td>게스트 상황 입력·전문가 둘러보기, 로그인 후 AI 추천·전화/문자 연결 (모바일 브라우저 우선)</td></tr>
           <tr><td>백엔드</td><td>Supabase</td><td>Auth, Database, Storage, RLS, Realtime</td></tr>
           <tr><td>AI 엔진</td><td>Gemini API (Next.js 서버 라우트 <code>/api/classify</code>)</td><td>상황 분석, 직업+카테고리 분류, 긴급도</td></tr>
           <tr><td>관리자 페이지</td><td>Next.js + Vercel</td><td>전문가 등록·관리, 카테고리 관리, 감사 로그</td></tr>
@@ -230,11 +234,12 @@ Supabase DB 전문가 조회 (category_code 우선 매칭 → vertical 폴백)
         <div class="mini">
           <h3>일반 사용자 기능</h3>
           <ul>
-            <li>상황 입력</li>
-            <li>음성 또는 텍스트 입력</li>
-            <li>AI 전문가 추천 결과 확인</li>
-            <li>전문가 미니홈피 보기</li>
-            <li>전화하기, 문자 보내기, 상담 요청하기</li>
+            <li>비로그인: 메인 일부 기능 조회</li>
+            <li>비로그인: 전문가 둘러보기 및 전문가 미니홈피 일부 조회</li>
+            <li>비로그인: 음성 또는 텍스트 상황 입력</li>
+            <li>로그인 후: AI 전문가 추천 결과 확인</li>
+            <li>로그인 후: 전화하기, 문자 보내기, 상담 요청하기</li>
+            <li>로그인 후: 내 기록, 찜, 상담 이력 등 사용자 식별 기능</li>
           </ul>
         </div>
         <div class="mini">
@@ -253,14 +258,37 @@ Supabase DB 전문가 조회 (category_code 우선 매칭 → vertical 폴백)
 
     <section class="card">
       <h2>4. 회원 정책</h2>
-      <div class="decision">MVP 단계에서는 A안: 비회원도 사용 가능으로 간다.</div>
+      <div class="decision">MVP 일반 사용자 정책은 “게스트 탐색 + 로그인 후 추천/연결”로 한다.</div>
+      <p>회원가입 없이 상황 입력이 가능하다는 기존 검증 결과는 유지한다. 다만 AI 추천 결과 확인과 전문가 연결은 사용자 식별, 상담 이력, 동의 이력, 위치 기반 추천 책임을 위해 로그인 후 제공한다.</p>
+      <h3>비로그인 사용자 허용 범위</h3>
       <ul>
+        <li>메인페이지 일부 기능 조회 가능</li>
+        <li>전문가 둘러보기 가능</li>
+        <li>전문가 미니홈피 일부 정보 조회 가능</li>
         <li>회원가입 없이 상황 입력 가능</li>
-        <li>회원가입 없이 AI 추천 확인 가능</li>
-        <li>회원가입 없이 전문가 미니홈피 조회 가능</li>
-        <li>향후에는 회원가입 기반 또는 단계적 가입 정책으로 업그레이드 가능</li>
+        <li>상황 입력 완료 후 AI 추천 결과 표시 전 로그인 유도</li>
       </ul>
-      <div class="note">단, 실제 상담 완료 후 좋아요 평가를 남기는 기능은 가입 사용자 기반으로 운영한다.</div>
+      <h3>로그인 후 허용 범위</h3>
+      <ul>
+        <li>AI 전문가 추천 결과 확인</li>
+        <li>추천 전문가 상세 정보 확인</li>
+        <li>전화하기, 문자 보내기, 상담 요청하기</li>
+        <li>내 기록, 찜한 전문가, 좋아요 평가 등 사용자 식별 기반 기능</li>
+      </ul>
+      <h3>로그인 방식</h3>
+      <ul>
+        <li>MVP 일반 사용자 로그인은 Supabase Auth OAuth를 사용한다.</li>
+        <li>초기 제공 방식은 카카오톡 로그인과 구글 인증 로그인 2개로 제한한다.</li>
+        <li>최초 소셜 로그인은 일반 사용자 계정으로 자동 가입 처리한다.</li>
+      </ul>
+      <h3>동의 정책</h3>
+      <ul>
+        <li><strong>필수 동의</strong>: 서비스 이용약관, 개인정보 수집·이용, 위치 기반 추천을 위한 개인위치정보 수집·이용 동의</li>
+        <li><strong>선택 동의</strong>: 마케팅 정보 수신 및 마케팅 목적 개인정보 활용 동의</li>
+        <li>마케팅 동의는 서비스 필수 이용 조건으로 강제하지 않는다. 사용자가 마케팅 동의를 거부해도 AI 추천과 상담 연결 핵심 기능은 사용할 수 있어야 한다.</li>
+      </ul>
+      <div class="note">개인정보 수집·이용 동의는 수집 목적, 수집 항목, 보유·이용 기간, 동의 거부권 및 거부 시 불이익을 고지한다. 위치정보 동의는 위치 기반 추천에 필요한 범위로 분리하고, 마케팅 동의는 광고성 정보 전송 동의와 함께 선택 항목으로 관리한다.</div>
+      <div class="note">참고 법령: <a href="https://www.law.go.kr/LSW/lsLawLinkInfo.do?chrClsCd=010202&lsId=011357&lsJoLnkSeq=900078940&print=print">개인정보 보호법 제15조</a>, <a href="https://www.law.go.kr/LSW/lsLawLinkInfo.do?chrClsCd=010202&lsId=000030&lsJoLnkSeq=1000688185&print=print">정보통신망법 제50조</a>, <a href="https://easylaw.go.kr/CSP/CnpClsMain.laf?ccfNo=2&cciNo=1&cnpClsNo=2&csmSeq=1702&popMenu=ov">생활법령 위치정보 동의 안내</a>.</div>
     </section>
 
     <section class="card">
@@ -334,7 +362,7 @@ Supabase DB 전문가 조회 (category_code 우선 매칭 → vertical 폴백)
         <li>자격/경력</li>
         <li>현재 상담 상태</li>
         <li>좋아요 수</li>
-        <li>전화하기, 문자 보내기, 상담 요청하기 버튼</li>
+        <li>전화하기, 문자 보내기, 상담 요청하기 버튼 (로그인 후 활성화)</li>
       </ul>
       <div class="status">
         <span class="green">상담 가능</span>
@@ -364,23 +392,30 @@ Supabase DB 전문가 조회 (category_code 우선 매칭 → vertical 폴백)
 
     <section class="card">
       <h2>9. 전문가 연결 및 상담 요청 정책</h2>
-      <div class="decision">전문가 연결 방식은 혼합형(C안)으로 한다.</div>
+      <div class="decision">전문가 연결 방식은 혼합형(C안)으로 하되, 모든 연결 액션은 로그인 후 제공한다.</div>
       <ul>
-        <li>전화하기</li>
-        <li>문자 보내기</li>
-        <li>상담 요청하기</li>
+        <li>전화하기 (로그인 후 <code>tel:</code> 실행)</li>
+        <li>문자 보내기 (로그인 후 <code>sms:</code> 실행)</li>
+        <li>상담 요청하기 (로그인 후 요청 생성)</li>
       </ul>
-      <p>전화 연결을 선호하는 긴급 사용자를 지원하면서도, 전화를 부담스러워하거나 먼저 메시지로 문의하고 싶은 사용자를 배려한다.</p>
-      <h3>상담 요청 처리</h3>
+      <p>전화 연결을 선호하는 긴급 사용자를 지원하면서도, 전화를 부담스러워하거나 먼저 메시지로 문의하고 싶은 사용자를 배려한다. 비로그인 사용자가 연결 버튼을 누르면 로그인 바텀시트 또는 로그인 화면으로 전환하고, 로그인 완료 후 기존 전문가/상황 맥락으로 복귀한다.</p>
+      <h3>MVP 상담 연결 처리</h3>
       <ol>
-        <li>사용자가 전문가에게 상담 요청 발송</li>
+        <li>사용자가 상황 입력 또는 전문가 미니홈피에서 연결 액션 선택</li>
+        <li>미로그인 상태라면 카카오톡/구글 로그인 및 필수 동의 완료</li>
+        <li>로그인 완료 후 기존 입력/전문가 맥락으로 복귀</li>
+        <li>전화하기 또는 문자 보내기는 모바일 브라우저의 <code>tel:</code>/<code>sms:</code>로 실행</li>
+        <li>상담 요청하기는 로그인 사용자 요청으로 생성·저장</li>
+      </ol>
+      <h3>Post-MVP 전문가 응답 루프</h3>
+      <ol>
         <li>전문가에게 개별 앱 푸시 알림 제공</li>
         <li>전문가가 요청 상세 확인</li>
         <li>전문가가 수락 또는 거절</li>
         <li>전문가가 간단한 답변 메시지 작성 가능</li>
         <li>이후 실제 상담은 전화 연결로 이어질 수 있음</li>
       </ol>
-      <div class="note">MVP에서는 실시간 채팅방을 만들지 않는다. “상담 요청 + 전문가 답변 메시지”까지만 제공한다.</div>
+      <div class="note">MVP에서는 실시간 채팅방을 만들지 않는다. 상담 요청 생성·저장은 로그인 사용자 기능으로 정의하고, 전문가 앱 푸시·수락/거절·답변 메시지는 Post-MVP 응답 루프로 분리한다.</div>
     </section>
 
     <section class="card">
@@ -391,7 +426,7 @@ Supabase DB 전문가 조회 (category_code 우선 매칭 → vertical 폴백)
         </thead>
         <tbody>
           <tr><td>사진 첨부</td><td>제외</td><td>개인정보와 운영 복잡도 때문에 차기 버전 검토</td></tr>
-          <tr><td>실시간 채팅</td><td>제외</td><td>상담 요청 + 답변 메시지까지만 제공</td></tr>
+          <tr><td>실시간 채팅</td><td>제외</td><td>MVP는 상담 요청 생성·저장까지만 제공하고, 전문가 답변 메시지는 Post-MVP 응답 루프에서 검토</td></tr>
           <tr><td>게시판</td><td>제외</td><td>전문가 요청과 시장 반응 확인 후 검토</td></tr>
           <tr><td>전문가 직접 프로필 수정</td><td>제외</td><td>초기에는 어드민 관리로 품질 통제</td></tr>
           <tr><td>별점 평가</td><td>제외</td><td>좋아요만 실제 상담 후 가입자 평가로 사용</td></tr>
@@ -402,22 +437,28 @@ Supabase DB 전문가 조회 (category_code 우선 매칭 → vertical 폴백)
 
     <section class="card">
       <h2>11. MVP 최종 범위 요약</h2>
-      <pre>MVP 포함 (현재 구현)
+      <pre>MVP 포함 (개정 기준)
 - Next.js 웹/PWA 소비자 앱
 - 비회원 상황 입력 (텍스트/음성)
+- 비회원 전문가 둘러보기 및 미니홈피 일부 조회
+- 일반 사용자 소셜 로그인 (카카오톡, 구글)
+- 필수 동의: 서비스 이용약관, 개인정보 수집·이용, 위치정보 수집·이용
+- 선택 동의: 마케팅 정보 수신 및 마케팅 목적 개인정보 활용
 - Gemini 기반 상황 분석 (직업 + 카테고리 + 긴급도)
-- 전문가 3~5명 추천 (카테고리 우선 → vertical 폴백, 랜덤)
+- 로그인 후 전문가 3~5명 추천 확인 (카테고리 우선 → vertical 폴백, 랜덤)
 - 카드형 추천 결과 UI + 결과 유지(뒤로가기)
 - 전문가 미니홈피 (/expert/[id] 웹 라우트)
-- 전화 / 문자 연결 (tel: / sms:)
+- 로그인 후 전화 / 문자 연결 (tel: / sms:)
+- 로그인 후 상담 요청 생성·저장
 - 어드민: 전문가 등록·카테고리 관리·CSV 일괄등록·감사 로그
 - 전문가 상태(3종) + 운영시간 관리
 
 Post-MVP (향후 요구사항에 따라)
-- 상담 요청 + 전문가 답변 메시지 (전문가 응답 측)
-- 전문가 앱 / 푸시 알림 / 전문가 초대 링크 계정 활성화
+- 전문가 앱 푸시 / 수락·거절 / 전문가 답변 메시지
+- 전문가 앱 / 전문가 초대 링크 계정 활성화
 - 좋아요 평가 구조
 - Flutter 네이티브 앱
+- auth-social-login.design.md의 기존 비로그인 추천/전화 정책 동기화
 
 제외
 - 사진 첨부 / 실시간 채팅 / 게시판

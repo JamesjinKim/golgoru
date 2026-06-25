@@ -7,3 +7,5 @@ Before editing Next.js runtime code, read the relevant local guide in `node_modu
 
 Documentation-only work, git hygiene, assets, and non-Next.js files do not require a Next.js docs read unless they affect runtime behavior.
 <!-- END:nextjs-agent-rules -->
+
+## 모든 답변은 한글로 할것!

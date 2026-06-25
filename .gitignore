@@ -47,3 +47,6 @@ next-env.d.ts
 
 # agent tools
 .antigravitycli/
+
+# bkit auto-generated session state (changes every session)
+docs/.bkit-memory.json

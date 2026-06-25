@@ -225,7 +225,7 @@ version_project: 0.1.0
 
 ## 9. Next Steps
 
-1. [ ] **(선결 1순위)** 실 Supabase 프로젝트 연결 + experts/requests/likes/audit_log 테이블 스키마·RLS·Auth 활성 (admin-dashboard D-01)
+1. [ ] **(선결 1순위)** 실 Supabase 프로젝트 연결 + experts/requests/likes/audit_log 테이블 스키마·RLS·Auth 활성 (admin D-01)
 2. [ ] 소비자 핵심 루프 E2E 완성: 입력 → `/api/classify` 분류 → 추천 3~5명 → 상담요청(`requests`) 등록을 실데이터로
 3. [ ] Next.js 어드민 대시보드(전문가 등록 + 초대 링크 이메일 발송) 실연결 마무리
 4. [ ] 소비자 웹앱 PWA화(매니페스트·홈 화면 추가·기본 오프라인 셸)로 모바일 앱 유사 체감 확보
