@@ -32,6 +32,7 @@ export default function ExpertAvatar({
           alt={`${expert.name} 프로필 사진`}
           width={size}
           height={size}
+          unoptimized
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </div>
