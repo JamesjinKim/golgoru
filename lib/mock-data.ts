@@ -17,7 +17,7 @@ export const MOCK_EXPERTS: Expert[] = [
     experience_years: 15,
     bio: '검사 출신 형사전문 변호사. 경찰 조사 단계부터 1심까지 직접 동행합니다. 긴급 대응 전문.',
     youtube_url: YT,
-    photo_url: 'https://i.pravatar.cc/256?img=12',
+    photo_url: null,
     status: 'available',
     ...DAY, weekend_available: true, night_available: true,
     is_active: true,

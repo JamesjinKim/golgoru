@@ -56,7 +56,8 @@ export function ExpertForm({
   const [uploading, setUploading] = useState(false);
 
   async function handlePhotoUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const input = e.currentTarget;
+    const file = input.files?.[0];
     if (!file || !initial?.id) return; // 신규 전문가는 저장 후 업로드
     setUploading(true);
     setError('');
@@ -71,6 +72,7 @@ export function ExpertForm({
       setError(err instanceof Error ? err.message : '업로드 실패');
     } finally {
       setUploading(false);
+      input.value = '';
     }
   }
 
