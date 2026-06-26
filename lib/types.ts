@@ -22,6 +22,7 @@ export interface Expert {
   experience_years: number;
   bio?: string;
   youtube_url?: string;
+  photo_url?: string | null; // Supabase Storage public URL. 없으면 이니셜 폴백
   status: ConsultStatus;
   weekday_start?: string | null; // HH:mm[:ss]
   weekday_end?: string | null;
