@@ -2,7 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import type { Category, Expert, Urgency, Vertical } from '@/lib/types';
 import { BROWSE_PAGE_SIZE, type ExpertRepository } from './repository';
 
-const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at';
+const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
 
 function shuffleExperts(experts: Expert[]): Expert[] {
   const shuffled = [...experts];
