@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { data: pub } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(objectPath);
   // 캐시 무력화: 같은 경로 덮어쓰기라 쿼리스트링으로 버전
-  const photo_url = `${pub.publicUrl}?v=${Date.now()}`;
+  const photo_url = `${pub.publicUrl}`;
 
   const { error: dbErr } = await supabaseAdmin
     .from('experts')
