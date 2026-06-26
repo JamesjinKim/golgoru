@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logAudit } from '@/lib/admin/audit';
 
-const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at';
+const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
 const LIST_SELECT = `${SELECT},expert_categories(category_code)`;
 
 // 전문가 ↔ 카테고리 동기화 (기존 전부 삭제 후 재삽입). category_codes 가 배열일 때만.

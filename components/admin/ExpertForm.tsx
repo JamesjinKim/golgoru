@@ -143,14 +143,59 @@ export function ExpertForm({
             {VERTICALS.map((v) => <option key={v} value={v}>{VERTICAL_LABEL[v]} ({v})</option>)}
           </select>
           <div className="col-span-2 flex items-center gap-3">
-            <ExpertAvatar expert={{ name: form.name || '?', photo_url: photoUrl }} size={56} />
+            {initial?.id ? (
+              <label
+                className="group relative cursor-pointer rounded-full"
+                title="클릭하여 사진 변경"
+                style={{ width: 56, height: 56, flexShrink: 0 }}
+              >
+                <ExpertAvatar expert={{ name: form.name || '?', photo_url: photoUrl }} size={56} />
+                {/* 호버 오버레이: 클릭 가능 어포던스 */}
+                <span
+                  className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/55 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  style={{ fontSize: 10, lineHeight: 1.1, gap: 2 }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  <span>변경</span>
+                </span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handlePhotoUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+              </label>
+            ) : (
+              <div
+                className="group relative rounded-full"
+                title="전문가를 저장한 뒤 사진을 추가할 수 있어요"
+                style={{ width: 56, height: 56, flexShrink: 0, cursor: 'not-allowed' }}
+              >
+                <ExpertAvatar expert={{ name: form.name || '?', photo_url: photoUrl }} size={56} />
+                {/* 신규: 클릭 불가지만 사진 자리임을 호버로 안내 */}
+                <span
+                  className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/55 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  style={{ fontSize: 9, lineHeight: 1.15, gap: 2, textAlign: 'center', padding: 2 }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  <span>저장 후<br />추가</span>
+                </span>
+              </div>
+            )}
             <div className="flex flex-col gap-1 text-xs text-slate-500">
               {initial?.id ? (
-                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload} disabled={uploading} />
+                <span>아바타를 클릭하면 사진을 변경할 수 있어요 (jpg·png·webp, 최대 10MB · 자동 정사각 축소 저장)</span>
               ) : (
                 <span>전문가를 먼저 저장한 뒤 사진을 업로드할 수 있습니다.</span>
               )}
-              {uploading && <span>업로드 중…</span>}
+              {uploading && <span className="text-emerald-600">업로드 중…</span>}
             </div>
           </div>
           <input className={`${field} col-span-2`} placeholder="자격 표시명 (세무·회계는 세무사/회계사 입력 · 비우면 직업명)" value={form.license} onChange={(e) => set('license', e.target.value)} />

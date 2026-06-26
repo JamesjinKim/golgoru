@@ -1,11 +1,12 @@
 import sharp from 'sharp';
 
-export const MAX_UPLOAD_BYTES = 2 * 1024 * 1024; // 2MB
+export const MAX_UPLOAD_MB = 10;
+export const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024; // 10MB
 const ALLOWED = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 export function validateUpload(file: { type: string; size: number }): string | null {
   if (!ALLOWED.has(file.type)) return '지원하지 않는 형식입니다 (jpg/png/webp).';
-  if (file.size > MAX_UPLOAD_BYTES) return '파일이 너무 큽니다 (최대 2MB).';
+  if (file.size > MAX_UPLOAD_BYTES) return `파일이 너무 큽니다 (최대 ${MAX_UPLOAD_MB}MB).`;
   return null;
 }
 
