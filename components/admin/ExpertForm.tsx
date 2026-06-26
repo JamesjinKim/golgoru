@@ -1,8 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
+import type { ChangeEvent } from 'react';
 import { z } from 'zod';
 import { ConsultStatus, Expert, Vertical } from '@/lib/types';
 import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
+import ExpertAvatar from '@/components/ExpertAvatar';
 
 type CategoryOption = { code: string; vertical: string; level: number; label: string };
 
@@ -50,6 +52,27 @@ export function ExpertForm({
   });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(initial?.photo_url ?? null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handlePhotoUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !initial?.id) return; // 신규 전문가는 저장 후 업로드
+    setUploading(true);
+    setError('');
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`/api/admin/experts/${initial.id}/photo`, { method: 'POST', body: fd });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? '업로드 실패');
+      setPhotoUrl(json.photo_url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '업로드 실패');
+    } finally {
+      setUploading(false);
+    }
+  }
 
   // 카테고리: 전체 로드 후 선택 vertical 의 중분류(level 1)만 노출
   const [allCats, setAllCats] = useState<CategoryOption[]>([]);
@@ -117,6 +140,17 @@ export function ExpertForm({
           <select className={field} value={form.vertical} onChange={(e) => changeVertical(e.target.value as Vertical)}>
             {VERTICALS.map((v) => <option key={v} value={v}>{VERTICAL_LABEL[v]} ({v})</option>)}
           </select>
+          <div className="col-span-2 flex items-center gap-3">
+            <ExpertAvatar expert={{ name: form.name || '?', photo_url: photoUrl }} size={56} />
+            <div className="flex flex-col gap-1 text-xs text-slate-500">
+              {initial?.id ? (
+                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload} disabled={uploading} />
+              ) : (
+                <span>전문가를 먼저 저장한 뒤 사진을 업로드할 수 있습니다.</span>
+              )}
+              {uploading && <span>업로드 중…</span>}
+            </div>
+          </div>
           <input className={`${field} col-span-2`} placeholder="자격 표시명 (세무·회계는 세무사/회계사 입력 · 비우면 직업명)" value={form.license} onChange={(e) => set('license', e.target.value)} />
           <input className={field} placeholder="지역" value={form.region} onChange={(e) => set('region', e.target.value)} />
           <input className={field} placeholder="전화 (02-1234-5678)" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
