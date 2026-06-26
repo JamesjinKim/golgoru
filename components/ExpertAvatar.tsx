@@ -6,10 +6,14 @@ export default function ExpertAvatar({
   expert,
   size = 48,
   gradientTo = 'green',
+  boxShadow,
+  fontSize,
 }: {
   expert: Pick<Expert, 'name' | 'photo_url'>;
   size?: number;
   gradientTo?: 'green' | 'gold';
+  boxShadow?: string;
+  fontSize?: number;
 }) {
   const ring = {
     width: size,
@@ -17,6 +21,7 @@ export default function ExpertAvatar({
     borderRadius: '50%',
     flexShrink: 0,
     overflow: 'hidden' as const,
+    ...(boxShadow ? { boxShadow } : {}),
   };
 
   if (expert.photo_url) {
@@ -40,7 +45,7 @@ export default function ExpertAvatar({
         ...ring,
         background: `linear-gradient(135deg, ${G.greenAccent}, ${to})`,
         color: '#fff',
-        fontSize: Math.round(size * 0.375),
+        fontSize: fontSize ?? Math.round(size * 0.375),
         fontWeight: 800,
         display: 'flex',
         alignItems: 'center',

@@ -54,7 +54,7 @@ export default async function ExpertPage({ params, searchParams }: {
         {/* 히어로 카드 */}
         <div style={{ background: G.houseGreen, color: '#fff', padding: '24px 20px 28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <ExpertAvatar expert={expert} size={76} gradientTo="gold" />
+            <ExpertAvatar expert={expert} size={76} gradientTo="gold" boxShadow="0 8px 16px rgba(0,0,0,0.25), inset 0 0 0 3px rgba(255,255,255,0.15)" fontSize={30} />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.4px' }}>
                 {expert.name} {expertTitle(expert)}
