@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CallButton from '@/components/CallButton';
+import ExpertAvatar from '@/components/ExpertAvatar';
 import { getExpertRepository } from '@/lib/experts/repository';
 import { G, SHADOW_CARD } from '@/lib/tokens';
 import { STATUS_LABEL, expertTitle, categoryChipLabel } from '@/lib/constants';
@@ -53,16 +54,7 @@ export default async function ExpertPage({ params, searchParams }: {
         {/* 히어로 카드 */}
         <div style={{ background: G.houseGreen, color: '#fff', padding: '24px 20px 28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{
-              width: 76, height: 76, borderRadius: '50%',
-              background: `linear-gradient(135deg, ${G.greenAccent}, ${G.gold})`,
-              color: '#fff', fontSize: 30, fontWeight: 800,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              letterSpacing: '-0.16px', flexShrink: 0,
-              boxShadow: '0 8px 16px rgba(0,0,0,0.25), inset 0 0 0 3px rgba(255,255,255,0.15)',
-            }}>
-              {expert.name.charAt(0)}
-            </div>
+            <ExpertAvatar expert={expert} size={76} gradientTo="gold" />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.4px' }}>
                 {expert.name} {expertTitle(expert)}

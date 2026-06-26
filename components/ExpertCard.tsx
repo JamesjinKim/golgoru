@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Expert } from '@/lib/types';
 import { G, SHADOW_CARD, SHADOW_HIGHLIGHT } from '@/lib/tokens';
 import { STATUS_LABEL, expertTitle } from '@/lib/constants';
+import ExpertAvatar from './ExpertAvatar';
 
 export default function ExpertCard({ expert, highlight, href }: { expert: Expert; highlight?: boolean; href?: string }) {
   const live = expert.status === 'available';
@@ -22,15 +23,7 @@ export default function ExpertCard({ expert, highlight, href }: { expert: Expert
           onPointerLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: '50%', flexShrink: 0,
-              background: `linear-gradient(135deg, ${G.greenAccent}, ${G.starbucksGreen})`,
-              color: '#fff', fontSize: 18, fontWeight: 800,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              letterSpacing: '-0.16px',
-            }}>
-              {expert.name.charAt(0)}
-            </div>
+            <ExpertAvatar expert={expert} size={48} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' as const }}>
                 <span style={{ fontSize: 16, fontWeight: 800, color: G.textBlack, letterSpacing: '-0.16px' }}>
