@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { ClassifyResult, Vertical, Urgency } from './types';
+import type { ClassifyResult, Vertical, Urgency } from './types';
 
 let _ai: GoogleGenAI | null = null;
 function getAI() {
@@ -25,7 +25,7 @@ const CLASSIFY_PROMPT = `당신은 골고루 SOS 서비스의 AI 분류기입니
 - doctor(의사): 증상·응급·진단·건강 이상 등 건강 상담 (의료 '소송'은 lawyer)
 - labor(노무사): 해고·임금체불·퇴직금·직장 내 괴롭힘·징계·산업재해
 - patent(변리사): 특허·상표·디자인·실용신안 등 지식재산권 출원·침해. 저작권은 '등록·상담'만 변리사(저작권 분쟁·소송은 lawyer)
-- tax(세무·회계: 세무사·회계사): 세무조사·세금신고·기장·양도/상속/증여세·절세 컨설팅·회계감사
+- tax(세무사): 세무조사·세금신고·기장·양도/상속/증여세·절세 컨설팅
 - adjuster(손해사정사): 교통사고·산재·화재·재산 보험금, 배상책임 등 보험 손해사정
 - appraiser(감정평가사): 부동산 감정평가·토지 보상/수용·경매 감정
 

@@ -1,4 +1,4 @@
-import { ConsultStatus, Vertical } from '@/lib/types';
+import type { ConsultStatus, Vertical } from '@/lib/types';
 
 export type AdminRole = 'super_admin' | 'operator';
 
@@ -11,7 +11,7 @@ export interface AdminIdentity {
 export interface ExpertInput {
   name: string;
   vertical: Vertical;
-  license?: string | null; // 표시용 자격명(세무사/회계사 등). 비면 직역 라벨
+  license?: string | null; // 표시용 자격명(세무사 등). 비면 직역 라벨
   specialties: string[];
   region: string;
   phone: string;

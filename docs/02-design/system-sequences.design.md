@@ -1,6 +1,6 @@
 # golgoru-sos 전체 시스템 시퀀스 다이어그램
 
-> 작성 2026-06-13 · 기준 커밋 `779b616` (세무·회계 통합까지 반영)
+> 작성 2026-06-13 · 기준 커밋 `779b616` (세무사 단일화 반영)
 > 목적: **유지보수 및 개발자 미션별 업무 분해**의 기준 문서. 각 기능이 어느 모듈·함수·테이블을 거치는지 추적 가능하게 한다.
 
 ## 0. 단위 선택 기준
@@ -338,7 +338,7 @@ sequenceDiagram
   API-->>UI: 200 → 목록 재조회
 
   Note over A,DB: 기타: PATCH is_active(노출 토글, expert.deactivate)<br/>DELETE는 super_admin 전용 (expert.delete)
-  Note over UI,DB: 목록 GET: experts + expert_categories 조인<br/>→ category_codes 평탄화, 직업칼럼 '세무·회계 · 회계사'
+  Note over UI,DB: 목록 GET: experts + expert_categories 조인<br/>→ category_codes 평탄화, 직업칼럼 '세무사'
 ```
 
 ---
@@ -360,7 +360,7 @@ sequenceDiagram
   A->>UI: CSV 업로드
   UI->>API: POST ?mode=validate (FormData)
   API->>CSV: parseExpertsCsv(text)
-  Note over CSV: BOM 제거 → 헤더 별칭(직업/자격/카테고리코드…)<br/>→ zod 행 검증 (변호사→lawyer, 회계사→tax,<br/>가능→available, 파일 내 전화 중복)
+  Note over CSV: BOM 제거 → 헤더 별칭(직업/자격/카테고리코드…)<br/>→ zod 행 검증 (변호사→lawyer, 세무사/세무→tax,<br/>가능→available, 파일 내 전화 중복)
   CSV-->>API: {valid[], errors[], duplicates}
   API-->>UI: 미리보기 20행 + 오류 목록 (행번호·필드·사유)
 

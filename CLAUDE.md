@@ -40,7 +40,7 @@ Create `.env.local` by hand (no `.env.example` is committed; the vars below are 
 
 **Classification** (`lib/gemini.ts`) is the matching engine. Text path: Gemini `flash-lite` with thinking off → on missing key or 429/503/500, falls back to `localClassify` (keyword `RULES` table). Audio path (`classifyAudio`): one Gemini `flash` call transcribes + classifies; it **cannot** fall back (no source text), so missing key → `GeminiConfigError` (503) and empty transcript → 422. `app/api/classify/route.ts` branches on content-type (`multipart/form-data` = audio, JSON = text) and maps these error statuses to user-facing Korean messages.
 
-**Taxonomy.** 7 `Vertical`s and normalized category codes (`LAW-01`, `MED-03`, `PAT-06`, …) drive routing. The code list in `lib/gemini.ts` (`CATEGORY_GUIDE`) must stay in sync with `docs/02-design/features/experts-taxonomy.design.md` and the `categories` table. Display labels and call-button text are centralized in `lib/constants.ts` (`VERTICAL_LABEL`, `expertTitle`, `categoryChipLabel`); the `tax` vertical covers both 세무사/회계사, so individual `license` overrides the vertical label when present.
+**Taxonomy.** 7 `Vertical`s and normalized category codes (`LAW-01`, `MED-03`, `PAT-06`, …) drive routing. The code list in `lib/gemini.ts` (`CATEGORY_GUIDE`) must stay in sync with `docs/02-design/features/experts-taxonomy.design.md` and the `categories` table. Display labels and call-button text are centralized in `lib/constants.ts` (`VERTICAL_LABEL`, `expertTitle`, `categoryChipLabel`); the `tax` vertical is shown as 세무사.
 
 ## Database
 

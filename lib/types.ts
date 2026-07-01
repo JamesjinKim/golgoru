@@ -15,7 +15,7 @@ export interface Expert {
   id: string;
   name: string;
   vertical: Vertical;
-  license?: string | null; // 표시용 자격명(예: 세무사/회계사). 비면 직역 라벨로 폴백
+  license?: string | null; // 표시용 자격명(예: 세무사). 비면 직역 라벨로 폴백
   specialties: string[];
   region: string;
   phone: string;

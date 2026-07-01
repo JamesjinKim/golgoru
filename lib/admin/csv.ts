@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 import { z } from 'zod';
-import { ExpertInput } from './types';
+import type { ExpertInput } from './types';
 
 // D-05 / 설계 §6.5 — CSV 계약 (운영시간·3단계 상태·카테고리 포함)
 // 내부 표준 키는 영문(컬럼 순서 기준). 한글 헤더·값은 아래 별칭으로 흡수.
@@ -37,7 +37,7 @@ const STATUSES = ['available', 'delayed', 'unavailable'] as const;
 // 값 별칭: 한글 → 영문 코드 (영문도 그대로 허용)
 const VERTICAL_ALIAS: Record<string, string> = {
   '변호사': 'lawyer', '의사': 'doctor', '노무사': 'labor', '변리사': 'patent',
-  '세무사': 'tax', '회계사': 'tax', '세무·회계': 'tax', '손해사정사': 'adjuster', '감정평가사': 'appraiser',
+  '세무사': 'tax', '세무': 'tax', '손해사정사': 'adjuster', '감정평가사': 'appraiser',
 };
 const STATUS_ALIAS: Record<string, string> = {
   '가능': 'available', '상담가능': 'available',
@@ -68,9 +68,9 @@ const rowSchema = z.object({
   name: z.string().trim().min(1, '이름 필수').max(50),
   vertical: z.preprocess(
     (v) => { const s = String(v ?? '').trim(); return VERTICAL_ALIAS[s] ?? s; },
-    z.enum(VERTICALS, { message: `직업은 변호사·의사·노무사·변리사·세무사·회계사·손해사정사·감정평가사 (또는 영문코드) 중 하나` }),
+    z.enum(VERTICALS, { message: `직업은 변호사·의사·노무사·변리사·세무사·손해사정사·감정평가사 (또는 영문코드) 중 하나` }),
   ),
-  // 표시용 자격명(선택). 비면 직역 라벨 사용. 세무 도메인은 세무사/회계사 구분에 사용
+  // 표시용 자격명(선택). 비면 직역 라벨 사용.
   license: z.preprocess((v) => String(v ?? '').trim() || undefined, z.string().max(30).optional()),
   specialties: z.preprocess(
     (v) => String(v ?? '').split('|').map((s) => s.trim()).filter(Boolean),
@@ -159,15 +159,15 @@ export function parseExpertsCsv(text: string): ParseResult {
 }
 
 export function buildTemplateCsv(): string {
-  // 한글 헤더 + 한글 값 예시 2행. '자격'은 비우면 직업명 사용(예시: 변호사=빈칸, 세무=회계사).
+  // 한글 헤더 + 한글 값 예시 2행. '자격'은 비우면 직업명 사용(예시: 변호사=빈칸).
   const example1 = [
     '김변호', '변호사', '', '형사|성범죄|사기', '서울 강남', '02-1234-5678',
     '12', '형사 전문 12년', 'https://youtu.be/q8ywJUQtAmk',
     '09:00', '18:00', 'N', 'N', '가능', 'LAW-01|LAW-02', 'Y',
   ];
   const example2 = [
-    '박회계', '회계사', '회계사', '법인세|세무조사|가지급금', '서울 영등포', '02-2345-6789',
-    '9', '회계감사·세무 9년', '',
+    '박세무', '세무', '세무사', '법인세|세무조사|가지급금', '서울 영등포', '02-2345-6789',
+    '9', '세무 상담 9년', '',
     '09:00', '18:00', 'N', 'N', '가능', 'TAX-01|TAX-03', 'Y',
   ];
   // 앞에 UTF-8 BOM(﻿) → Excel(Windows)에서 한글 안 깨짐. 업로드 파서는 BOM을 벗겨냄.

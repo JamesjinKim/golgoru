@@ -1,4 +1,4 @@
-import { ConsultStatus, Vertical } from './types';
+import type { ConsultStatus, Vertical } from './types';
 
 // 3단계 상담 상태 표시 (배지 라벨)
 export const STATUS_LABEL: Record<ConsultStatus, string> = {
@@ -7,13 +7,13 @@ export const STATUS_LABEL: Record<ConsultStatus, string> = {
   unavailable: '상담 불가',
 };
 
-// 직역 라벨 = 문제 도메인. 세무는 세무사·회계사 두 자격을 포괄하므로 '세무·회계'
+// 직역 라벨 = 문제 도메인. 세무 영역은 세무사로 단일화한다.
 export const VERTICAL_LABEL: Record<Vertical, string> = {
   lawyer:    '변호사',
   doctor:    '병원',
   labor:     '노무사',
   patent:    '변리사',
-  tax:       '세무·회계',
+  tax:       '세무사',
   adjuster:  '손해사정사',
   appraiser: '감정평가사',
 };
@@ -23,13 +23,12 @@ export const VERTICAL_CALL_LABEL: Record<Vertical, string> = {
   doctor:    '병원에 전화하기',
   labor:     '노무사에게 전화하기',
   patent:    '변리사에게 전화하기',
-  tax:       '세무·회계 전문가에게 전화하기',
+  tax:       '세무사에게 전화하기',
   adjuster:  '손해사정사에게 전화하기',
   appraiser: '감정평가사에게 전화하기',
 };
 
 // 카드·상세 표시용 직함: 개인 자격(license)이 있으면 우선, 없으면 직역 라벨
-// (세무 도메인은 전문가마다 '세무사'/'회계사'가 달라 license 로 구분)
 export function expertTitle(e: { vertical: Vertical; license?: string | null }): string {
   return e.license?.trim() || VERTICAL_LABEL[e.vertical];
 }

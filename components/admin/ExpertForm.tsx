@@ -198,7 +198,7 @@ export function ExpertForm({
               {uploading && <span className="text-emerald-600">업로드 중…</span>}
             </div>
           </div>
-          <input className={`${field} col-span-2`} placeholder="자격 표시명 (세무·회계는 세무사/회계사 입력 · 비우면 직업명)" value={form.license} onChange={(e) => set('license', e.target.value)} />
+          <input className={`${field} col-span-2`} placeholder="자격 표시명 (예: 세무사 · 비우면 직업명)" value={form.license} onChange={(e) => set('license', e.target.value)} />
           <input className={field} placeholder="지역" value={form.region} onChange={(e) => set('region', e.target.value)} />
           <input className={field} placeholder="전화 (02-1234-5678)" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
           <input className={field} placeholder="경력(년)" value={form.experience_years} onChange={(e) => set('experience_years', e.target.value)} />
