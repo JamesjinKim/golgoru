@@ -12,7 +12,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL('/', url.origin));
   }
 
-  const supabase = await getUserServerSupabase();
+  const successResponse = NextResponse.redirect(new URL(returnTo, url.origin));
+  const supabase = await getUserServerSupabase(successResponse);
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.user) {
@@ -30,5 +31,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(failUrl);
   }
 
-  return NextResponse.redirect(new URL(returnTo, url.origin));
+  return successResponse;
 }

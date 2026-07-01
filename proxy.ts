@@ -1,22 +1,42 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { getSupabasePublishableKey, getSupabaseUrl } from '@/lib/env';
+import { getSupabaseAuthCookieName, isInvalidRefreshTokenError } from '@/lib/auth/cookies';
+import {
+  applySupabaseAuthCookieExpiryToResponse,
+  applySupabaseSetAllToResponse,
+  getSupabaseAuthCookieNamesFromNames,
+} from '@/lib/auth/response';
 
-// 어드민 인증 경계 (Next 16: proxy 규칙). 소비자 라우트는 matcher 밖 → 무영향(§2.6).
+// Supabase SSR 세션 쿠키 동기화 + 어드민 인증 경계 (Next 16: proxy 규칙).
 export async function proxy(req: NextRequest) {
   const res = NextResponse.next();
   const supabase = createServerClient(getSupabaseUrl(), getSupabasePublishableKey(), {
     cookies: {
       getAll: () => req.cookies.getAll(),
-      setAll: (toSet) =>
-        toSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options)),
+      setAll: (toSet, headers) => {
+        toSet.forEach(({ name, value, options }) => {
+          req.cookies.set({ name, value, ...options });
+        });
+        applySupabaseSetAllToResponse(res, toSet, headers);
+      },
     },
   });
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
   const path = req.nextUrl.pathname;
   const isLoginPage = path === '/admin/login';
   const isAuthApi = path.startsWith('/api/admin/auth');
+
+  if (isInvalidRefreshTokenError(error)) {
+    applySupabaseAuthCookieExpiryToResponse(
+      res,
+      getSupabaseAuthCookieNamesFromNames(
+        getSupabaseAuthCookieName(),
+        req.cookies.getAll().map((cookie) => cookie.name),
+      ),
+    );
+  }
 
   if (!user && !isLoginPage && !isAuthApi) {
     if (path.startsWith('/api/admin')) {
@@ -38,5 +58,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*'],
+  matcher: ['/', '/admin/:path*', '/api/admin/:path*'],
 };

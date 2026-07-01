@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/lib/auth/profile';
 import { formatUserLabel } from '@/lib/auth/profile';
 import { startUserLogin } from '@/lib/auth/startUserLogin';
-import { userSupabaseBrowser } from '@/lib/auth/supabaseBrowser';
+import { clearBrowserSupabaseAuthCookies } from '@/lib/auth/cookies';
 import { G } from '@/lib/tokens';
 
 interface UserAuthChipProps {
@@ -32,9 +32,15 @@ export default function UserAuthChip({ profile }: UserAuthChipProps) {
   const logout = async () => {
     setLoading(true);
     setError('');
-    const supabase = userSupabaseBrowser();
-    const { error: logoutError } = await supabase.auth.signOut();
-    if (logoutError) {
+    try {
+      const res = await fetch('/auth/logout', { method: 'POST' });
+      clearBrowserSupabaseAuthCookies();
+      if (!res.ok) {
+        setError('로그아웃에 실패했습니다.');
+        setLoading(false);
+        return;
+      }
+    } catch {
       setError('로그아웃에 실패했습니다.');
       setLoading(false);
       return;
