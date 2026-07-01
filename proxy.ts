@@ -27,6 +27,8 @@ export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isLoginPage = path === '/admin/login';
   const isAuthApi = path.startsWith('/api/admin/auth');
+  const isAdminPage = path.startsWith('/admin');
+  const isAdminApi = path.startsWith('/api/admin');
 
   if (isInvalidRefreshTokenError(error)) {
     applySupabaseAuthCookieExpiryToResponse(
@@ -38,8 +40,8 @@ export async function proxy(req: NextRequest) {
     );
   }
 
-  if (!user && !isLoginPage && !isAuthApi) {
-    if (path.startsWith('/api/admin')) {
+  if (!user && !isLoginPage && !isAuthApi && (isAdminPage || isAdminApi)) {
+    if (isAdminApi) {
       return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
     }
     const url = req.nextUrl.clone();

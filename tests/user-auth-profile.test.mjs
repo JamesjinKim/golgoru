@@ -108,3 +108,6 @@ const proxySource = await import('node:fs').then(({ readFileSync }) =>
 assert.match(proxySource, /matcher:\s*\[[^\]]*['"`]\/['"`]/s);
 assert.match(proxySource, /req\.cookies\.set/);
 assert.match(proxySource, /applySupabaseAuthCookieExpiryToResponse/);
+assert.match(proxySource, /const isAdminPage = path\.startsWith\('\/admin'\)/);
+assert.match(proxySource, /const isAdminApi = path\.startsWith\('\/api\/admin'\)/);
+assert.match(proxySource, /if \(!user && !isLoginPage && !isAuthApi && \(isAdminPage \|\| isAdminApi\)\)/);
