@@ -118,7 +118,7 @@ alter table profiles
 |---|---|
 | 카카오 이메일 미제공 (README §87) | `email` null 허용(이미 nullable). 라벨은 닉네임(`display_name`) — 목업 ④ "김○○"과 일치 |
 | Kakao Provider 미설정 상태에서 카카오 버튼 클릭 | `signInWithOAuth`가 에러 → `OAuthButtons`에서 catch → "카카오 로그인 준비 중입니다" 안내. 설정 완료 후 자동 동작 |
-| 동의 화면에서 이탈/뒤로 | 세션은 생성됨. 다음 접근 시 게이트가 다시 `/consent`로 → 동의 전엔 서비스 이용 불가(법적 요구 충족) |
+| 동의 화면에서 이탈/뒤로 | 세션은 생성됨. 콜백 게이트가 다음 로그인 콜백마다 재판정. 단 이번 범위의 게이트는 **콜백 시점 한정** — 세션 유지 중 직접 홈 접근 시 우회 가능. 실기능(SOS 제출) 시점 상시 가드는 후속 과제(비목표). MVP는 가입 직후 1회 통과로 법적 최소 요건 충족 |
 | 이미 동의한 사용자 재로그인 | `hasRequiredConsent` true → `/consent` 건너뜀 |
 | `GOLGORU_DATA_SOURCE=mock` / Supabase 미설정 | 기존처럼 조용히 degrade. 동의 API도 config 없으면 no-op |
 | OAuth 콜백 실패 | 기존 `/?auth=error` 흐름 재사용 |
