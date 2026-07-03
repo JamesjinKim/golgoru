@@ -5,7 +5,12 @@ import UserAuthChip from '@/components/UserAuthChip';
 import { getCurrentUserProfile } from '@/lib/auth/user';
 import { G } from '@/lib/tokens';
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>;
+}) {
+  const { welcome } = await searchParams;
   const { profile } = await getCurrentUserProfile();
 
   return (
@@ -37,6 +42,14 @@ export default async function Home() {
       </header>
 
       <main style={{ flex: 1, padding: '16px 20px 24px' }}>
+        {welcome === '1' && (
+          <div style={{
+            background: '#0e1420', color: '#fff', fontSize: 13, fontWeight: 700,
+            padding: '11px 14px', borderRadius: 12, textAlign: 'center', marginBottom: 16,
+          }}>
+            🎉 환영합니다! 골고루 SOS를 시작합니다
+          </div>
+        )}
         <div style={{
           display: 'flex', alignItems: 'flex-end', gap: 14,
           marginBottom: 20,

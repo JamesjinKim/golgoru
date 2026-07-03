@@ -47,7 +47,8 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
         setSubmitting(false);
         return;
       }
-      router.replace(returnTo);
+      const dest = returnTo === '/' ? '/?welcome=1' : returnTo;
+      router.replace(dest);
     } catch {
       setError('동의 저장에 실패했습니다. 다시 시도해 주세요.');
       setSubmitting(false);
