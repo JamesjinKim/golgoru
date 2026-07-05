@@ -40,12 +40,19 @@ export async function GET(req: NextRequest) {
     .maybeSingle();
 
   // 필수 동의 미완료(신규 가입자) → 동의 게이트로. 세션 쿠키는 successResponse에 이미 실려 있으므로
-  // 그 헤더를 유지한 채 Location만 /consent로 바꾼다.
+  // 그 헤더를 유지한 채 Location만 /consent로 바꾼다. (동의 완료 후 ConsentForm이 홈으로 보낼 때 환영 토스트)
   if (!hasRequiredConsent(consentRow)) {
     const consentUrl = new URL('/consent', url.origin);
     consentUrl.searchParams.set('returnTo', returnTo);
     successResponse.headers.set('Location', consentUrl.toString());
     return successResponse;
+  }
+
+  // 동의 완료자(재로그인) → 홈으로 복귀할 때 환영 토스트. 홈(/)이 목적지일 때만 welcome 부여.
+  if (returnTo === '/') {
+    const homeUrl = new URL('/', url.origin);
+    homeUrl.searchParams.set('welcome', '1');
+    successResponse.headers.set('Location', homeUrl.toString());
   }
 
   return successResponse;

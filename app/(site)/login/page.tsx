@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import OAuthButtons from '@/components/auth/OAuthButtons';
+import BrandMark from '@/components/BrandMark';
 import { G } from '@/lib/tokens';
 
 export default function LoginPage() {
@@ -8,7 +8,7 @@ export default function LoginPage() {
     <div style={shell}>
       <div style={brand}>
         <div style={logo}>
-          <Image src="/icons/icon-512.png" alt="골고루 SOS" width={58} height={58} priority />
+          <BrandMark size={40} />
         </div>
         <h1 style={{ margin: '6px 0 0', fontSize: 22, letterSpacing: '-0.5px', color: G.textBlack }}>골고루 SOS</h1>
         <p style={{ margin: 0, color: G.textSoft, fontSize: 13 }}>긴급할 때, 30초 전문가 연결</p>
@@ -37,9 +37,9 @@ const brand: React.CSSProperties = {
   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
 };
 const logo: React.CSSProperties = {
-  width: 58, height: 58, borderRadius: 18, overflow: 'hidden',
+  width: 58, height: 58, borderRadius: 18, background: '#fff',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
-  boxShadow: '0 6px 16px rgba(21,122,78,.35)',
+  boxShadow: '0 6px 16px rgba(20,30,50,.12)', border: `1px solid ${G.hairline}`,
 };
 const divider: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'center',
