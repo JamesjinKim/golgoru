@@ -7,9 +7,7 @@ export default function SignupPage() {
   return (
     <div style={shell}>
       <div style={brand}>
-        <div style={logo}>
-          <BrandMark size={40} />
-        </div>
+        <BrandMark size={58} />
         <h1 style={{ margin: '6px 0 0', fontSize: 22, letterSpacing: '-0.5px', color: G.textBlack }}>회원가입</h1>
         <p style={{ margin: 0, color: G.textSoft, fontSize: 13 }}>간편하게 시작하세요</p>
       </div>
@@ -35,11 +33,6 @@ const shell: React.CSSProperties = {
 };
 const brand: React.CSSProperties = {
   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-};
-const logo: React.CSSProperties = {
-  width: 58, height: 58, borderRadius: 18, background: '#fff',
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  boxShadow: '0 6px 16px rgba(20,30,50,.12)', border: `1px solid ${G.hairline}`,
 };
 const divider: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'center',
