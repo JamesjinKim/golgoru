@@ -44,8 +44,8 @@ Create `.env.local` by hand (no `.env.example` is committed; the vars below are 
 
 ## Database
 
-Supabase SQL is applied by hand in the SQL Editor, in order (each is idempotent / re-run-safe):
-`supabase-setup.sql` (experts) → `supabase-admin-setup.sql` (admin_users) → `supabase-schema-v2.sql` (status/hours, requests, likes) → category + seed files (`supabase-categories*.sql`, `supabase-*-categories.sql`, `supabase-seed-*.sql`). Each file's header comments state its prerequisites.
+All SQL lives in `sql/` (one folder, `supabase-*.sql`). It is applied by hand in the SQL Editor, in order (each is idempotent / re-run-safe):
+`sql/supabase-setup.sql` (experts) → `sql/supabase-admin-setup.sql` (admin_users) → `sql/supabase-schema-v2.sql` (status/hours, requests, likes) → category + seed files (`sql/supabase-categories*.sql`, `sql/supabase-*-categories.sql`, `sql/supabase-seed-*.sql`). Each file's header comments state its prerequisites.
 
 ## Docs
 

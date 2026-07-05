@@ -23,7 +23,7 @@
 
 ## 배포
 - Vercel 연동 (main push → 프로덕션 자동 배포)
-- Supabase SQL은 SQL Editor에 손수 적용 (`supabase-setup.sql` 등, 각 파일 헤더의 순서/사전조건 참고)
+- Supabase SQL은 `sql/` 폴더에 모아 두고 SQL Editor에 손수 적용 (`sql/supabase-setup.sql` 등, 각 파일 헤더의 순서/사전조건 참고)
 
 ## 문서 체계
 - `docs/01-plan/` — 진행 중 계획 (MVP 플랜)
