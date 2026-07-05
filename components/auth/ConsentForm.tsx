@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { G } from '@/lib/tokens';
+import { REGIONS } from '@/lib/regions';
+import { isValidPhone } from '@/lib/auth/profileFields';
 
 type ItemKey = 'terms' | 'privacy' | 'thirdparty' | 'marketing';
 const ITEMS: { key: ItemKey; required: boolean; label: string }[] = [
@@ -20,6 +22,18 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('');
+  const [region, setRegion] = useState('');
+
+  const phoneValid = phone === '' || isValidPhone(phone);
+  const profileDone =
+    fullName.trim() !== '' &&
+    isValidPhone(phone) &&
+    gender !== '' &&
+    region !== '';
+
   const allChecked = ITEMS.every((it) => checked[it.key]);
   const requiredDone = useMemo(
     () => ITEMS.filter((it) => it.required).every((it) => checked[it.key]),
@@ -32,15 +46,19 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
     setChecked({ terms: next, privacy: next, thirdparty: next, marketing: next });
   };
 
+  const canSubmit = requiredDone && profileDone;
   const submit = async () => {
-    if (!requiredDone || submitting) return;
+    if (!canSubmit || submitting) return;
     setSubmitting(true);
     setError('');
     try {
       const res = await fetch('/api/auth/consent', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ marketing: checked.marketing }),
+        body: JSON.stringify({
+          marketing: checked.marketing,
+          profile: { full_name: fullName.trim(), phone: phone.trim(), gender, region },
+        }),
       });
       if (!res.ok) {
         setError('동의 저장에 실패했습니다. 다시 시도해 주세요.');
@@ -83,22 +101,81 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
         ))}
       </div>
 
-      <p style={{ minHeight: 16, margin: '14px 0 6px', fontSize: 12, fontWeight: 600, textAlign: 'center', color: G.red, visibility: requiredDone ? 'hidden' : 'visible' }}>
-        필수 항목에 동의해야 시작할 수 있어요
+      <div style={{ marginTop: 20, marginBottom: 4 }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: G.textBlack, margin: '0 0 10px' }}>
+          기본 정보 입력
+        </p>
+
+        <input
+          type="text"
+          placeholder="이름 (실명)"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          style={inputStyle}
+        />
+
+        <input
+          type="tel"
+          placeholder="휴대폰 번호 (010-1234-5678)"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          style={{ ...inputStyle, borderColor: phoneValid ? '#cfd4db' : G.red }}
+        />
+        {!phoneValid && (
+          <p style={{ color: G.red, fontSize: 11.5, fontWeight: 600, margin: '-6px 0 8px 2px' }}>
+            휴대폰 번호 형식을 확인해 주세요
+          </p>
+        )}
+
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+          {([['male', '남성'], ['female', '여성'], ['unspecified', '선택 안 함']] as const).map(
+            ([val, label]) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setGender(val)}
+                style={{
+                  flex: 1, height: 44, borderRadius: 11, fontFamily: 'inherit',
+                  fontSize: 13.5, fontWeight: 700, cursor: 'pointer',
+                  border: `1.5px solid ${gender === val ? G.starbucksGreen : '#cfd4db'}`,
+                  background: gender === val ? '#e8f5ee' : '#fff',
+                  color: gender === val ? G.houseGreen : G.textSoft,
+                }}
+              >
+                {label}
+              </button>
+            ),
+          )}
+        </div>
+
+        <select
+          value={region}
+          onChange={(e) => setRegion(e.target.value)}
+          style={{ ...inputStyle, color: region ? G.textBlack : '#aab0b9' }}
+        >
+          <option value="">지역 (시/도) 선택</option>
+          {REGIONS.map((r) => (
+            <option key={r} value={r} style={{ color: G.textBlack }}>{r}</option>
+          ))}
+        </select>
+      </div>
+
+      <p style={{ minHeight: 16, margin: '14px 0 6px', fontSize: 12, fontWeight: 600, textAlign: 'center', color: G.red, visibility: canSubmit ? 'hidden' : 'visible' }}>
+        필수 동의와 기본 정보를 모두 입력해야 시작할 수 있어요
       </p>
 
       <button
         type="button"
         onClick={submit}
-        disabled={!requiredDone || submitting}
+        disabled={!canSubmit || submitting}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           width: '100%', height: 50, borderRadius: 13, border: 0,
           fontSize: 15, fontWeight: 800, fontFamily: 'inherit',
-          cursor: !requiredDone || submitting ? 'not-allowed' : 'pointer',
-          background: requiredDone ? G.starbucksGreen : '#c7ccd3',
-          color: requiredDone ? '#fff' : '#eef0f3',
-          boxShadow: requiredDone ? '0 6px 16px rgba(21,122,78,.32)' : 'none',
+          cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer',
+          background: canSubmit ? G.starbucksGreen : '#c7ccd3',
+          color: canSubmit ? '#fff' : '#eef0f3',
+          boxShadow: canSubmit ? '0 6px 16px rgba(21,122,78,.32)' : 'none',
         }}
       >
         {submitting ? '처리 중…' : '동의하고 시작'}
@@ -135,4 +212,10 @@ const itemRow: React.CSSProperties = {
   padding: '13px 6px', cursor: 'pointer', border: 0,
   borderBottom: '1px solid #f1f3f6', background: 'transparent',
   fontFamily: 'inherit',
+};
+const inputStyle: React.CSSProperties = {
+  width: '100%', height: 46, borderRadius: 11, padding: '0 14px',
+  border: '1.5px solid #cfd4db', background: '#fff',
+  fontSize: 14, fontFamily: 'inherit', marginBottom: 10,
+  boxSizing: 'border-box',
 };
