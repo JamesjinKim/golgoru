@@ -42,13 +42,27 @@ export const VISIBLE_VERTICALS: Vertical[] = ALL_VERTICALS.filter(
 
 export const isHiddenVertical = (v: Vertical): boolean => HIDDEN_VERTICALS.includes(v);
 
+// license 표시 정규화: 세무사 요청으로 '회계' 표기를 노출하지 않는다.
+// 예) '김세무 세무회계' → '김세무 세무', '세무회계' → '세무'. DB 값은 그대로, 표시만 정리.
+// '회계' 제거 후 남은 공백·구분자를 다듬고, 비면 null 취급(라벨로 폴백).
+export function displayLicense(license?: string | null): string | null {
+  const raw = license?.trim();
+  if (!raw) return null;
+  const cleaned = raw
+    .replace(/회계/g, '')
+    .replace(/\s{2,}/g, ' ')       // 중간 이중 공백 정리
+    .replace(/[·・]\s*$/, '')       // 끝에 남은 구분점 제거
+    .trim();
+  return cleaned || null;
+}
+
 // 카드·상세 표시용 직함: 개인 자격(license)이 있으면 우선, 없으면 직역 라벨
 export function expertTitle(e: { vertical: Vertical; license?: string | null }): string {
-  return e.license?.trim() || VERTICAL_LABEL[e.vertical];
+  return displayLicense(e.license) || VERTICAL_LABEL[e.vertical];
 }
 
 export function expertCallLabel(e: { vertical: Vertical; license?: string | null }): string {
-  const lic = e.license?.trim();
+  const lic = displayLicense(e.license);
   return lic ? `${lic}에게 전화하기` : VERTICAL_CALL_LABEL[e.vertical];
 }
 

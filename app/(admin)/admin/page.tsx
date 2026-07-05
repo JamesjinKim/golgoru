@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-table';
 import { Expert } from '@/lib/types';
 import { ExpertForm } from '@/components/admin/ExpertForm';
-import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
+import { STATUS_LABEL, VERTICAL_LABEL, displayLicense } from '@/lib/constants';
 
 const col = createColumnHelper<Expert>();
 
@@ -52,8 +52,8 @@ export default function AdminExpertsPage() {
       header: '직업',
       cell: (c) => {
         const v = VERTICAL_LABEL[c.getValue()] ?? c.getValue();
-        const lic = c.row.original.license?.trim();
-        // license가 직역 라벨과 같으면(예: tax + license "세무사") 중복 표시하지 않고 하나만
+        // displayLicense: '회계' 표기 제거 후, 라벨과 같으면(예: tax "세무사") 중복 병기 생략
+        const lic = displayLicense(c.row.original.license);
         return lic && lic !== v ? `${v} · ${lic}` : v;
       },
     }),
