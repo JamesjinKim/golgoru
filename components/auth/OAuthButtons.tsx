@@ -9,11 +9,19 @@ const LABEL: Record<OAuthProvider, Record<'login' | 'signup', string>> = {
   google: { login: '구글 로그인', signup: '구글로 가입' },
 };
 
+// 카카오는 비즈앱 전환(비즈니스 인증) 전이라 account_email 권한이 없어 KOE205가 발생한다.
+// 전환 완료 전까지 카카오 버튼은 눌러도 OAuth를 시작하지 않고 준비 중 안내만 표시한다.
+const KAKAO_ENABLED = false;
+
 export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
   const [pending, setPending] = useState<OAuthProvider | null>(null);
   const [error, setError] = useState('');
 
   const go = async (provider: OAuthProvider) => {
+    if (provider === 'kakao' && !KAKAO_ENABLED) {
+      setError('카카오 로그인은 준비 중입니다. 지금은 구글 로그인을 이용해 주세요.');
+      return;
+    }
     setPending(provider);
     setError('');
     try {
@@ -42,10 +50,14 @@ export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
           background: '#fee500', color: '#191600',
           fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px',
           fontFamily: 'inherit', cursor: pending ? 'default' : 'pointer',
-          opacity: pending && pending !== 'kakao' ? 0.6 : 1,
+          opacity: !KAKAO_ENABLED ? 0.55 : (pending && pending !== 'kakao' ? 0.6 : 1),
         }}
       >
-        {pending === 'kakao' ? '연결 중…' : LABEL.kakao[mode]}
+        {pending === 'kakao'
+          ? '연결 중…'
+          : KAKAO_ENABLED
+            ? LABEL.kakao[mode]
+            : `${LABEL.kakao[mode]} (준비 중)`}
       </button>
 
       <button
