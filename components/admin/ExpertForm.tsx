@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { z } from 'zod';
 import { ConsultStatus, Expert, Vertical } from '@/lib/types';
-import { STATUS_LABEL, VERTICAL_LABEL } from '@/lib/constants';
+import { STATUS_LABEL, VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
 import ExpertAvatar from '@/components/ExpertAvatar';
 
 type CategoryOption = { code: string; vertical: string; level: number; label: string };
 
-const VERTICALS: Vertical[] = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'];
+// 신규 등록 드롭다운은 노출 직역만. 편집 중인 값이 숨김 직역이면 아래에서 별도 보존.
+const VERTICALS: Vertical[] = VISIBLE_VERTICALS;
 const STATUSES: ConsultStatus[] = ['available', 'delayed', 'unavailable'];
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -140,7 +141,10 @@ export function ExpertForm({
         <div className="grid grid-cols-2 gap-3">
           <input className={field} placeholder="이름" value={form.name} onChange={(e) => set('name', e.target.value)} />
           <select className={field} value={form.vertical} onChange={(e) => changeVertical(e.target.value as Vertical)}>
-            {VERTICALS.map((v) => <option key={v} value={v}>{VERTICAL_LABEL[v]} ({v})</option>)}
+            {/* 노출 직역 + 편집 중인 값이 숨김 직역이면 그 값도 유지(기존 데이터 표시용) */}
+            {(VERTICALS.includes(form.vertical) ? VERTICALS : [...VERTICALS, form.vertical]).map((v) => (
+              <option key={v} value={v}>{VERTICAL_LABEL[v]} ({v})</option>
+            ))}
           </select>
           <div className="col-span-2 flex items-center gap-3">
             {initial?.id ? (

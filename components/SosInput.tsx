@@ -25,7 +25,6 @@ const EXAMPLES = [
   { tag: '의료', text: '갑자기 가슴통증이 있어요' },
   { tag: '세무', text: '갑자기 세무조사가 나왔어요' },
   { tag: '특허', text: '특허를 경쟁사가 무단 도용했어요' },
-  { tag: '감정', text: '토지 보상 부동산 감정평가가 필요해요' },
 ];
 
 interface SosInputProps {

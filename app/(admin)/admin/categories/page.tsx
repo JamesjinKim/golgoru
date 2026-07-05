@@ -1,13 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { VERTICAL_LABEL } from '@/lib/constants';
+import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
 import type { Vertical } from '@/lib/types';
 
 type Cat = {
   code: string; parent_code: string | null; vertical: Vertical;
   level: number; label: string; is_active: boolean;
 };
-const VORDER: Vertical[] = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'];
+// 노출 직역만 (감정평가사 등 숨김 제외)
+const VORDER: Vertical[] = VISIBLE_VERTICALS;
 const field = 'rounded-md border border-slate-300 px-2 py-1 text-sm';
 
 export default function CategoriesAdminPage() {

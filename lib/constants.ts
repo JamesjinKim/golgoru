@@ -28,6 +28,20 @@ export const VERTICAL_CALL_LABEL: Record<Vertical, string> = {
   appraiser: '감정평가사에게 전화하기',
 };
 
+// UI에서 숨길 버티컬 (영업팀 요청). DB 데이터·타입·라벨은 보존하고 노출만 차단한다.
+// 다시 노출하려면 이 배열에서 제거하면 된다.
+export const HIDDEN_VERTICALS: readonly Vertical[] = ['appraiser'];
+
+// 전체 버티컬 순서 (라벨 정의 순서 = 노출 순서). UI 목록은 VISIBLE_VERTICALS를 쓸 것.
+export const ALL_VERTICALS = Object.keys(VERTICAL_LABEL) as Vertical[];
+
+// UI 노출용 버티컬 목록: 숨김 대상을 제외한다.
+export const VISIBLE_VERTICALS: Vertical[] = ALL_VERTICALS.filter(
+  (v) => !HIDDEN_VERTICALS.includes(v),
+);
+
+export const isHiddenVertical = (v: Vertical): boolean => HIDDEN_VERTICALS.includes(v);
+
 // 카드·상세 표시용 직함: 개인 자격(license)이 있으면 우선, 없으면 직역 라벨
 export function expertTitle(e: { vertical: Vertical; license?: string | null }): string {
   return e.license?.trim() || VERTICAL_LABEL[e.vertical];
