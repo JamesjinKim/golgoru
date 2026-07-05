@@ -17,7 +17,8 @@ export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
     setPending(provider);
     setError('');
     try {
-      await startUserLogin(provider);
+      // 로그인/가입 전용 페이지에서 시작하므로, 인증 완료 후 이 페이지로 되돌아오지 않도록 홈으로 복귀.
+      await startUserLogin(provider, '/');
       // 성공 시 페이지가 OAuth로 리다이렉트되므로 여기 이후 코드는 도달하지 않음.
     } catch {
       setError(
