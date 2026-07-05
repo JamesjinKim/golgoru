@@ -128,7 +128,7 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
         )}
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-          {([['male', '남성'], ['female', '여성'], ['unspecified', '선택 안 함']] as const).map(
+          {([['male', '남성'], ['female', '여성']] as const).map(
             ([val, label]) => (
               <button
                 key={val}
