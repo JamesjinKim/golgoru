@@ -1,8 +1,9 @@
 import type { ConsentTimestamps } from './consent';
+import type { ProfileFields } from './profileFields';
 
 export type UserProfileRole = 'user' | 'expert' | 'admin';
 
-export interface UserProfile extends ConsentTimestamps {
+export interface UserProfile extends ConsentTimestamps, ProfileFields {
   id: string;
   role: UserProfileRole;
   display_name: string | null;
@@ -37,6 +38,10 @@ export function mapAuthUserToProfileRow(user: AuthUserLike): UserProfile {
     privacy_agreed_at: null,
     thirdparty_agreed_at: null,
     marketing_agreed_at: null,
+    full_name: null,
+    phone: null,
+    gender: null,
+    region: null,
   };
 }
 

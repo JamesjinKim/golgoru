@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserServerSupabase } from '@/lib/auth/supabaseServer';
 import { supabaseAdmin } from '@/lib/supabase';
 import { hasSupabasePublicConfig } from '@/lib/env';
+import { isValidPhone } from '@/lib/auth/profileFields';
 
 export async function POST(req: NextRequest) {
   if (!hasSupabasePublicConfig()) {
@@ -15,11 +16,31 @@ export async function POST(req: NextRequest) {
   }
 
   let marketing = false;
+  let profile: { full_name?: unknown; phone?: unknown; gender?: unknown; region?: unknown } = {};
   try {
-    const body = (await req.json()) as { marketing?: unknown };
+    const body = (await req.json()) as {
+      marketing?: unknown;
+      profile?: typeof profile;
+    };
     marketing = body?.marketing === true;
+    profile = body?.profile ?? {};
   } catch {
-    /* body 없으면 marketing=false */
+    /* body 파싱 실패 → 아래 검증에서 400 */
+  }
+
+  const fullName = typeof profile.full_name === 'string' ? profile.full_name.trim() : '';
+  const phone = typeof profile.phone === 'string' ? profile.phone.trim() : '';
+  const gender = typeof profile.gender === 'string' ? profile.gender.trim() : '';
+  const region = typeof profile.region === 'string' ? profile.region.trim() : '';
+
+  if (!fullName || !phone || !gender || !region) {
+    return NextResponse.json({ error: '프로필 정보를 모두 입력해 주세요.' }, { status: 400 });
+  }
+  if (!isValidPhone(phone)) {
+    return NextResponse.json({ error: '전화번호 형식이 올바르지 않습니다.' }, { status: 400 });
+  }
+  if (!['male', 'female', 'unspecified'].includes(gender)) {
+    return NextResponse.json({ error: '성별 값이 올바르지 않습니다.' }, { status: 400 });
   }
 
   const now = new Date().toISOString();
@@ -30,6 +51,10 @@ export async function POST(req: NextRequest) {
       privacy_agreed_at: now,
       thirdparty_agreed_at: now,
       marketing_agreed_at: marketing ? now : null,
+      full_name: fullName,
+      phone,
+      gender,
+      region,
     })
     .eq('id', user.id);
 
