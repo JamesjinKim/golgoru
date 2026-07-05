@@ -50,3 +50,14 @@ next-env.d.ts
 
 # bkit auto-generated session state (changes every session)
 docs/.bkit-memory.json
+docs/.pdca-status.json
+docs/.pdca-snapshots/
+
+# 카카오 로그인 학습 샘플 (자체 git 저장소, 메인 프로젝트와 별개)
+/dev-node/
+
+# supabase CLI 임시 폴더
+/supabase/.temp/
+
+# superpowers SDD 실행 로그 (세션별 스크래치)
+.superpowers/

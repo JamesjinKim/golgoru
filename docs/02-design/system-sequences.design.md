@@ -408,10 +408,11 @@ sequenceDiagram
 
 ---
 
-## 11. (예정) F10 — 소셜 로그인 · 3역할
+## 11. F10 — 소셜 로그인 · 로그인/가입/동의
 
-일반유저·전문가·관리자 역할 분리와 Google/Kakao OAuth 플로우는 별도 설계 문서 참조:
-→ **[auth-social-login.design.md](features/auth-social-login.design.md)** (§2 공통 로그인, §3 보호 액션, §4 전문가 승인, §5 관리자)
+Google/Kakao OAuth + 로그인/가입/동의 4화면 플로우는 구현 완료(구글 실동작, 카카오 보류). 설계·완료 기록 참조:
+→ 설계: **[2026-07-03-kakao-login-design.md](../superpowers/specs/2026-07-03-kakao-login-design.md)**
+→ 완료 기록: **[auth-login-and-domain.report.md](../04-report/auth-login-and-domain.report.md)**
 
 ---
 
