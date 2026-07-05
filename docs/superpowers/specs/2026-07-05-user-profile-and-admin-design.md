@@ -37,7 +37,7 @@ alter table profiles
   add column if not exists region     text;   -- 지역 (시/도 + 시/군/구), 지역 기반 전문가 매칭용
 ```
 
-> 주소는 **전체 주소가 아니라 지역(시/도 + 시/군/구)** 만 수집한다. 목적이 지역 기반 전문가 매칭이라 상세 주소는 불필요하고, 입력 마찰·개인정보 민감도를 낮춘다. 컬럼명은 `region`. 예: "서울특별시 강남구".
+> 주소는 **전체 주소가 아니라 지역(시/도)** 만 수집한다(가볍게 시작). 목적이 지역 기반 전문가 매칭이라 상세 주소는 불필요하고, 입력 마찰·개인정보 민감도를 낮춘다. 컬럼명은 `region`, 값은 시/도 명칭(예: "서울특별시"). 시/군/구 세분화는 필요 시 후속 확장.
 
 - **판정 헬퍼**: `hasCompleteProfile(profile)` — `full_name`, `phone`, `gender`, `region`이 모두 non-empty면 완료. `lib/auth/profileFields.ts`(신규)에 정의.
 - `UserProfile` 타입(`lib/auth/profile.ts`)에 4개 필드 추가.
@@ -47,8 +47,8 @@ alter table profiles
 
 기존 `/consent`(`app/(site)/consent/page.tsx` + `components/auth/ConsentForm.tsx`)를 확장한다. 새 라우트 없음.
 
-- `ConsentForm`에 **프로필 입력 섹션** 추가: 이름(text), 전화(text, 010 형식), 성별(라디오 male/female/unspecified), 지역(시/도 + 시/군/구).
-- **지역 입력 방식**: 자유 텍스트는 표기 불일치("서울"/"서울시"/"서울특별시")로 매칭이 깨지므로 **드롭다운 2단계**(시/도 선택 → 시/군/구 선택)로 정규화. 시/도·시/군/구 목록은 정적 상수(`lib/constants` 또는 신규 `lib/regions.ts`). 저장은 `region`에 "시/도 시/군/구" 한 문자열로 합쳐 저장(예: "서울특별시 강남구"). 상세 행정동까지는 수집 안 함.
+- `ConsentForm`에 **프로필 입력 섹션** 추가: 이름(text), 전화(text, 010 형식), 성별(라디오 male/female/unspecified), 지역(시/도 드롭다운).
+- **지역 입력 방식**: 자유 텍스트는 표기 불일치("서울"/"서울시"/"서울특별시")로 매칭이 깨지므로 **시/도 단일 드롭다운**(17개 광역시·도)으로 정규화. 목록은 정적 상수(신규 `lib/regions.ts`, 시/도 17개). 저장은 `region`에 시/도 명칭 한 문자열(예: "서울특별시"). 시/군/구·행정동 세분화는 후속 확장.
 - **[동의하고 시작] 활성 조건**: 기존 `requiredDone`(필수 동의 3개) **AND** 프로필 4개 입력 완료.
 - 전화번호 형식 검증: `01[016789]-?\d{3,4}-?\d{4}` 수준의 클라이언트 검증. 실패 시 안내.
 - 제출 → `POST /api/auth/consent` 확장: body에 `{ marketing, profile: { full_name, phone, gender, region } }`. 서버가 동의 타임스탬프 + 프로필 필드를 함께 `profiles` update.
