@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import ConsentForm from '@/components/auth/ConsentForm';
 import { getCurrentUserProfile } from '@/lib/auth/user';
 import { hasRequiredConsent } from '@/lib/auth/consent';
+import { hasCompleteProfile } from '@/lib/auth/profileFields';
 import { resolveAuthReturnTo } from '@/lib/auth/profile';
 import { G } from '@/lib/tokens';
 
@@ -18,7 +19,7 @@ export default async function ConsentPage({
 
   const { user, profile } = await getCurrentUserProfile();
   if (!user) redirect('/login');
-  if (hasRequiredConsent(profile)) redirect(returnTo);
+  if (hasRequiredConsent(profile) && hasCompleteProfile(profile)) redirect(returnTo);
 
   return (
     <div style={{
