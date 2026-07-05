@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import SosInput from '@/components/SosInput';
 import UserAuthChip from '@/components/UserAuthChip';
+import WelcomeToast from '@/components/auth/WelcomeToast';
 import { getCurrentUserProfile } from '@/lib/auth/user';
 import { G } from '@/lib/tokens';
 
@@ -37,6 +38,7 @@ export default async function Home() {
       </header>
 
       <main style={{ flex: 1, padding: '16px 20px 24px' }}>
+        <WelcomeToast />
         <div style={{
           display: 'flex', alignItems: 'flex-end', gap: 14,
           marginBottom: 20,

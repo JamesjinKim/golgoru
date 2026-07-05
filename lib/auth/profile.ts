@@ -1,6 +1,8 @@
+import type { ConsentTimestamps } from './consent';
+
 export type UserProfileRole = 'user' | 'expert' | 'admin';
 
-export interface UserProfile {
+export interface UserProfile extends ConsentTimestamps {
   id: string;
   role: UserProfileRole;
   display_name: string | null;
@@ -31,6 +33,10 @@ export function mapAuthUserToProfileRow(user: AuthUserLike): UserProfile {
     display_name: displayName,
     email: stringOrNull(user.email),
     avatar_url: stringOrNull(metadata.avatar_url) ?? stringOrNull(metadata.picture),
+    terms_agreed_at: null,
+    privacy_agreed_at: null,
+    thirdparty_agreed_at: null,
+    marketing_agreed_at: null,
   };
 }
 

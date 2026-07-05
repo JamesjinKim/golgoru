@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/lib/auth/profile';
 import { formatUserLabel } from '@/lib/auth/profile';
-import { startUserLogin } from '@/lib/auth/startUserLogin';
 import { clearBrowserSupabaseAuthCookies } from '@/lib/auth/cookies';
 import { G } from '@/lib/tokens';
 
@@ -18,15 +17,8 @@ export default function UserAuthChip({ profile }: UserAuthChipProps) {
   const [error, setError] = useState('');
   const signedIn = Boolean(profile);
 
-  const login = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      await startUserLogin();
-    } catch {
-      setError('로그인 연결에 실패했습니다.');
-      setLoading(false);
-    }
+  const login = () => {
+    router.push('/login');
   };
 
   const logout = async () => {
