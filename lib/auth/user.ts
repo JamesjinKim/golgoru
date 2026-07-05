@@ -63,7 +63,7 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile> {
 
   const { data, error } = await supabaseAdmin
     .from('profiles')
-    .select('id,role,display_name,email,avatar_url,terms_agreed_at,privacy_agreed_at,thirdparty_agreed_at,marketing_agreed_at')
+    .select('id,role,display_name,email,avatar_url,terms_agreed_at,privacy_agreed_at,thirdparty_agreed_at,marketing_agreed_at,full_name,phone,gender,region')
     .eq('id', user.id)
     .maybeSingle();
 
