@@ -45,7 +45,7 @@ export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
           opacity: pending && pending !== 'kakao' ? 0.6 : 1,
         }}
       >
-        <span aria-hidden>💬</span> {pending === 'kakao' ? '연결 중…' : LABEL.kakao[mode]}
+        {pending === 'kakao' ? '연결 중…' : LABEL.kakao[mode]}
       </button>
 
       <button

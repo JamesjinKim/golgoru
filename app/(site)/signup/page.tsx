@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import OAuthButtons from '@/components/auth/OAuthButtons';
 import { G } from '@/lib/tokens';
@@ -6,7 +7,9 @@ export default function SignupPage() {
   return (
     <div style={shell}>
       <div style={brand}>
-        <div style={logo}>🏠</div>
+        <div style={logo}>
+          <Image src="/icons/icon-512.png" alt="골고루 SOS" width={58} height={58} priority />
+        </div>
         <h1 style={{ margin: '6px 0 0', fontSize: 22, letterSpacing: '-0.5px', color: G.textBlack }}>회원가입</h1>
         <p style={{ margin: 0, color: G.textSoft, fontSize: 13 }}>간편하게 시작하세요</p>
       </div>
@@ -34,8 +37,8 @@ const brand: React.CSSProperties = {
   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
 };
 const logo: React.CSSProperties = {
-  width: 58, height: 58, borderRadius: 18, background: G.starbucksGreen, color: '#fff',
-  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30,
+  width: 58, height: 58, borderRadius: 18, overflow: 'hidden',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
   boxShadow: '0 6px 16px rgba(21,122,78,.35)',
 };
 const divider: React.CSSProperties = {
