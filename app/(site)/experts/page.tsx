@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getExpertRepository } from '@/lib/experts/repository';
 import { getExpertDataSource } from '@/lib/experts/data-source';
 import { supabaseAdmin } from '@/lib/supabase';
-import { VERTICAL_LABEL } from '@/lib/constants';
+import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
 import { G } from '@/lib/tokens';
 import type { Category, Vertical } from '@/lib/types';
 import ExpertBrowseList from '@/components/ExpertBrowseList';
@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   description: '분야별 전문가를 둘러보고 미니홈피로 바로 연결하세요.',
 };
 
-const VERTICALS: Vertical[] = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'];
+// UI 노출 직역만 (감정평가사 등 숨김 제외). 칩 목록·URL 검증 모두 이 배열 기준.
+const VERTICALS: Vertical[] = VISIBLE_VERTICALS;
 
 // 선택한 직역의 중분류(level 1) 카테고리 — 둘러보기 2차 필터용. mock 모드/오류 시 빈 배열
 async function loadCategories(vertical: Vertical | null): Promise<Category[]> {
@@ -74,7 +75,7 @@ export default async function ExpertsBrowsePage({
           </h1>
         </div>
 
-        {/* 직역 필터 (전체 + 7직역) */}
+        {/* 직역 필터 (전체 + 노출 직역) */}
         <ChipRow>
           <Chip href="/experts?all=1" label="전체" active={!vertical && sp.all === '1'} />
           {VERTICALS.map((v) => (

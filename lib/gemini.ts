@@ -83,17 +83,35 @@ const RULES: Rule[] = [
   { vertical: 'appraiser', code: 'APR-02', category: '토지보상·수용', urgency: '일반', keywords: ['토지 보상', '수용', '보상금 산정', '경매 감정'] },
 ];
 
+// 숨김 직역(감정평가사 등, lib/constants HIDDEN_VERTICALS) 은 소비자에게 추천하지 않는다.
+// 분류가 숨김 직역으로 떨어지면 변호사(법률 상담)로 대체한다. DB 데이터는 보존하되 노출만 차단.
+// constants.ts를 직접 import하면 순환/서버경계 이슈가 없어 안전하지만, 여기서는 목록을 최소 복제해
+// gemini 모듈이 라벨 상수에 의존하지 않게 한다(분류 엔진은 constants와 독립).
+const HIDDEN_VERTICALS: readonly Vertical[] = ['appraiser'];
+
+function redirectHiddenVertical(result: ClassifyResult): ClassifyResult {
+  if (!HIDDEN_VERTICALS.includes(result.vertical)) return result;
+  // 감정평가 전용 카테고리 코드(APR-*)는 변호사 추천에 무효이므로 제거하고 라벨을 법률 상담으로 조정
+  return {
+    ...result,
+    vertical: 'lawyer',
+    category_code: undefined,
+    category: '법률 상담',
+    summary: '법률 전문가 상담이 필요한 상황으로 분류되었습니다.',
+  };
+}
+
 function localClassify(query: string): ClassifyResult {
   for (const rule of RULES) {
     if (rule.keywords.some(kw => query.includes(kw))) {
-      return {
+      return redirectHiddenVertical({
         vertical: rule.vertical,
         category_code: rule.code,
         category: rule.category,
         urgency: rule.urgency,
         keywords: rule.keywords.filter(kw => query.includes(kw)),
         summary: `${rule.category} 관련 상황으로 분류되었습니다.`,
-      };
+      });
     }
   }
   // 기본값: 법률 일반 (코드 없이 vertical 폴백)
@@ -125,14 +143,14 @@ export async function classifyQuery(query: string): Promise<ClassifyResult> {
     const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
     const parsed = JSON.parse(cleaned);
 
-    return {
+    return redirectHiddenVertical({
       vertical: parsed.vertical as Vertical,
       category_code: parsed.category_code ?? undefined,
       category: parsed.category,
       urgency: parsed.urgency as Urgency,
       keywords: parsed.keywords,
       summary: parsed.summary,
-    };
+    });
   } catch (err: unknown) {
     // 429 할당량 초과 또는 기타 API 오류 → 로컬 분류로 폴백
     const status = (err as { status?: number })?.status;
@@ -182,7 +200,7 @@ export async function classifyAudio(
     throw e;
   }
 
-  return {
+  return redirectHiddenVertical({
     vertical: parsed.vertical as Vertical,
     category_code: parsed.category_code ?? undefined,
     category: parsed.category ?? '법률 상담',
@@ -190,5 +208,5 @@ export async function classifyAudio(
     keywords: parsed.keywords ?? [],
     summary: parsed.summary ?? `${parsed.category ?? ''} 관련 상황으로 분류되었습니다.`,
     transcript,
-  };
+  });
 }

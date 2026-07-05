@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { VERTICAL_LABEL } from '@/lib/constants';
+import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
 import type { Vertical } from '@/lib/types';
 
 interface RowError { row: number; field: string; message: string }
@@ -16,7 +16,7 @@ type Cat = { code: string; vertical: Vertical; level: number; label: string };
 // 컬럼 가이드 (한글 헤더 기준 · 템플릿과 동일 순서)
 const COLS: { key: string; desc: string; required: boolean; example: string }[] = [
   { key: '이름', desc: '전문가 이름', required: true, example: '김변호' },
-  { key: '직업', desc: '변호사·의사·노무사·변리사·세무사·손해사정사·감정평가사 (영문코드도 가능)', required: true, example: '변호사' },
+  { key: '직업', desc: '변호사·의사·노무사·변리사·세무사·손해사정사 (영문코드도 가능)', required: true, example: '변호사' },
   { key: '전문분야', desc: '표시용 텍스트, | 로 구분', required: false, example: '형사|사기' },
   { key: '지역', desc: '활동 지역', required: true, example: '서울 강남' },
   { key: '전화번호', desc: '숫자·하이픈, 중복 불가', required: true, example: '02-1234-5678' },
@@ -32,7 +32,8 @@ const COLS: { key: string; desc: string; required: boolean; example: string }[] 
   { key: '노출', desc: '노출 여부 (Y/N)', required: false, example: 'Y' },
 ];
 
-const VORDER: Vertical[] = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'];
+// 노출 직역만 (감정평가사 등 숨김 제외)
+const VORDER: Vertical[] = VISIBLE_VERTICALS;
 
 export default function CsvImportPage() {
   const [file, setFile] = useState<File | null>(null);
