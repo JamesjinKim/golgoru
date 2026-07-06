@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { G } from '@/lib/tokens';
 import { REGIONS } from '@/lib/regions';
 import { isValidPhone } from '@/lib/auth/profileFields';
+import { termKeyForItem } from '@/lib/legal/consent-terms';
 
 type ItemKey = 'terms' | 'privacy' | 'thirdparty' | 'marketing';
 const ITEMS: { key: ItemKey; required: boolean; label: string }[] = [
@@ -88,16 +90,40 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
       </button>
 
       <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {/* 행 전체를 button으로 두면 그 안에 링크(<a>)를 중첩할 수 없어(인터랙티브 중첩),
+            체크 토글 영역과 [보기] 링크를 형제로 분리한다. */}
         {ITEMS.map((it) => (
-          <button key={it.key} type="button" onClick={() => toggle(it.key)} style={itemRow}>
-            <Box on={checked[it.key]} />
-            <span style={{ fontSize: 14, flex: 1, textAlign: 'left' }}>
-              <b style={{ color: it.required ? G.houseGreen : G.textSoft, fontWeight: 800 }}>
-                {it.required ? '(필수)' : '(선택)'}
-              </b>{' '}
-              {it.label}
-            </span>
-          </button>
+          <div key={it.key} style={itemRow}>
+            <button
+              type="button"
+              onClick={() => toggle(it.key)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 11, flex: 1,
+                border: 0, background: 'transparent', cursor: 'pointer',
+                fontFamily: 'inherit', padding: 0, textAlign: 'left',
+              }}
+            >
+              <Box on={checked[it.key]} />
+              <span style={{ fontSize: 14 }}>
+                <b style={{ color: it.required ? G.houseGreen : G.textSoft, fontWeight: 800 }}>
+                  {it.required ? '(필수)' : '(선택)'}
+                </b>{' '}
+                {it.label}
+              </span>
+            </button>
+            {/* [보기]: 약관 전문 새 탭 (동의 입력 흐름 유지) */}
+            <Link
+              href={`/terms/${termKeyForItem(it.key)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                flex: 'none', fontSize: 12, fontWeight: 700, color: G.textSoft,
+                textDecoration: 'underline', textUnderlineOffset: 2, padding: '2px 4px',
+              }}
+            >
+              보기
+            </Link>
+          </div>
         ))}
       </div>
 
