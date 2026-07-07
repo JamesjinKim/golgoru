@@ -9,9 +9,10 @@ const LABEL: Record<OAuthProvider, Record<'login' | 'signup', string>> = {
   google: { login: '구글 로그인', signup: '구글로 가입' },
 };
 
-// 카카오는 비즈앱 전환(비즈니스 인증) 전이라 account_email 권한이 없어 KOE205가 발생한다.
-// 전환 완료 전까지 카카오 버튼은 눌러도 OAuth를 시작하지 않고 준비 중 안내만 표시한다.
-const KAKAO_ENABLED = false;
+// 카카오 디벨로퍼에서 account_email 동의항목이 승인되어(KOE205 원인 해소, 2026-07-08)
+// 카카오 로그인을 활성화한다. 콜백·프로필 매핑·동의 게이트는 provider 공통이라
+// 켜는 즉시 구글과 동일한 흐름(로그인 → /consent 필수·선택 동의 + 프로필 입력 → 홈)을 탄다.
+const KAKAO_ENABLED = true;
 
 export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
   const [pending, setPending] = useState<OAuthProvider | null>(null);
