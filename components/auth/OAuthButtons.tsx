@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { startUserLogin, type OAuthProvider } from '@/lib/auth/startUserLogin';
+import { detectInAppBrowser, openExternalFromKakaoTalk, type InAppKind } from '@/lib/auth/inAppBrowser';
 import { G } from '@/lib/tokens';
 
 const LABEL: Record<OAuthProvider, Record<'login' | 'signup', string>> = {
@@ -17,10 +18,21 @@ const KAKAO_ENABLED = true;
 export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
   const [pending, setPending] = useState<OAuthProvider | null>(null);
   const [error, setError] = useState('');
+  // 인앱 웹뷰 감지는 마운트 후(navigator 접근) 실행 — SSR과 초기 클라이언트 렌더 일치 유지.
+  const [inApp, setInApp] = useState<InAppKind>(null);
+
+  useEffect(() => {
+    setInApp(detectInAppBrowser(navigator.userAgent));
+  }, []);
 
   const go = async (provider: OAuthProvider) => {
     if (provider === 'kakao' && !KAKAO_ENABLED) {
       setError('카카오 로그인은 준비 중입니다. 지금은 구글 로그인을 이용해 주세요.');
+      return;
+    }
+    // 구글은 인앱 웹뷰에서 OAuth가 차단(disallowed_useragent)된다. 시도 전에 외부 브라우저로 유도.
+    if (provider === 'google' && inApp) {
+      setError('앱 내 화면에서는 구글 로그인이 제한됩니다. 위 안내대로 외부 브라우저로 열어 주세요.');
       return;
     }
     setPending(provider);
@@ -41,6 +53,8 @@ export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+      {inApp && <InAppNotice kind={inApp} />}
+
       <button
         type="button"
         onClick={() => go('kakao')}
@@ -80,6 +94,44 @@ export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
       {error && (
         <p style={{ color: G.red, fontSize: 12.5, fontWeight: 700, textAlign: 'center', margin: '4px 0 0' }}>
           {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+const IN_APP_NAME: Record<Exclude<InAppKind, null>, string> = {
+  kakaotalk: '카카오톡', instagram: '인스타그램', facebook: '페이스북',
+  naver: '네이버', line: '라인', daum: '다음', webview: '앱 내 화면',
+};
+
+function InAppNotice({ kind }: { kind: Exclude<InAppKind, null> }) {
+  const appName = IN_APP_NAME[kind];
+  const openExternal = () => openExternalFromKakaoTalk(window.location.href);
+
+  return (
+    <div style={{
+      background: '#fff4e5', border: '1px solid #ffd591', borderRadius: 12,
+      padding: '12px 14px', marginBottom: 4,
+    }}>
+      <p style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: '#8a5a00', lineHeight: 1.55 }}>
+        {appName} 안에서는 구글 로그인이 제한됩니다.
+      </p>
+      {kind === 'kakaotalk' ? (
+        <button
+          type="button"
+          onClick={openExternal}
+          style={{
+            marginTop: 9, width: '100%', height: 40, borderRadius: 9,
+            border: '1px solid #e0a83a', background: '#fff', color: '#8a5a00',
+            fontSize: 13, fontWeight: 800, fontFamily: 'inherit', cursor: 'pointer',
+          }}
+        >
+          외부 브라우저로 열기
+        </button>
+      ) : (
+        <p style={{ margin: '6px 0 0', fontSize: 12, fontWeight: 600, color: '#8a5a00', lineHeight: 1.55 }}>
+          우측 상단 메뉴(⋯)에서 <b>Chrome·Safari로 열기</b>를 눌러 다시 시도해 주세요.
         </p>
       )}
     </div>
