@@ -9,7 +9,7 @@ export default function LoginPage() {
       <div style={brand}>
         <BrandMark size={58} />
         <h1 style={{ margin: '6px 0 0', fontSize: 22, letterSpacing: '-0.5px', color: G.textBlack }}>골고루 SOS</h1>
-        <p style={{ margin: 0, color: G.textSoft, fontSize: 13 }}>긴급할 때, 30초 전문가 연결</p>
+        <p style={{ margin: 0, color: G.textSoft, fontSize: 13 }}>긴급할 때, 30초 전문가 추천</p>
       </div>
 
       <div style={{ marginTop: 34 }}>

@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '골고루 SOS — 긴급 전문가 연결',
-  description: '긴급 상황에서 30초 안에 전문가를 연결합니다.',
+  title: '골고루 SOS — 긴급 전문가 추천',
+  description: '긴급 상황에서 30초 안에 전문가를 추천합니다.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
