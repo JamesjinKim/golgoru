@@ -10,7 +10,7 @@ import ExpertBrowseList from '@/components/ExpertBrowseList';
 
 export const metadata: Metadata = {
   title: '전문가 둘러보기 · 골고루',
-  description: '분야별 전문가를 둘러보고 미니홈피로 바로 연결하세요.',
+  description: '분야별 전문가를 둘러보고 미니홈피로 바로 추천받으세요.',
 };
 
 // UI 노출 직역만 (감정평가사 등 숨김 제외). 칩 목록·URL 검증 모두 이 배열 기준.

@@ -190,7 +190,7 @@ export default function ResultPage() {
           {!loading && !error && experts.length === 0 && (
             <div style={{ textAlign: 'center', padding: '32px 0', color: G.textSoft }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>😔</div>
-              <p style={{ fontSize: 14, letterSpacing: '-0.16px' }}>현재 연결 가능한 전문가가 없습니다.</p>
+              <p style={{ fontSize: 14, letterSpacing: '-0.16px' }}>현재 추천할 전문가가 없습니다.</p>
               <p style={{ fontSize: 12, marginTop: 4, letterSpacing: '-0.16px' }}>잠시 후 다시 시도해주세요.</p>
             </div>
           )}
