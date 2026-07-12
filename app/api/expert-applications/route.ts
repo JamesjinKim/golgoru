@@ -29,17 +29,24 @@ export async function POST(req: NextRequest) {
   // 알 수 없는 직역 코드는 null 로 저장(자유 접수 허용)
   const vertical = ALL_VERTICALS.includes(verticalRaw as Vertical) ? (verticalRaw as Vertical) : null;
 
-  const { error } = await supabaseAdmin.from('expert_applications').insert({
-    name,
-    phone,
-    vertical,
-    message: message || null,
-  });
+  // insert 후 삽입된 행을 되돌려받아 실제 저장을 확인한다.
+  // (select 없이 insert 만 하면 성공 응답이 실제 저장을 보장하지 못함)
+  const { data, error } = await supabaseAdmin
+    .from('expert_applications')
+    .insert({
+      name,
+      phone,
+      vertical,
+      message: message || null,
+    })
+    .select('id, created_at')
+    .single();
 
-  if (error) {
+  if (error || !data) {
     console.error('[expert-applications] insert error:', error);
     return NextResponse.json({ error: '접수에 실패했습니다. 잠시 후 다시 시도해 주세요.' }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true }, { status: 201 });
+  console.info('[expert-applications] saved', data.id, data.created_at);
+  return NextResponse.json({ ok: true, id: data.id }, { status: 201 });
 }
