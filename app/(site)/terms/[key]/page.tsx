@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { G } from '@/lib/tokens';
-import { TERMS, TERM_KEYS, TERM_DRAFT_NOTICE, TERM_VERSION, type TermKey } from '@/lib/legal/consent-terms';
+import { TERMS, TERM_KEYS, TERM_VERSION, type TermKey } from '@/lib/legal/consent-terms';
 
 // /terms/service · /terms/privacy · /terms/thirdparty · /terms/marketing 4경로를 사전 생성
 export function generateStaticParams() {
@@ -26,23 +26,13 @@ export default async function TermPage({ params }: { params: Promise<{ key: stri
 
   return (
     <div style={{ maxWidth: 380, margin: '0 auto', minHeight: '100vh', padding: '40px 24px 48px', background: G.cream }}>
-      {/* 초안 고지 배지 */}
-      <span style={{
-        display: 'inline-block', fontSize: 11.5, fontWeight: 700, lineHeight: 1.5,
-        color: G.houseGreen, background: '#e8f5ee', border: '1px solid #cbe6d7',
-        borderRadius: 999, padding: '5px 11px', marginBottom: 16,
-      }}>
-        초안 · 검토 전
-      </span>
-
       <h1 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.4px', color: G.textBlack }}>
         {doc.title}{' '}
         <span style={{ fontSize: 12.5, fontWeight: 700, color: doc.required ? G.houseGreen : G.textSoft }}>
           {doc.required ? '(필수)' : '(선택)'}
         </span>
       </h1>
-      <p style={{ color: G.textSoft, fontSize: 13, margin: '0 0 6px' }}>{doc.summary}</p>
-      <p style={{ color: G.textSoft, fontSize: 11.5, margin: '0 0 18px' }}>{TERM_DRAFT_NOTICE}</p>
+      <p style={{ color: G.textSoft, fontSize: 13, margin: '0 0 18px' }}>{doc.summary}</p>
 
       {doc.sections.map((sec) => (
         <section key={sec.heading} style={{ marginBottom: 18 }}>
