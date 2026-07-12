@@ -35,5 +35,19 @@ export type AuditAction =
   | 'expert.import'
   | 'category.create'
   | 'category.update'
+  | 'application.update'
   | 'auth.login.success'
   | 'auth.login.fail';
+
+// 전문가 입점신청 처리 상태
+export type ExpertApplicationStatus = 'new' | 'contacted' | 'done';
+
+export interface ExpertApplication {
+  id: string;
+  name: string;                 // 성명 또는 업체명
+  phone: string;                // 연락처
+  vertical: Vertical | null;    // 희망 전문분야(직역 코드)
+  message: string | null;       // 문의 내용
+  status: ExpertApplicationStatus;
+  created_at: string;
+}

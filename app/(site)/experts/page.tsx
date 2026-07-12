@@ -104,16 +104,17 @@ export default async function ExpertsBrowsePage({
 
       <main style={{ flex: 1, padding: '16px 20px 32px' }}>
         {/* 전문가 입점 모집 CTA — 상단 노출(스크롤 없이 바로 보이게) */}
-        <button style={{
+        <Link href="/expert-apply" style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           width: '100%', marginBottom: 16,
           padding: '14px 16px', borderRadius: 12,
           background: '#fff', border: `1.5px solid ${G.red}`,
           color: G.red, fontSize: 16, fontWeight: 800,
           letterSpacing: '-0.16px', cursor: 'pointer', fontFamily: 'inherit',
+          textDecoration: 'none', boxSizing: 'border-box',
         }}>
           전문가이신가요? 골고루 입점 신청 →
-        </button>
+        </Link>
         {selected ? (
           <ExpertBrowseList
             key={`${vertical ?? 'all'}|${category ?? 'all'}`}
