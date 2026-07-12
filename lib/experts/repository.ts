@@ -16,6 +16,7 @@ export interface ExpertRepository {
     vertical: Vertical;
     urgency?: Urgency | string | null;
     categoryCode?: string | null;
+    region?: string | null; // 사용자 광역(시/도). 지역 우선 추천용
   }): Promise<Expert[]>;
   // 둘러보기: 커서 기반 페이지네이션. 정렬은 중립 키(상담가능 우선 → 가나다 → id)
   listBrowse(input: {

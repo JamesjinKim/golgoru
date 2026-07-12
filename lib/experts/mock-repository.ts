@@ -1,15 +1,7 @@
 import { MOCK_EXPERTS } from '@/lib/mock-data';
 import type { ConsultStatus, Expert, Urgency, Vertical } from '@/lib/types';
 import { BROWSE_PAGE_SIZE, type ExpertRepository } from './repository';
-
-function shuffleExperts(experts: Expert[]): Expert[] {
-  const shuffled = [...experts];
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
+import { pickRecommended } from './select';
 
 // mock 은 단순 오프셋 커서 (supabase keyset 과 형식만 다를 뿐 클라이언트엔 opaque)
 const STATUS_ORDER: Record<ConsultStatus, number> = { available: 0, delayed: 1, unavailable: 2 };
@@ -23,8 +15,8 @@ function decodeOffset(raw: string): number {
 
 export const mockExpertRepository: ExpertRepository = {
   // mock 데이터는 카테고리 코드 태깅이 없어 categoryCode 는 무시하고 vertical 매칭만 수행
-  async listRecommended({ vertical, urgency }: {
-    vertical: Vertical; urgency?: Urgency | string | null; categoryCode?: string | null;
+  async listRecommended({ vertical, urgency, region }: {
+    vertical: Vertical; urgency?: Urgency | string | null; categoryCode?: string | null; region?: string | null;
   }) {
     let experts = MOCK_EXPERTS.filter((expert) => expert.vertical === vertical && expert.is_active);
 
@@ -35,7 +27,8 @@ export const mockExpertRepository: ExpertRepository = {
       }
     }
 
-    return shuffleExperts(experts).slice(0, 3);
+    // 사용자 광역 우선 → 부족하면 인접 광역 → 그래도 부족하면 전 지역에서 3인 선정
+    return pickRecommended(experts, region);
   },
 
   // mock 데이터는 카테고리 태깅이 없어 categoryCode 는 무시하고 vertical 필터만 적용

@@ -1,17 +1,9 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import type { Category, Expert, Urgency, Vertical } from '@/lib/types';
 import { BROWSE_PAGE_SIZE, type ExpertRepository } from './repository';
+import { pickRecommended } from './select';
 
 const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
-
-function shuffleExperts(experts: Expert[]): Expert[] {
-  const shuffled = [...experts];
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
 
 // 둘러보기 커서: 정렬키(status,name,id) 마지막 항목을 opaque base64 로 인코딩
 type BrowseCursor = { s: string; n: string; i: string };
@@ -29,8 +21,8 @@ function decodeCursor(raw: string): BrowseCursor | null {
 }
 
 export const supabaseExpertRepository: ExpertRepository = {
-  async listRecommended({ vertical, urgency, categoryCode }: {
-    vertical: Vertical; urgency?: Urgency | string | null; categoryCode?: string | null;
+  async listRecommended({ vertical, urgency, categoryCode, region }: {
+    vertical: Vertical; urgency?: Urgency | string | null; categoryCode?: string | null; region?: string | null;
   }) {
     // 카테고리 코드 우선: 해당 코드를 보유한 전문가 id 수집 (없으면 vertical 폴백)
     let categoryIds: string[] | null = null;
@@ -69,7 +61,8 @@ export const supabaseExpertRepository: ExpertRepository = {
       }
     }
 
-    return shuffleExperts(experts).slice(0, 3);
+    // 사용자 광역 우선 → 부족하면 인접 광역 → 그래도 부족하면 전 지역에서 3인 선정
+    return pickRecommended(experts, region);
   },
 
   async listBrowse({ vertical, categoryCode, cursor, limit = BROWSE_PAGE_SIZE }) {
