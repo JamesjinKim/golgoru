@@ -42,6 +42,18 @@ export const VISIBLE_VERTICALS: Vertical[] = ALL_VERTICALS.filter(
 
 export const isHiddenVertical = (v: Vertical): boolean => HIDDEN_VERTICALS.includes(v);
 
+// 어드민 전문가 목록 그룹 정렬 순서 (골고루팀 지정): 변호사→노무사→세무사→변리사→손해사정사→병원.
+// 라벨 정의 순서(ALL_VERTICALS)와 다르므로 별도 지정. 목록에 없는 직역(appraiser 등)은 맨 뒤로.
+export const ADMIN_VERTICAL_ORDER: Vertical[] = [
+  'lawyer', 'labor', 'tax', 'patent', 'adjuster', 'doctor',
+];
+
+// 정렬 우선순위 인덱스. 순서에 없으면 큰 값(뒤로).
+export function adminVerticalRank(v: Vertical): number {
+  const i = ADMIN_VERTICAL_ORDER.indexOf(v);
+  return i === -1 ? ADMIN_VERTICAL_ORDER.length : i;
+}
+
 // license 표시 정규화: 세무사 요청으로 '회계' 표기를 노출하지 않는다.
 // 예) '김세무 세무회계' → '김세무 세무', '세무회계' → '세무'. DB 값은 그대로, 표시만 정리.
 // '회계' 제거 후 남은 공백·구분자를 다듬고, 비면 null 취급(라벨로 폴백).
