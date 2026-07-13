@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logAudit } from '@/lib/admin/audit';
+import { adminVerticalRank } from '@/lib/constants';
+import type { Vertical } from '@/lib/types';
 
 const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
 const LIST_SELECT = `${SELECT},expert_categories(category_code)`;
@@ -31,12 +33,18 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: '목록 조회 실패' }, { status: 500 });
   }
   // 중첩된 expert_categories → category_codes 평탄화
-  const experts = (data ?? []).map((e: Record<string, unknown>) => {
+  const experts: Record<string, unknown>[] = (data ?? []).map((e: Record<string, unknown>) => {
     const ec = (e.expert_categories as { category_code: string }[] | undefined) ?? [];
     const { expert_categories, ...rest } = e;
     void expert_categories;
     return { ...rest, category_codes: ec.map((x) => x.category_code) };
   });
+  // 직역 그룹 순서(변호사→노무사→세무사→변리사→손해사정사→병원)로 정렬.
+  // DB에서 created_at desc로 이미 정렬돼 있어, 안정 정렬이면 그룹 내 최신순이 유지된다.
+  experts.sort(
+    (a, b) =>
+      adminVerticalRank(a.vertical as Vertical) - adminVerticalRank(b.vertical as Vertical),
+  );
   return NextResponse.json({ experts, total: experts.length });
 }
 
