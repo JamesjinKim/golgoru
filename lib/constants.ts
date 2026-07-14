@@ -32,26 +32,28 @@ export const VERTICAL_CALL_LABEL: Record<Vertical, string> = {
 // 다시 노출하려면 이 배열에서 제거하면 된다.
 export const HIDDEN_VERTICALS: readonly Vertical[] = ['appraiser'];
 
-// 전체 버티컬 순서 (라벨 정의 순서 = 노출 순서). UI 목록은 VISIBLE_VERTICALS를 쓸 것.
+// 전체 버티컬 (라벨 정의 순서). 순서가 필요한 UI 목록은 VISIBLE_VERTICALS를 쓸 것.
 export const ALL_VERTICALS = Object.keys(VERTICAL_LABEL) as Vertical[];
 
-// UI 노출용 버티컬 목록: 숨김 대상을 제외한다.
-export const VISIBLE_VERTICALS: Vertical[] = ALL_VERTICALS.filter(
-  (v) => !HIDDEN_VERTICALS.includes(v),
-);
-
-export const isHiddenVertical = (v: Vertical): boolean => HIDDEN_VERTICALS.includes(v);
-
-// 어드민 전문가 목록 그룹 정렬 순서 (골고루팀 지정): 변호사→노무사→세무사→변리사→손해사정사→병원.
-// 라벨 정의 순서(ALL_VERTICALS)와 다르므로 별도 지정. 목록에 없는 직역(appraiser 등)은 맨 뒤로.
-export const ADMIN_VERTICAL_ORDER: Vertical[] = [
+// 직역 노출 순서 SSoT (골고루팀 지정): 변호사→노무사→세무사→변리사→손해사정사→병원.
+// 소비자 /experts 칩, 어드민 목록/드롭다운, 어드민 전문가 정렬이 모두 이 순서를 공유한다.
+// 라벨 정의 순서(ALL_VERTICALS)와 다르므로 별도 지정. 여기 없는 직역(appraiser 등)은 맨 뒤로.
+export const VERTICAL_DISPLAY_ORDER: Vertical[] = [
   'lawyer', 'labor', 'tax', 'patent', 'adjuster', 'doctor',
 ];
 
-// 정렬 우선순위 인덱스. 순서에 없으면 큰 값(뒤로).
+// UI 노출용 버티컬 목록: 지정 순서 + 숨김 대상 제외. (순서에 없는 노출 직역이 생기면 뒤에 덧붙임)
+export const VISIBLE_VERTICALS: Vertical[] = [
+  ...VERTICAL_DISPLAY_ORDER,
+  ...ALL_VERTICALS.filter((v) => !VERTICAL_DISPLAY_ORDER.includes(v)),
+].filter((v) => !HIDDEN_VERTICALS.includes(v));
+
+export const isHiddenVertical = (v: Vertical): boolean => HIDDEN_VERTICALS.includes(v);
+
+// 어드민 전문가 목록 그룹 정렬 우선순위. 지정 순서를 따르며, 없으면 큰 값(뒤로).
 export function adminVerticalRank(v: Vertical): number {
-  const i = ADMIN_VERTICAL_ORDER.indexOf(v);
-  return i === -1 ? ADMIN_VERTICAL_ORDER.length : i;
+  const i = VERTICAL_DISPLAY_ORDER.indexOf(v);
+  return i === -1 ? VERTICAL_DISPLAY_ORDER.length : i;
 }
 
 // license 표시 정규화: 세무사 요청으로 '회계' 표기를 노출하지 않는다.
