@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { G } from '@/lib/tokens';
 import { REGIONS } from '@/lib/regions';
 import { isValidPhone } from '@/lib/auth/profileFields';
+import { clearBrowserSupabaseAuthCookies } from '@/lib/auth/cookies';
 import { termKeyForItem } from '@/lib/legal/consent-terms';
 
 type ItemKey = 'terms' | 'privacy' | 'thirdparty' | 'marketing';
@@ -22,6 +23,7 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
     terms: false, privacy: false, thirdparty: false, marketing: false,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const [error, setError] = useState('');
 
   const [fullName, setFullName] = useState('');
@@ -73,6 +75,21 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
       setError('동의 저장에 실패했습니다. 다시 시도해 주세요.');
       setSubmitting(false);
     }
+  };
+
+  // 가입 중단: 미완료 세션을 로그아웃(세션 제거)하고 메인으로. 이후 동의 게이트가
+  // 적용되지 않아 자유롭게 둘러볼 수 있고, 가입은 처음부터 다시 시작할 수 있다.
+  const cancel = async () => {
+    if (submitting || leaving) return;
+    setLeaving(true);
+    try {
+      await fetch('/auth/logout', { method: 'POST' });
+    } catch {
+      /* 네트워크 오류여도 클라이언트 쿠키는 정리하고 메인으로 보낸다 */
+    }
+    clearBrowserSupabaseAuthCookies();
+    router.replace('/');
+    router.refresh();
   };
 
   return (
@@ -210,6 +227,21 @@ export default function ConsentForm({ returnTo }: { returnTo: string }) {
       {error && (
         <p style={{ color: G.red, fontSize: 12.5, fontWeight: 700, textAlign: 'center', margin: '10px 0 0' }}>{error}</p>
       )}
+
+      <button
+        type="button"
+        onClick={cancel}
+        disabled={submitting || leaving}
+        style={{
+          display: 'block', width: '100%', margin: '14px 0 0',
+          border: 0, background: 'transparent', fontFamily: 'inherit',
+          fontSize: 13, fontWeight: 700, color: G.textSoft,
+          textDecoration: 'underline', textUnderlineOffset: 3,
+          cursor: submitting || leaving ? 'default' : 'pointer',
+        }}
+      >
+        {leaving ? '나가는 중…' : '취소하고 메인으로'}
+      </button>
     </div>
   );
 }
