@@ -173,7 +173,7 @@ export default async function ExpertPage({ params, searchParams }: {
           {/* 첫 통화 안내 */}
           <Section title="첫 통화에 받는 것">
             <div style={{ background: '#fff', borderRadius: 12, boxShadow: SHADOW_CARD, padding: 4, display: 'flex', flexDirection: 'column' }}>
-              {['15분 응급 진단 (무료)', '즉시 취해야 할 행동 3가지', '예상 절차 · 비용 · 기간 안내'].map((row, i, arr) => (
+              {['응급 진단 통화', '즉시 취해야 할 행동 3가지', '예상 절차 · 비용 · 기간 안내'].map((row, i, arr) => (
                 <div key={i} style={{
                   display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
                   borderBottom: i < arr.length - 1 ? `1px solid ${G.hairline}` : 'none',
@@ -208,9 +208,6 @@ export default async function ExpertPage({ params, searchParams }: {
         background: `linear-gradient(180deg, rgba(242,240,235,0) 0%, ${G.cream} 30%)`,
       }}>
         <CallButton phone={expert.phone} name={expert.name} vertical={expert.vertical} license={expert.license} />
-        <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: G.textSoft, letterSpacing: '-0.16px' }}>
-          연결 후 첫 15분은 무료입니다
-        </div>
       </div>
     </div>
   );
