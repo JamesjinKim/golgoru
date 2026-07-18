@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
+import { adminFetch } from '@/lib/admin/adminFetch';
 import type { Vertical } from '@/lib/types';
 
 type Cat = {
@@ -19,7 +20,7 @@ export default function CategoriesAdminPage() {
   const [add, setAdd] = useState({ vertical: 'lawyer' as Vertical, level: '1', parent_code: '', code: '', label: '' });
 
   const load = async () => {
-    const r = await fetch('/api/admin/categories?all=1');
+    const r = await adminFetch('/api/admin/categories?all=1');
     const j = await r.json();
     const list: Cat[] = j.categories ?? [];
     setCats(list);
@@ -29,7 +30,7 @@ export default function CategoriesAdminPage() {
 
   const patch = async (code: string, body: object, failMsg: string) => {
     setBusy(true); setMsg('');
-    const r = await fetch(`/api/admin/categories/${encodeURIComponent(code)}`, {
+    const r = await adminFetch(`/api/admin/categories/${encodeURIComponent(code)}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     });
     setBusy(false);
@@ -38,7 +39,7 @@ export default function CategoriesAdminPage() {
   };
   const create = async () => {
     setBusy(true); setMsg('');
-    const r = await fetch('/api/admin/categories', {
+    const r = await adminFetch('/api/admin/categories', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...add, level: Number(add.level), parent_code: add.level === '2' ? add.parent_code : null }),
     });

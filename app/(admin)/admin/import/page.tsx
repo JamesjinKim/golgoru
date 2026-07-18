@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
+import { adminFetch } from '@/lib/admin/adminFetch';
 import type { Vertical } from '@/lib/types';
 
 interface RowError { row: number; field: string; message: string }
@@ -44,7 +45,7 @@ export default function CsvImportPage() {
   const [cats, setCats] = useState<Cat[]>([]);
 
   useEffect(() => {
-    fetch('/api/admin/categories').then((r) => r.json()).then((d) => setCats(d.categories ?? [])).catch(() => {});
+    adminFetch('/api/admin/categories').then((r) => r.json()).then((d) => setCats(d.categories ?? [])).catch(() => {});
   }, []);
 
   const send = async (mode: 'validate' | 'commit') => {
@@ -52,7 +53,7 @@ export default function CsvImportPage() {
     setBusy(true); setError('');
     const fd = new FormData();
     fd.append('file', file);
-    const res = await fetch(`/api/admin/experts/import?mode=${mode}`, { method: 'POST', body: fd });
+    const res = await adminFetch(`/api/admin/experts/import?mode=${mode}`, { method: 'POST', body: fd });
     const j = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) { setError(j.error || '처리 실패'); return; }

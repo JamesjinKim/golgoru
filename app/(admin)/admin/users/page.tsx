@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { hasRequiredConsent } from '@/lib/auth/consent';
+import { adminFetch } from '@/lib/admin/adminFetch';
 
 interface UserRow {
   id: string;
@@ -31,7 +32,7 @@ export default function AdminUsersPage() {
     setError('');
     try {
       const url = query ? `/api/admin/users?q=${encodeURIComponent(query)}` : '/api/admin/users';
-      const res = await fetch(url);
+      const res = await adminFetch(url);
       if (!res.ok) {
         setError('목록을 불러오지 못했습니다.');
         setUsers([]);

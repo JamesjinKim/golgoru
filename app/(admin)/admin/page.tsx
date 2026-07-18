@@ -5,6 +5,7 @@ import {
 } from '@tanstack/react-table';
 import { Expert } from '@/lib/types';
 import { ExpertForm } from '@/components/admin/ExpertForm';
+import { adminFetch } from '@/lib/admin/adminFetch';
 import { STATUS_LABEL, VERTICAL_LABEL, displayLicense } from '@/lib/constants';
 
 const col = createColumnHelper<Expert>();
@@ -25,7 +26,7 @@ export default function AdminExpertsPage() {
 
   const load = async (query = '') => {
     setLoading(true);
-    const res = await fetch(`/api/admin/experts${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+    const res = await adminFetch(`/api/admin/experts${query ? `?q=${encodeURIComponent(query)}` : ''}`);
     const data = await res.json();
     setRows(data.experts ?? []);
     setLoading(false);
@@ -33,7 +34,7 @@ export default function AdminExpertsPage() {
   useEffect(() => { load(); }, []);
 
   const toggleActive = async (e: Expert) => {
-    await fetch(`/api/admin/experts/${e.id}`, {
+    await adminFetch(`/api/admin/experts/${e.id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_active: !e.is_active }),
     });
@@ -41,7 +42,7 @@ export default function AdminExpertsPage() {
   };
   const remove = async (e: Expert) => {
     if (!confirm(`${e.name} 삭제? (super_admin 전용)`)) return;
-    const res = await fetch(`/api/admin/experts/${e.id}`, { method: 'DELETE' });
+    const res = await adminFetch(`/api/admin/experts/${e.id}`, { method: 'DELETE' });
     if (!res.ok) { const j = await res.json().catch(() => ({})); setMsg(j.error || '삭제 실패'); return; }
     load(q);
   };

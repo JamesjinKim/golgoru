@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import '@/styles/admin.css';
 import { AdminNav } from '@/components/admin/AdminNav';
+import { AdminSessionGuard } from '@/components/admin/AdminSessionGuard';
 import { getAdminIdentity } from '@/lib/admin/auth';
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default async function AdminRootLayout({ children }: { children: React.Re
   return (
     <html lang="ko">
       <body className="admin-root min-h-screen">
+        <AdminSessionGuard />
         <AdminNav email={identity?.email} role={identity?.role} />
         <main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
           {children}

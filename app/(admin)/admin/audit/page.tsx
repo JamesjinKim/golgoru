@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { adminFetch } from '@/lib/admin/adminFetch';
 
 interface Log {
   id: string; actor_email: string | null; action: string;
@@ -12,7 +13,7 @@ export default function AuditPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/admin/audit')
+    adminFetch('/api/admin/audit')
       .then((r) => r.json())
       .then((d) => setLogs(d.logs ?? []))
       .finally(() => setLoading(false));

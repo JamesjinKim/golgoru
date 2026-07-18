@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { ConsultStatus, Expert, Vertical } from '@/lib/types';
 import { STATUS_LABEL, VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
 import { MAX_YOUTUBE_LINKS } from '@/lib/experts/youtube';
+import { adminFetch } from '@/lib/admin/adminFetch';
 import ExpertAvatar from '@/components/ExpertAvatar';
 
 type CategoryOption = { code: string; vertical: string; level: number; label: string };
@@ -81,7 +82,7 @@ export function ExpertForm({
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch(`/api/admin/experts/${initial.id}/photo`, { method: 'POST', body: fd });
+      const res = await adminFetch(`/api/admin/experts/${initial.id}/photo`, { method: 'POST', body: fd });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? '업로드 실패');
       setPhotoUrl(json.photo_url);
@@ -97,7 +98,7 @@ export function ExpertForm({
   const [allCats, setAllCats] = useState<CategoryOption[]>([]);
   const [categoryCodes, setCategoryCodes] = useState<string[]>(initial?.category_codes ?? []);
   useEffect(() => {
-    fetch('/api/admin/categories')
+    adminFetch('/api/admin/categories')
       .then((r) => r.json())
       .then((d) => setAllCats(d.categories ?? []))
       .catch(() => {});
@@ -138,7 +139,7 @@ export function ExpertForm({
       weekday_end: parsed.data.weekday_end || null,
       category_codes: categoryCodes,
     };
-    const res = await fetch(
+    const res = await adminFetch(
       initial ? `/api/admin/experts/${initial.id}` : '/api/admin/experts',
       {
         method: initial ? 'PUT' : 'POST',

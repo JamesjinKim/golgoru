@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { VERTICAL_LABEL } from '@/lib/constants';
+import { adminFetch } from '@/lib/admin/adminFetch';
 import type { ExpertApplication, ExpertApplicationStatus } from '@/lib/admin/types';
 
 const STATUS_LABEL: Record<ExpertApplicationStatus, string> = {
@@ -32,7 +33,7 @@ export default function AdminApplicationsPage() {
       if (statusFilter) params.set('status', statusFilter);
       if (query) params.set('q', query);
       const qs = params.toString();
-      const res = await fetch(`/api/admin/expert-applications${qs ? `?${qs}` : ''}`);
+      const res = await adminFetch(`/api/admin/expert-applications${qs ? `?${qs}` : ''}`);
       if (!res.ok) {
         setError('목록을 불러오지 못했습니다.');
         setRows([]);
@@ -53,7 +54,7 @@ export default function AdminApplicationsPage() {
   const changeStatus = async (id: string, next: ExpertApplicationStatus) => {
     // 낙관적 업데이트 후 실패 시 재조회
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: next } : r)));
-    const res = await fetch(`/api/admin/expert-applications/${id}`, {
+    const res = await adminFetch(`/api/admin/expert-applications/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: next }),
