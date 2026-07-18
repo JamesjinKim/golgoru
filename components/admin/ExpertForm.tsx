@@ -4,6 +4,7 @@ import type { ChangeEvent } from 'react';
 import { z } from 'zod';
 import { ConsultStatus, Expert, Vertical } from '@/lib/types';
 import { STATUS_LABEL, VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
+import { MAX_YOUTUBE_LINKS } from '@/lib/experts/youtube';
 import ExpertAvatar from '@/components/ExpertAvatar';
 
 type CategoryOption = { code: string; vertical: string; level: number; label: string };
@@ -22,7 +23,6 @@ const schema = z.object({
   phone: z.string().trim().regex(/^[0-9-]{7,20}$/, '전화 형식(숫자·하이픈 7~20)'),
   experience_years: z.coerce.number().int().min(0).max(80),
   bio: z.string().max(300).optional(),
-  youtube_url: z.string().url('URL 형식').or(z.literal('')).optional(),
   status: z.enum(['available', 'delayed', 'unavailable']),
   weekday_start: z.string().regex(HHMM, 'HH:mm').or(z.literal('')).optional(),
   weekday_end: z.string().regex(HHMM, 'HH:mm').or(z.literal('')).optional(),
@@ -43,7 +43,6 @@ export function ExpertForm({
     phone: initial?.phone ?? '',
     experience_years: String(initial?.experience_years ?? 0),
     bio: initial?.bio ?? '',
-    youtube_url: initial?.youtube_url ?? '',
     status: (initial?.status ?? 'available') as ConsultStatus,
     weekday_start: initial?.weekday_start?.slice(0, 5) ?? '09:00',
     weekday_end: initial?.weekday_end?.slice(0, 5) ?? '18:00',
@@ -55,6 +54,23 @@ export function ExpertForm({
   const [saving, setSaving] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(initial?.photo_url ?? null);
   const [uploading, setUploading] = useState(false);
+
+  // 유튜브 링크: 동적 입력 행(최대 MAX_YOUTUBE_LINKS). 최소 1행 유지(빈 입력은 저장 시 제외).
+  const [youtubeUrls, setYoutubeUrls] = useState<string[]>(() => {
+    const init = initial?.youtube_urls?.length
+      ? initial.youtube_urls
+      : initial?.youtube_url ? [initial.youtube_url] : [];
+    return init.length ? init.slice(0, MAX_YOUTUBE_LINKS) : [''];
+  });
+  const setYoutubeAt = (i: number, v: string) =>
+    setYoutubeUrls((list) => list.map((x, idx) => (idx === i ? v : x)));
+  const addYoutube = () =>
+    setYoutubeUrls((list) => (list.length < MAX_YOUTUBE_LINKS ? [...list, ''] : list));
+  const removeYoutube = (i: number) =>
+    setYoutubeUrls((list) => {
+      const next = list.filter((_, idx) => idx !== i);
+      return next.length ? next : [''];
+    });
 
   async function handlePhotoUpload(e: ChangeEvent<HTMLInputElement>) {
     const input = e.currentTarget;
@@ -106,12 +122,17 @@ export function ExpertForm({
     const specialties = parsed.data.specialties.split('|').map((s) => s.trim()).filter(Boolean);
     if (specialties.length === 0) { setError('전문분야를 1개 이상 입력하세요 (예: 형사|사기)'); return; }
     if (categoryCodes.length === 0) { setError('전문 카테고리를 1개 이상 선택하세요'); return; }
+    // 유튜브 링크: 빈 행 제외, 각 URL 형식 검증, 최대 개수 제한
+    const youtube_urls = youtubeUrls.map((s) => s.trim()).filter(Boolean).slice(0, MAX_YOUTUBE_LINKS);
+    for (const u of youtube_urls) {
+      try { new URL(u); } catch { setError(`유튜브 URL 형식을 확인하세요: ${u}`); return; }
+    }
     setSaving(true);
     const payload = {
       ...parsed.data,
       specialties,
       license: parsed.data.license?.trim() || null,
-      youtube_url: parsed.data.youtube_url || null,
+      youtube_urls,
       bio: parsed.data.bio || null,
       weekday_start: parsed.data.weekday_start || null,
       weekday_end: parsed.data.weekday_end || null,
@@ -207,7 +228,40 @@ export function ExpertForm({
           <input className={field} placeholder="전화 (02-1234-5678)" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
           <input className={field} placeholder="경력(년)" value={form.experience_years} onChange={(e) => set('experience_years', e.target.value)} />
           <input className={field} placeholder="전문분야 · 필수 (형사|사기)" value={form.specialties} onChange={(e) => set('specialties', e.target.value)} />
-          <input className={`${field} col-span-2`} placeholder="유튜브 URL (선택)" value={form.youtube_url} onChange={(e) => set('youtube_url', e.target.value)} />
+          <div className="col-span-2">
+            <div className="mb-1 text-xs text-slate-500">
+              유튜브 링크 <span className="text-slate-400">(선택 · 최대 {MAX_YOUTUBE_LINKS}개)</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {youtubeUrls.map((u, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    className={field}
+                    placeholder="https://youtu.be/... 또는 https://www.youtube.com/watch?v=..."
+                    value={u}
+                    onChange={(e) => setYoutubeAt(i, e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeYoutube(i)}
+                    className="shrink-0 rounded-md border border-slate-300 px-2.5 py-2 text-xs text-slate-500 hover:bg-slate-50"
+                    title="링크 삭제"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {youtubeUrls.length < MAX_YOUTUBE_LINKS && (
+                <button
+                  type="button"
+                  onClick={addYoutube}
+                  className="self-start rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
+                >
+                  + 링크 추가
+                </button>
+              )}
+            </div>
+          </div>
           <textarea className={`${field} col-span-2`} rows={2} placeholder="소개 (선택)" value={form.bio} onChange={(e) => set('bio', e.target.value)} />
 
           <div className="col-span-2">

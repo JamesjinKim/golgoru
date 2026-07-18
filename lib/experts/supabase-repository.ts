@@ -3,7 +3,7 @@ import type { Category, Expert, Urgency, Vertical } from '@/lib/types';
 import { BROWSE_PAGE_SIZE, type ExpertRepository } from './repository';
 import { pickRecommended } from './select';
 
-const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
+const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,youtube_urls,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
 
 // 둘러보기 커서: 정렬키(status,name,id) 마지막 항목을 opaque base64 로 인코딩
 type BrowseCursor = { s: string; n: string; i: string };

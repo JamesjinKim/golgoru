@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import CallButton from '@/components/CallButton';
 import ExpertAvatar from '@/components/ExpertAvatar';
 import { getExpertRepository } from '@/lib/experts/repository';
+import { expertVideoUrls } from '@/lib/experts/youtube';
 import { G, SHADOW_CARD } from '@/lib/tokens';
 import { STATUS_LABEL, expertTitle, categoryChipLabel } from '@/lib/constants';
 
@@ -34,6 +35,7 @@ export default async function ExpertPage({ params, searchParams }: {
   const hasCats = categories.length > 0;
   const fieldChips = hasCats ? categories.map((c) => categoryChipLabel(c.label)) : expert.specialties;
   const primaryField = fieldChips[0];
+  const videoUrls = expertVideoUrls(expert); // youtube_urls 우선, 없으면 youtube_url 폴백 (최대 3)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: G.cream }}>
@@ -191,10 +193,14 @@ export default async function ExpertPage({ params, searchParams }: {
             </div>
           </Section>
 
-          {/* 유튜브 */}
-          {expert.youtube_url && (
+          {/* 유튜브 (최대 3개) */}
+          {videoUrls.length > 0 && (
             <Section title="유튜브 인터뷰">
-              <YoutubeThumbnail url={expert.youtube_url} name={expert.name} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {videoUrls.map((url, i) => (
+                  <YoutubeThumbnail key={`${url}-${i}`} url={url} name={expert.name} />
+                ))}
+              </div>
             </Section>
           )}
         </div>

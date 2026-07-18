@@ -3,9 +3,10 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logAudit } from '@/lib/admin/audit';
 import { adminVerticalRank } from '@/lib/constants';
+import { normalizeYoutubeUrls } from '@/lib/experts/youtube';
 import type { Vertical } from '@/lib/types';
 
-const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
+const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,youtube_urls,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
 const LIST_SELECT = `${SELECT},expert_categories(category_code)`;
 
 // 전문가 ↔ 카테고리 동기화 (기존 전부 삭제 후 재삽입). category_codes 가 배열일 때만.
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
       phone: body.phone,
       experience_years: body.experience_years ?? 0,
       bio: body.bio ?? null,
-      youtube_url: body.youtube_url ?? null,
+      youtube_urls: normalizeYoutubeUrls(body.youtube_urls),
       status: body.status ?? 'available',
       weekday_start: body.weekday_start ?? null,
       weekday_end: body.weekday_end ?? null,

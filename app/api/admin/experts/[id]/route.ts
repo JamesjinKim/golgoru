@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logAudit } from '@/lib/admin/audit';
+import { normalizeYoutubeUrls } from '@/lib/experts/youtube';
 
-const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at';
+const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,youtube_urls,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at';
 
 export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const guard = await requireAdmin();
@@ -12,11 +13,15 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: '잘못된 요청' }, { status: 400 });
 
-  const patch = (({ name, vertical, license, specialties, region, phone, experience_years, bio, youtube_url, status, weekday_start, weekday_end, weekend_available, night_available, is_active }) =>
-    ({ name, vertical, license, specialties, region, phone, experience_years, bio, youtube_url, status, weekday_start, weekday_end, weekend_available, night_available, is_active }))(body);
+  const patch = (({ name, vertical, license, specialties, region, phone, experience_years, bio, status, weekday_start, weekday_end, weekend_available, night_available, is_active }) =>
+    ({ name, vertical, license, specialties, region, phone, experience_years, bio, status, weekday_start, weekday_end, weekend_available, night_available, is_active }))(body);
+  // 유튜브 링크는 정제 후 배열로 저장 (body.youtube_urls 가 있을 때만 갱신)
+  const patchWithVideos = 'youtube_urls' in body
+    ? { ...patch, youtube_urls: normalizeYoutubeUrls(body.youtube_urls) }
+    : patch;
 
   const { data, error } = await supabaseAdmin
-    .from('experts').update(patch).eq('id', id).select(SELECT).single();
+    .from('experts').update(patchWithVideos).eq('id', id).select(SELECT).single();
   if (error) return NextResponse.json({ error: '수정 실패' }, { status: 500 });
   if (!data) return NextResponse.json({ error: '대상 없음' }, { status: 404 });
 
@@ -35,7 +40,7 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   await logAudit({
     actorId: guard.identity.userId, actorEmail: guard.identity.email,
     action: 'expert.update', targetTable: 'experts', targetId: id,
-    detail: { ...patch, category_codes: body.category_codes ?? undefined },
+    detail: { ...patchWithVideos, category_codes: body.category_codes ?? undefined },
   });
   return NextResponse.json(data);
 }

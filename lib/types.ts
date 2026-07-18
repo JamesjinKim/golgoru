@@ -21,7 +21,8 @@ export interface Expert {
   phone: string;
   experience_years: number;
   bio?: string;
-  youtube_url?: string;
+  youtube_url?: string; // 레거시 단일 링크(폴백용). 신규는 youtube_urls 사용
+  youtube_urls?: string[]; // 멀티 유튜브 링크(최대 3). 없으면 youtube_url 폴백
   photo_url?: string | null; // Supabase Storage public URL. 없으면 이니셜 폴백
   status: ConsultStatus;
   weekday_start?: string | null; // HH:mm[:ss]

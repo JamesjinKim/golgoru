@@ -17,7 +17,7 @@ export interface ExpertInput {
   phone: string;
   experience_years: number;
   bio?: string;
-  youtube_url?: string;
+  youtube_urls?: string[]; // 멀티 유튜브 링크(최대 3)
   status: ConsultStatus;
   weekday_start?: string | null;
   weekday_end?: string | null;

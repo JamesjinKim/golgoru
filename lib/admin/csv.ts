@@ -6,7 +6,7 @@ import type { ExpertInput } from './types';
 // 내부 표준 키는 영문(컬럼 순서 기준). 한글 헤더·값은 아래 별칭으로 흡수.
 export const CSV_HEADERS = [
   'name', 'vertical', 'license', 'specialties', 'region', 'phone',
-  'experience_years', 'bio', 'youtube_url',
+  'experience_years', 'bio', 'youtube_urls',
   'weekday_start', 'weekday_end', 'weekend_available', 'night_available', 'status',
   'category_codes', 'is_active',
 ] as const;
@@ -26,7 +26,7 @@ const OPTIONAL_HEADERS: string[] = ['license'];
 // 헤더 별칭: 한글/변형 → 표준 영문 키 (영문 헤더는 그대로 통과)
 const HEADER_ALIASES: Record<string, string> = {
   ...Object.fromEntries(KOREAN_HEADERS.map((k, i) => [k, CSV_HEADERS[i]])),
-  '전화': 'phone', '유튜브': 'youtube_url', '주말': 'weekend_available', '야간': 'night_available',
+  '전화': 'phone', '유튜브': 'youtube_urls', '유튜브URL': 'youtube_urls', '주말': 'weekend_available', '야간': 'night_available',
   '상태': 'status', '카테고리': 'category_codes', '활성': 'is_active', '노출여부': 'is_active',
   '자격증': 'license', '직함': 'license',
 };
@@ -83,9 +83,10 @@ const rowSchema = z.object({
     return s === '' ? 0 : Number(s);
   }, z.number().int('정수').min(0).max(80)),
   bio: z.preprocess((v) => String(v ?? '').trim() || undefined, z.string().max(300).optional()),
-  youtube_url: z.preprocess(
-    (v) => String(v ?? '').trim() || undefined,
-    z.string().url('URL 형식').optional(),
+  // 유튜브 링크: '|' 구분 멀티(최대 3). 각 URL 형식 검증.
+  youtube_urls: z.preprocess(
+    (v) => String(v ?? '').split('|').map((s) => s.trim()).filter(Boolean).slice(0, 3),
+    z.array(z.string().url('URL 형식')).max(3, '유튜브 링크는 최대 3개'),
   ),
   weekday_start: timeField,
   weekday_end: timeField,
@@ -162,7 +163,7 @@ export function buildTemplateCsv(): string {
   // 한글 헤더 + 한글 값 예시 2행. '자격'은 비우면 직업명 사용(예시: 변호사=빈칸).
   const example1 = [
     '김변호', '변호사', '', '형사|성범죄|사기', '서울 강남', '02-1234-5678',
-    '12', '형사 전문 12년', 'https://youtu.be/q8ywJUQtAmk',
+    '12', '형사 전문 12년', 'https://youtu.be/q8ywJUQtAmk|https://youtu.be/dQw4w9WgXcQ',
     '09:00', '18:00', 'N', 'N', '가능', 'LAW-01|LAW-02', 'Y',
   ];
   const example2 = [
