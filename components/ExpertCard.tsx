@@ -61,9 +61,9 @@ export default function ExpertCard({ expert, highlight, href }: { expert: Expert
       </Link>
 
       <div style={{
-        display: 'flex', alignItems: 'center',
-        padding: '10px 16px 14px', borderTop: `1px solid ${G.hairline}`, gap: 10,
+        padding: '10px 16px 14px', borderTop: `1px solid ${G.hairline}`,
       }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <span style={{
           flex: 1, fontSize: 13, color: G.textSoft,
           fontFamily: 'ui-monospace, SFMono-Regular, monospace', letterSpacing: '-0.16px',
@@ -89,6 +89,10 @@ export default function ExpertCard({ expert, highlight, href }: { expert: Expert
         >
           <PhoneIcon /> 전화 연결
         </a>
+        </div>
+        <p style={{ margin: '8px 0 0', fontSize: 10.5, color: G.textSoft, letterSpacing: '-0.16px', textAlign: 'center' }}>
+          전문가에 따라 상담료가 발생할 수 있습니다
+        </p>
       </div>
     </div>
   );

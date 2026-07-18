@@ -208,6 +208,9 @@ export default async function ExpertPage({ params, searchParams }: {
         background: `linear-gradient(180deg, rgba(242,240,235,0) 0%, ${G.cream} 30%)`,
       }}>
         <CallButton phone={expert.phone} name={expert.name} vertical={expert.vertical} license={expert.license} />
+        <p style={{ textAlign: 'center', margin: '8px 0 0', fontSize: 11, color: G.textSoft, letterSpacing: '-0.16px' }}>
+          전문가에 따라 상담료가 발생할 수 있습니다
+        </p>
       </div>
     </div>
   );
