@@ -35,7 +35,14 @@ export default function CategoriesAdminPage() {
     });
     setBusy(false);
     if (!r.ok) { const j = await r.json().catch(() => ({})); setMsg(j.error || failMsg); return false; }
-    await load(); return true;
+    // 저장 성공 → 이 code 한 행만 로컬 반영. 전체 load()를 하면 다른 행에서 편집 중이던(아직
+    // 저장 안 한) 입력값이 DB값으로 덮어써지므로, 개별 저장이 서로 간섭하지 않도록 국소 갱신한다.
+    const updated: Cat = await r.json().catch(() => null);
+    if (updated) {
+      setCats((prev) => prev.map((c) => (c.code === code ? updated : c)));
+      setLabels((prev) => ({ ...prev, [code]: updated.label }));
+    }
+    return true;
   };
   const create = async () => {
     setBusy(true); setMsg('');
