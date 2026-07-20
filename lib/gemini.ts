@@ -9,7 +9,7 @@ function getAI() {
 
 // 직업별 카테고리 코드 (level-1 중분류). experts-taxonomy.design.md §4 와 동기화.
 const CATEGORY_GUIDE = `카테고리 코드 (선택한 vertical 안에서 가장 맞는 1개):
-- lawyer: LAW-01 형사 | LAW-02 민사·계약 | LAW-03 부동산·임대차 | LAW-04 가사 | LAW-05 기업법무 | LAW-06 행정 | LAW-07 의료(소송) | LAW-08 IT·금융·지식재산(IT개인정보·저작권분쟁·소송·엔터) | LAW-09 기타(회생·파산 등)
+- lawyer: LAW-01 형사 | LAW-02 부동산·임대차 | LAW-03 계약·손해배상 | LAW-04 이혼·상속 | LAW-05 노동·기업(기업법무·직장분쟁) | LAW-06 세금·행정·의료(행정소송·의료소송) | LAW-07 IT·금융·지식재산(IT개인정보·저작권분쟁·소송·엔터) | LAW-08 민사(일반 민사·금전) | LAW-09 기타(회생·파산 등)
 - doctor: MED-01 응급·급성증상 | MED-02 내과·만성질환 | MED-03 정신건강 | MED-04 건강검진·예방 | MED-05 진료과안내·세컨드오피니언
 - labor: LAB-01 노동사건(부당해고·임금체불·퇴직금·징계·직장내괴롭힘·노동위) | LAB-02 산재 | LAB-03 기업노무자문 | LAB-04 HR컨설팅 | LAB-05 산업안전 | LAB-06 노사관계 | LAB-07 건설노무
 - patent: PAT-01 특허 | PAT-02 상표 | PAT-03 디자인 | PAT-04 실용신안 | PAT-05 해외출원·PCT | PAT-06 저작권(등록·상담)
@@ -30,7 +30,7 @@ const CLASSIFY_PROMPT = `당신은 골고루 SOS 서비스의 AI 분류기입니
 - appraiser(감정평가사): 부동산 감정평가·토지 보상/수용·경매 감정
 
 규칙: 노동→labor, 세금→tax, 특허·상표→patent 로 보낸다(변호사 아님). 단 의료'소송'·행정소송은 lawyer.
-저작권: 등록·출원·상담은 patent(PAT-06), 분쟁·침해·소송은 lawyer(LAW-08). 개인정보·콘텐츠분쟁은 lawyer(LAW-08).
+저작권: 등록·출원·상담은 patent(PAT-06), 분쟁·침해·소송은 lawyer(LAW-07). 개인정보·콘텐츠분쟁은 lawyer(LAW-07).
 
 ${CATEGORY_GUIDE}
 
@@ -74,8 +74,8 @@ const RULES: Rule[] = [
   { vertical: 'doctor',   code: 'MED-02', category: '건강 상담',     urgency: '당일', keywords: ['증상', '아파', '통증', '병원', '진단'] },
   { vertical: 'lawyer',   code: 'LAW-01', category: '형사(성범죄)',  urgency: '즉시', keywords: ['성추행', '성희롱', '무고', '강제추행', '성폭력'] },
   { vertical: 'lawyer',   code: 'LAW-01', category: '형사 사건',     urgency: '즉시', keywords: ['경찰', '조사', '체포', '고소', '형사', '사기', '속았', '돈 떼'] },
-  { vertical: 'lawyer',   code: 'LAW-04', category: '이혼/가사',     urgency: '일반', keywords: ['이혼', '양육', '가사', '위자료', '친권'] },
-  { vertical: 'lawyer',   code: 'LAW-03', category: '부동산·임대차', urgency: '일반', keywords: ['전세', '보증금', '임대차', '명도', '권리금'] },
+  { vertical: 'lawyer',   code: 'LAW-04', category: '이혼·상속',     urgency: '일반', keywords: ['이혼', '양육', '가사', '위자료', '친권', '상속', '유류분'] },
+  { vertical: 'lawyer',   code: 'LAW-02', category: '부동산·임대차', urgency: '일반', keywords: ['전세', '보증금', '임대차', '명도', '권리금'] },
   { vertical: 'patent',   code: 'PAT-01', category: '특허',          urgency: '일반', keywords: ['특허', '실용신안', '지식재산', '특허침해'] },
   { vertical: 'patent',   code: 'PAT-02', category: '상표',          urgency: '일반', keywords: ['상표', '브랜드 도용', '디자인권'] },
   { vertical: 'patent',   code: 'PAT-06', category: '저작권(등록·상담)', urgency: '일반', keywords: ['저작권 등록', '저작권 출원', '저작물 등록'] },

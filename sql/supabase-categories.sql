@@ -40,13 +40,13 @@ create policy "categories public read" on categories for select using (is_active
 insert into categories (code, parent_code, vertical, level, label) values
   -- 변호사
   ('LAW-01', null, 'lawyer', 1, '형사'),
-  ('LAW-02', null, 'lawyer', 1, '민사·계약'),
-  ('LAW-03', null, 'lawyer', 1, '부동산·임대차'),
-  ('LAW-04', null, 'lawyer', 1, '가사'),
-  ('LAW-05', null, 'lawyer', 1, '기업법무'),
-  ('LAW-06', null, 'lawyer', 1, '행정'),
-  ('LAW-07', null, 'lawyer', 1, '의료'),
-  ('LAW-08', null, 'lawyer', 1, 'IT·금융·지식재산'),
+  ('LAW-02', null, 'lawyer', 1, '부동산·임대차'),
+  ('LAW-03', null, 'lawyer', 1, '계약·손해배상'),
+  ('LAW-04', null, 'lawyer', 1, '이혼·상속'),
+  ('LAW-05', null, 'lawyer', 1, '노동·기업'),
+  ('LAW-06', null, 'lawyer', 1, '세금·행정·의료'),
+  ('LAW-07', null, 'lawyer', 1, 'IT·금융·지식재산'),
+  ('LAW-08', null, 'lawyer', 1, '민사'),
   ('LAW-09', null, 'lawyer', 1, '기타'),
   -- 의사
   ('MED-01', null, 'doctor', 1, '응급·급성증상'),
