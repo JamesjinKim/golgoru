@@ -94,6 +94,23 @@ export function ExpertForm({
     }
   }
 
+  async function handlePhotoDelete() {
+    if (!initial?.id || uploading) return;
+    if (!confirm('사진을 삭제할까요? 삭제하면 이름 이니셜로 표시됩니다.')) return;
+    setUploading(true);
+    setError('');
+    try {
+      const res = await adminFetch(`/api/admin/experts/${initial.id}/photo`, { method: 'DELETE' });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error ?? '삭제 실패');
+      setPhotoUrl(null); // ExpertAvatar가 photo_url 없으면 이름 이니셜로 폴백
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '삭제 실패');
+    } finally {
+      setUploading(false);
+    }
+  }
+
   // 카테고리: 전체 로드 후 선택 vertical 의 중분류(level 1)만 노출
   const [allCats, setAllCats] = useState<CategoryOption[]>([]);
   const [categoryCodes, setCategoryCodes] = useState<string[]>(initial?.category_codes ?? []);
@@ -221,7 +238,18 @@ export function ExpertForm({
               ) : (
                 <span>전문가를 먼저 저장한 뒤 사진을 업로드할 수 있습니다.</span>
               )}
-              {uploading && <span className="text-emerald-600">업로드 중…</span>}
+              {/* 사진이 있을 때만 삭제 버튼 노출. 삭제하면 photo_url=null → 이름 이니셜 표시 */}
+              {initial?.id && photoUrl && (
+                <button
+                  type="button"
+                  onClick={handlePhotoDelete}
+                  disabled={uploading}
+                  className="self-start text-red-600 underline underline-offset-2 hover:text-red-700 disabled:opacity-50"
+                >
+                  사진 삭제
+                </button>
+              )}
+              {uploading && <span className="text-emerald-600">처리 중…</span>}
             </div>
           </div>
           <input className={`${field} col-span-2`} placeholder="자격 표시명 (예: 세무사 · 비우면 직업명)" value={form.license} onChange={(e) => set('license', e.target.value)} />
