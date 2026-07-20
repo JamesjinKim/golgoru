@@ -3,7 +3,7 @@ import type { ConsultStatus, Vertical } from './types';
 // 3단계 상담 상태 표시 (배지 라벨)
 export const STATUS_LABEL: Record<ConsultStatus, string> = {
   available:   '지금 통화 가능',
-  delayed:     '15분 내 회신',
+  delayed:     '다른 분 상담 후 회신',
   unavailable: '상담 불가',
 };
 
@@ -30,7 +30,8 @@ export const VERTICAL_CALL_LABEL: Record<Vertical, string> = {
 
 // UI에서 숨길 버티컬 (영업팀 요청). DB 데이터·타입·라벨은 보존하고 노출만 차단한다.
 // 다시 노출하려면 이 배열에서 제거하면 된다.
-export const HIDDEN_VERTICALS: readonly Vertical[] = ['appraiser'];
+// doctor(병원): 런칭 준비 부족으로 오픈 보류 — UI·검색 노출 차단(DB 데이터는 보존). 오픈 시 제거.
+export const HIDDEN_VERTICALS: readonly Vertical[] = ['appraiser', 'doctor'];
 
 // 전체 버티컬 (라벨 정의 순서). 순서가 필요한 UI 목록은 VISIBLE_VERTICALS를 쓸 것.
 export const ALL_VERTICALS = Object.keys(VERTICAL_LABEL) as Vertical[];
