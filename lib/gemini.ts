@@ -83,22 +83,29 @@ const RULES: Rule[] = [
   { vertical: 'appraiser', code: 'APR-02', category: '토지보상·수용', urgency: '일반', keywords: ['토지 보상', '수용', '보상금 산정', '경매 감정'] },
 ];
 
-// 숨김 직역(감정평가사 등, lib/constants HIDDEN_VERTICALS) 은 소비자에게 추천하지 않는다.
-// 분류가 숨김 직역으로 떨어지면 변호사(법률 상담)로 대체한다. DB 데이터는 보존하되 노출만 차단.
-// constants.ts를 직접 import하면 순환/서버경계 이슈가 없어 안전하지만, 여기서는 목록을 최소 복제해
-// gemini 모듈이 라벨 상수에 의존하지 않게 한다(분류 엔진은 constants와 독립).
-const HIDDEN_VERTICALS: readonly Vertical[] = ['appraiser'];
+// 숨김 직역(lib/constants HIDDEN_VERTICALS)은 소비자에게 추천하지 않는다. DB는 보존, 노출만 차단.
+// constants.ts를 직접 import하지 않고 목록을 최소 복제한다(분류 엔진은 라벨 상수와 독립).
+//
+// 재라우팅 정책(직역별로 다름):
+// - appraiser(감정평가): 보상·수용 맥락이라 lawyer(법률 상담)로 대체.
+// - doctor(병원): 의료 상황을 다른 직역으로 보내면 부적절 → 재라우팅하지 않고 그대로 둔다.
+//   최종 차단은 추천 API(app/api/experts)에서 빈 결과로 처리 → result가 "추천할 전문가 없음" 표시.
+const REROUTE_TO: Partial<Record<Vertical, Vertical>> = { appraiser: 'lawyer' };
 
 function redirectHiddenVertical(result: ClassifyResult): ClassifyResult {
-  if (!HIDDEN_VERTICALS.includes(result.vertical)) return result;
-  // 감정평가 전용 카테고리 코드(APR-*)는 변호사 추천에 무효이므로 제거하고 라벨을 법률 상담으로 조정
-  return {
-    ...result,
-    vertical: 'lawyer',
-    category_code: undefined,
-    category: '법률 상담',
-    summary: '법률 전문가 상담이 필요한 상황으로 분류되었습니다.',
-  };
+  const to = REROUTE_TO[result.vertical];
+  if (!to) return result; // 재라우팅 대상 아님(doctor 등) → 그대로. 추천 API가 빈 결과로 막는다.
+  if (to === 'lawyer') {
+    // 감정평가 전용 카테고리 코드(APR-*)는 변호사 추천에 무효이므로 제거하고 라벨을 법률 상담으로 조정
+    return {
+      ...result,
+      vertical: 'lawyer',
+      category_code: undefined,
+      category: '법률 상담',
+      summary: '법률 전문가 상담이 필요한 상황으로 분류되었습니다.',
+    };
+  }
+  return { ...result, vertical: to, category_code: undefined };
 }
 
 function localClassify(query: string): ClassifyResult {
