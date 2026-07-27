@@ -337,7 +337,7 @@ export const TERMS: Record<TermKey, TermDoc> = {
     key: 'privacy',
     title: '개인정보 수집·이용 동의',
     required: true,
-    summary: '전문가 상담 매칭을 위한 개인정보 수집·이용 (필수)',
+    summary: '전문가 상담 추천을 위한 개인정보 수집·이용 (필수)',
     sections: [
       {
         heading: '수집 항목',
@@ -347,7 +347,7 @@ export const TERMS: Record<TermKey, TermDoc> = {
       },
       {
         heading: '수집·이용 목적',
-        body: ['긴급 전문가 상담 매칭 및 응대, 회원 식별·관리'],
+        body: ['긴급 전문가 상담 추천 및 응대, 회원 식별·관리'],
       },
       {
         heading: '보유·이용 기간',
@@ -359,7 +359,7 @@ export const TERMS: Record<TermKey, TermDoc> = {
       {
         heading: '거부할 권리 및 불이익',
         body: [
-          '귀하는 동의를 거부할 권리가 있습니다. 다만 거부 시 전문가 상담 매칭 서비스를 이용할 수 없습니다.',
+          '귀하는 동의를 거부할 권리가 있습니다. 다만 거부 시 전문가 상담 추천 서비스를 이용할 수 없습니다.',
         ],
       },
       {
@@ -375,12 +375,12 @@ export const TERMS: Record<TermKey, TermDoc> = {
     key: 'thirdparty',
     title: '개인정보 제3자 제공 동의',
     required: true,
-    summary: '매칭 전문가에게 상담 응대를 위한 정보 제공 (필수)',
+    summary: '추천 전문가에게 상담 응대를 위한 정보 제공 (필수)',
     sections: [
       {
         heading: '제공받는 자',
         body: [
-          '귀하가 요청한 분야의 매칭된 입점 전문가.',
+          '귀하가 요청한 분야의 추천된 입점 전문가.',
           '실제 상담 전송 직전, 제공받는 전문가를 "○○세무사(사업자번호 …)" 형태로 특정하여 다시 고지합니다.',
         ],
       },
