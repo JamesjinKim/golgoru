@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
 import { adminFetch } from '@/lib/admin/adminFetch';
+import { sortCategoriesHierarchical } from '@/lib/experts/category-order';
 import type { Vertical } from '@/lib/types';
 
 type Cat = {
@@ -104,7 +105,8 @@ export default function CategoriesAdminPage() {
       {/* 직업별 목록 */}
       <div className="space-y-3">
         {VORDER.map((v) => {
-          const list = cats.filter((c) => c.vertical === v);
+          // level-1은 지정 표시 순서, 그 아래 level-2(세부)는 부모 바로 뒤에 붙여 계층 유지
+          const list = sortCategoriesHierarchical(cats.filter((c) => c.vertical === v));
           return (
             <details key={v} open className="rounded-lg border border-slate-200 bg-white">
               <summary className="cursor-pointer px-4 py-2.5 text-sm font-bold text-slate-800">

@@ -4,6 +4,7 @@ import { getExpertRepository } from '@/lib/experts/repository';
 import { getExpertDataSource } from '@/lib/experts/data-source';
 import { supabaseAdmin } from '@/lib/supabase';
 import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
+import { sortCategoriesForDisplay } from '@/lib/experts/category-order';
 import { G } from '@/lib/tokens';
 import type { Category, Vertical } from '@/lib/types';
 import ExpertBrowseList from '@/components/ExpertBrowseList';
@@ -27,7 +28,7 @@ async function loadCategories(vertical: Vertical | null): Promise<Category[]> {
       .eq('is_active', true)
       .eq('level', 1)
       .order('code', { ascending: true });
-    return (data ?? []) as Category[];
+    return sortCategoriesForDisplay((data ?? []) as Category[]);
   } catch {
     return [];
   }
