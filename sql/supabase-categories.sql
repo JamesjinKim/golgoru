@@ -40,7 +40,7 @@ create policy "categories public read" on categories for select using (is_active
 insert into categories (code, parent_code, vertical, level, label) values
   -- 변호사
   ('LAW-01', null, 'lawyer', 1, '형사'),
-  ('LAW-02', null, 'lawyer', 1, '부동산·임대차'),
+  ('LAW-02', null, 'lawyer', 1, '부동산'),
   ('LAW-03', null, 'lawyer', 1, '계약·손해배상'),
   ('LAW-04', null, 'lawyer', 1, '이혼·상속'),
   ('LAW-05', null, 'lawyer', 1, '노동·기업'),
@@ -48,6 +48,7 @@ insert into categories (code, parent_code, vertical, level, label) values
   ('LAW-07', null, 'lawyer', 1, 'IT·금융·지식재산'),
   ('LAW-08', null, 'lawyer', 1, '민사'),
   ('LAW-09', null, 'lawyer', 1, '기타'),
+  ('LAW-11', null, 'lawyer', 1, '임대차'),
   -- 의사
   ('MED-01', null, 'doctor', 1, '응급·급성증상'),
   ('MED-02', null, 'doctor', 1, '내과·만성질환'),
@@ -94,6 +95,22 @@ insert into categories (code, parent_code, vertical, level, label) values
   ('TAX-02-01', 'TAX-02', 'tax', 2, '양도'),
   ('TAX-02-02', 'TAX-02', 'tax', 2, '상속'),
   ('TAX-02-03', 'TAX-02', 'tax', 2, '증여')
+on conflict (code) do nothing;
+
+-- 변호사 부동산(LAW-02)·임대차(LAW-11) level-2 세부.
+-- UI(둘러보기·어드민 칩)에는 level-1(부동산/임대차)만 노출된다. level-2는 화면에 안 보이고
+-- AI 분류(gemini CATEGORY_GUIDE)의 세부 힌트로만 쓰인다.
+insert into categories (code, parent_code, vertical, level, label) values
+  ('LAW-02-01', 'LAW-02', 'lawyer', 2, '부동산 매매·소유권'),
+  ('LAW-02-02', 'LAW-02', 'lawyer', 2, '부동산 명도'),
+  ('LAW-02-03', 'LAW-02', 'lawyer', 2, '재개발·재건축'),
+  ('LAW-02-04', 'LAW-02', 'lawyer', 2, '건물하자'),
+  ('LAW-02-05', 'LAW-02', 'lawyer', 2, '건축·부동산 일반'),
+  ('LAW-11-01', 'LAW-11', 'lawyer', 2, '임대차계약'),
+  ('LAW-11-02', 'LAW-11', 'lawyer', 2, '하자보수'),
+  ('LAW-11-03', 'LAW-11', 'lawyer', 2, '보증금'),
+  ('LAW-11-04', 'LAW-11', 'lawyer', 2, '권리금'),
+  ('LAW-11-05', 'LAW-11', 'lawyer', 2, '기타 임대차 분쟁')
 on conflict (code) do nothing;
 
 -- ── 3) 시드 전문가 ↔ 카테고리 태깅 (직업별 level-1 순환 배정) ───────
