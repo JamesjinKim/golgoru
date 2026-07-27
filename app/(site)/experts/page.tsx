@@ -6,10 +6,14 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
 import { sortCategoriesForDisplay } from '@/lib/experts/category-order';
 import { stripPhoneIfGuest } from '@/lib/experts/maskPhone';
+import { makeSeed } from '@/lib/experts/shuffle';
 import { getCurrentUserProfile } from '@/lib/auth/user';
 import { G } from '@/lib/tokens';
 import type { Category, Vertical } from '@/lib/types';
 import ExpertBrowseList from '@/components/ExpertBrowseList';
+
+// 매 요청마다 새 seed로 셔플 렌더 → 프리렌더 캐시 방지(요청마다 순서가 달라져야 함)
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: '전문가 둘러보기 · 골고루',
@@ -51,9 +55,12 @@ export default async function ExpertsBrowsePage({
   const { user } = await getCurrentUserProfile();
   const signedIn = Boolean(user);
 
+  // 공정 노출: 매 요청마다 새 seed로 서버에서 바로 셔플해 렌더 → 깜빡임(가나다순 선표시) 없음.
+  // 이 seed를 클라이언트에도 넘겨 '더 보기'가 같은 순서를 이어가게 한다(force-dynamic이라 매 요청 새 seed).
+  const seed = makeSeed();
   const categories = await loadCategories(vertical);
   const { experts: rawExperts, nextCursor } = selected
-    ? await getExpertRepository().listBrowse({ vertical, categoryCode: category })
+    ? await getExpertRepository().listBrowse({ vertical, categoryCode: category, seed })
     : { experts: [], nextCursor: null };
   const experts = stripPhoneIfGuest(rawExperts, signedIn);
 
@@ -132,6 +139,7 @@ export default async function ExpertsBrowsePage({
             category={category}
             backHref={backHref}
             signedIn={signedIn}
+            seed={seed}
           />
         ) : (
           <div style={{
