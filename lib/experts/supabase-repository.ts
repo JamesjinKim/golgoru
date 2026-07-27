@@ -2,21 +2,21 @@ import { supabaseAdmin } from '@/lib/supabase';
 import type { Category, Expert, Urgency, Vertical } from '@/lib/types';
 import { BROWSE_PAGE_SIZE, type ExpertRepository } from './repository';
 import { pickRecommended } from './select';
+import { sortByStatusThenSeed, STATUS_ORDER } from './shuffle';
 
 const SELECT = 'id,name,vertical,license,specialties,region,phone,experience_years,bio,youtube_url,youtube_urls,status,weekday_start,weekday_end,weekend_available,night_available,is_active,created_at,photo_url';
 
-// 둘러보기 커서: 정렬키(status,name,id) 마지막 항목을 opaque base64 로 인코딩
-type BrowseCursor = { s: string; n: string; i: string };
-function encodeCursor(c: BrowseCursor): string {
-  return Buffer.from(JSON.stringify(c)).toString('base64url');
+// 둘러보기 커서: offset 기반(opaque base64). seed 셔플 순서는 SQL로 재현 불가하므로,
+// 필터된 전체를 조회해 앱에서 정렬 후 offset 슬라이스한다(규모가 작아 부담 없음).
+function encodeOffset(n: number): string {
+  return Buffer.from(String(n)).toString('base64url');
 }
-function decodeCursor(raw: string): BrowseCursor | null {
+function decodeOffset(raw: string): number {
   try {
-    const c = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8'));
-    if (typeof c?.s === 'string' && typeof c?.n === 'string' && typeof c?.i === 'string') return c;
-    return null;
+    const n = Number(Buffer.from(raw, 'base64url').toString('utf8'));
+    return Number.isFinite(n) && n >= 0 ? n : 0;
   } catch {
-    return null;
+    return 0;
   }
 }
 
@@ -65,7 +65,7 @@ export const supabaseExpertRepository: ExpertRepository = {
     return pickRecommended(experts, region);
   },
 
-  async listBrowse({ vertical, categoryCode, cursor, limit = BROWSE_PAGE_SIZE }) {
+  async listBrowse({ vertical, categoryCode, cursor, limit = BROWSE_PAGE_SIZE, seed }) {
     // 카테고리 필터: 해당 코드를 보유한 전문가 id 수집 (0명이면 빈 결과)
     let categoryIds: string[] | null = null;
     if (categoryCode) {
@@ -77,28 +77,11 @@ export const supabaseExpertRepository: ExpertRepository = {
       if (categoryIds.length === 0) return { experts: [], nextCursor: null };
     }
 
-    let query = supabaseAdmin
-      .from('experts')
-      .select(SELECT)
-      .eq('is_active', true)
-      // status 알파벳순(available<delayed<unavailable) = 상담가능 우선, 이어서 가나다, id
-      .order('status', { ascending: true })
-      .order('name', { ascending: true })
-      .order('id', { ascending: true })
-      .limit(limit + 1); // 다음 페이지 존재 여부 판단용 +1
-
+    // 필터된 전체를 조회 → 앱에서 정렬 → offset 슬라이스.
+    // seed 있으면 상담가능(status) 우선 + 그 안에서 랜덤 셔플, 없으면 기존 가나다순 폴백.
+    let query = supabaseAdmin.from('experts').select(SELECT).eq('is_active', true);
     if (vertical) query = query.eq('vertical', vertical);
     if (categoryIds) query = query.in('id', categoryIds);
-
-    if (cursor) {
-      const c = decodeCursor(cursor);
-      if (c) {
-        // keyset: (status,name,id) > 커서. PostgREST or() 안의 콤마는 항목 구분자
-        query = query.or(
-          `status.gt.${c.s},and(status.eq.${c.s},name.gt.${c.n}),and(status.eq.${c.s},name.eq.${c.n},id.gt.${c.i})`
-        );
-      }
-    }
 
     const { data, error } = await query;
     if (error) {
@@ -106,13 +89,20 @@ export const supabaseExpertRepository: ExpertRepository = {
       return { experts: [], nextCursor: null };
     }
 
-    const rows = (data ?? []) as unknown as Expert[];
-    const hasMore = rows.length > limit;
-    const experts = hasMore ? rows.slice(0, limit) : rows;
-    const last = experts[experts.length - 1];
-    const nextCursor = hasMore && last
-      ? encodeCursor({ s: last.status, n: last.name, i: last.id })
-      : null;
+    const all = (data ?? []) as unknown as Expert[];
+    const sorted = seed !== undefined
+      ? sortByStatusThenSeed(all, seed)
+      : [...all].sort(
+          (a, b) =>
+            (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
+            a.name.localeCompare(b.name, 'ko') ||
+            a.id.localeCompare(b.id),
+        );
+
+    const offset = cursor ? decodeOffset(cursor) : 0;
+    const experts = sorted.slice(offset, offset + limit);
+    const nextOffset = offset + limit;
+    const nextCursor = nextOffset < sorted.length ? encodeOffset(nextOffset) : null;
     return { experts, nextCursor };
   },
 

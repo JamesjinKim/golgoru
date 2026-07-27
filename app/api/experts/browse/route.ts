@@ -15,11 +15,15 @@ export async function GET(req: NextRequest) {
   const vertical = vRaw && VERTICALS.includes(vRaw as Vertical) ? (vRaw as Vertical) : null;
   const categoryCode = searchParams.get('category') || null;
   const cursor = searchParams.get('cursor') || null;
+  // 세션 랜덤 seed(공정 셔플). 정수만 허용, 없으면 undefined → 가나다순 폴백
+  const seedRaw = Number(searchParams.get('seed'));
+  const seed = Number.isFinite(seedRaw) && seedRaw > 0 ? Math.floor(seedRaw) : undefined;
 
   const { experts: raw, nextCursor } = await getExpertRepository().listBrowse({
     vertical,
     categoryCode,
     cursor,
+    seed,
   });
 
   // 전화번호는 로그인 사용자에게만 (비로그인이면 phone 제거 → 우회 방지)
