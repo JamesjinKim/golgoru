@@ -5,6 +5,9 @@ import { isHiddenVertical } from '@/lib/constants';
 import { stripPhoneIfGuest } from '@/lib/experts/maskPhone';
 import type { Vertical } from '@/lib/types';
 
+// 로그인 상태(phone 게이팅)·지역 우선 추천이 요청마다 달라지므로 매 요청 실행.
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const vertical = searchParams.get('vertical') as Vertical | null;
