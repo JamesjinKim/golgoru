@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getExpertRepository } from '@/lib/experts/repository';
+import { getCurrentUserProfile } from '@/lib/auth/user';
+import { stripPhoneIfGuest } from '@/lib/experts/maskPhone';
 import type { Vertical } from '@/lib/types';
 import { VISIBLE_VERTICALS } from '@/lib/constants';
 
@@ -14,11 +16,15 @@ export async function GET(req: NextRequest) {
   const categoryCode = searchParams.get('category') || null;
   const cursor = searchParams.get('cursor') || null;
 
-  const { experts, nextCursor } = await getExpertRepository().listBrowse({
+  const { experts: raw, nextCursor } = await getExpertRepository().listBrowse({
     vertical,
     categoryCode,
     cursor,
   });
+
+  // 전화번호는 로그인 사용자에게만 (비로그인이면 phone 제거 → 우회 방지)
+  const { user } = await getCurrentUserProfile();
+  const experts = stripPhoneIfGuest(raw, Boolean(user));
 
   return NextResponse.json({ experts, nextCursor });
 }

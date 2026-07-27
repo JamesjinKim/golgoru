@@ -64,31 +64,50 @@ export default function ExpertCard({ expert, highlight, href }: { expert: Expert
         padding: '10px 16px 14px', borderTop: `1px solid ${G.hairline}`,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <span style={{
-          flex: 1, fontSize: 13, color: G.textSoft,
-          fontFamily: 'ui-monospace, SFMono-Regular, monospace', letterSpacing: '-0.16px',
-        }}>
-          📞 {expert.phone}
-        </span>
-        <a
-          href={`tel:${expert.phone}`}
-          onClick={e => e.stopPropagation()}
-          style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            background: live ? G.greenAccent : '#fff',
-            color: live ? '#fff' : G.greenAccent,
-            border: `1.5px solid ${G.greenAccent}`,
-            borderRadius: 50, padding: '9px 16px',
-            fontSize: 13, fontWeight: 800, letterSpacing: '-0.16px',
-            textDecoration: 'none', transition: 'transform 0.15s ease',
-            whiteSpace: 'nowrap' as const,
-          }}
-          onPointerDown={e => (e.currentTarget.style.transform = 'scale(0.95)')}
-          onPointerUp={e => (e.currentTarget.style.transform = 'scale(1)')}
-          onPointerLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
-        >
-          <PhoneIcon /> 전화 연결
-        </a>
+        {expert.phone ? (
+          <>
+            <span style={{
+              flex: 1, fontSize: 13, color: G.textSoft,
+              fontFamily: 'ui-monospace, SFMono-Regular, monospace', letterSpacing: '-0.16px',
+            }}>
+              📞 {expert.phone}
+            </span>
+            <a
+              href={`tel:${expert.phone}`}
+              onClick={e => e.stopPropagation()}
+              style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                background: live ? G.greenAccent : '#fff',
+                color: live ? '#fff' : G.greenAccent,
+                border: `1.5px solid ${G.greenAccent}`,
+                borderRadius: 50, padding: '9px 16px',
+                fontSize: 13, fontWeight: 800, letterSpacing: '-0.16px',
+                textDecoration: 'none', transition: 'transform 0.15s ease',
+                whiteSpace: 'nowrap' as const,
+              }}
+              onPointerDown={e => (e.currentTarget.style.transform = 'scale(0.95)')}
+              onPointerUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+              onPointerLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+            >
+              <PhoneIcon /> 전화 연결
+            </a>
+          </>
+        ) : (
+          /* 비로그인: 전화번호는 로그인 후 노출 */
+          <Link
+            href="/login"
+            onClick={e => e.stopPropagation()}
+            style={{
+              flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              background: '#fff', color: G.greenAccent, border: `1.5px solid ${G.greenAccent}`,
+              borderRadius: 50, padding: '9px 16px',
+              fontSize: 13, fontWeight: 800, letterSpacing: '-0.16px',
+              textDecoration: 'none', whiteSpace: 'nowrap' as const,
+            }}
+          >
+            🔒 로그인하고 전화번호 보기
+          </Link>
+        )}
         </div>
         <p style={{ margin: '8px 0 0', fontSize: 10.5, color: G.textSoft, letterSpacing: '-0.16px', textAlign: 'center' }}>
           전문가에 따라 상담료가 발생할 수 있습니다

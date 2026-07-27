@@ -16,6 +16,9 @@ export default function ExpertBrowseList({
   vertical: Vertical | null;
   category: string | null;
   backHref: string;
+  // 전화번호 노출 여부. 실제 잠금은 카드가 phone 유무로 판단(더보기 API도 서버에서 phone 제거)하므로
+  // 이 값을 직접 쓰진 않지만, 초기분/추가분 노출 정책이 일치함을 명시하기 위해 받는다.
+  signedIn?: boolean;
 }) {
   // 필터가 바뀌면 부모 페이지에서 key 로 remount → 아래 초기값으로 상태 리셋
   const [experts, setExperts] = useState<Expert[]>(initialExperts);
