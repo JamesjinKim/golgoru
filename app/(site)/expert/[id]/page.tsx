@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import CallButton from '@/components/CallButton';
 import ExpertAvatar from '@/components/ExpertAvatar';
 import { getExpertRepository } from '@/lib/experts/repository';
+import { getCurrentUserProfile } from '@/lib/auth/user';
 import { expertVideoUrls } from '@/lib/experts/youtube';
 import { G, SHADOW_CARD } from '@/lib/tokens';
 import { STATUS_LABEL, expertTitle, categoryChipLabel } from '@/lib/constants';
@@ -25,11 +26,16 @@ export default async function ExpertPage({ params, searchParams }: {
   // 화살표 옆 라벨 = 돌아갈 곳 (현재 페이지명이 아니라 목적지를 표기)
   const backLabel = inFlow ? '추천 결과' : fromBrowse ? '전문가 목록' : '홈';
   const repo = getExpertRepository();
-  const [expert, categories] = await Promise.all([
+  const [expert, categories, { user }] = await Promise.all([
     repo.findById(id),
     repo.findCategoriesByExpertId(id),
+    getCurrentUserProfile(),
   ]);
   if (!expert) notFound();
+
+  // 전화번호는 로그인 사용자에게만 노출 → 비로그인이면 빈 값(우회 방지). UI가 잠금 표시.
+  const signedIn = Boolean(user);
+  const phone = signedIn ? expert.phone : '';
 
   // 전문 분야 = 등록 카테고리(추천 매칭과 동일 소스). 미등록 전문가는 specialties 폴백
   const hasCats = categories.length > 0;
@@ -125,18 +131,30 @@ export default async function ExpertPage({ params, searchParams }: {
             </Section>
           )}
 
-          {/* 연락처 */}
+          {/* 연락처 — 전화번호는 로그인 사용자에게만 */}
           <Section title="연락처">
-            <a href={`tel:${expert.phone}`} style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '13px 16px', background: '#fff', borderRadius: 12,
-              boxShadow: SHADOW_CARD, textDecoration: 'none', color: G.textBlack,
-              fontSize: 15, fontWeight: 700, letterSpacing: '-0.16px',
-            }}>
-              <PhoneRawIcon />
-              {expert.phone}
-              <span style={{ marginLeft: 'auto', fontSize: 11, color: G.greenAccent, fontWeight: 700 }}>탭하면 연결</span>
-            </a>
+            {phone ? (
+              <a href={`tel:${phone}`} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '13px 16px', background: '#fff', borderRadius: 12,
+                boxShadow: SHADOW_CARD, textDecoration: 'none', color: G.textBlack,
+                fontSize: 15, fontWeight: 700, letterSpacing: '-0.16px',
+              }}>
+                <PhoneRawIcon />
+                {phone}
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: G.greenAccent, fontWeight: 700 }}>탭하면 연결</span>
+              </a>
+            ) : (
+              <Link href="/login" style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '13px 16px', background: '#fff', borderRadius: 12,
+                boxShadow: SHADOW_CARD, textDecoration: 'none', color: G.textSoft,
+                fontSize: 15, fontWeight: 700, letterSpacing: '-0.16px',
+              }}>
+                🔒 전화번호는 로그인 후 확인할 수 있어요
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: G.greenAccent, fontWeight: 700 }}>로그인 →</span>
+              </Link>
+            )}
           </Section>
 
           {/* 운영 시간 */}
@@ -213,7 +231,7 @@ export default async function ExpertPage({ params, searchParams }: {
         padding: '12px 20px 32px',
         background: `linear-gradient(180deg, rgba(242,240,235,0) 0%, ${G.cream} 30%)`,
       }}>
-        <CallButton phone={expert.phone} name={expert.name} vertical={expert.vertical} license={expert.license} />
+        <CallButton phone={phone} name={expert.name} vertical={expert.vertical} license={expert.license} />
         <p style={{ textAlign: 'center', margin: '8px 0 0', fontSize: 11, color: G.textSoft, letterSpacing: '-0.16px' }}>
           전문가에 따라 상담료가 발생할 수 있습니다
         </p>

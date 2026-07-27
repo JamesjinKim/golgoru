@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getExpertRepository } from '@/lib/experts/repository';
 import { getCurrentUserProfile } from '@/lib/auth/user';
 import { isHiddenVertical } from '@/lib/constants';
+import { stripPhoneIfGuest } from '@/lib/experts/maskPhone';
 import type { Vertical } from '@/lib/types';
 
 export async function GET(req: NextRequest) {
@@ -20,10 +21,12 @@ export async function GET(req: NextRequest) {
   }
 
   // 로그인 사용자의 광역(시/도)을 세션에서 확인 → 지역 우선 추천. 없으면 전 지역 폴백
-  const { profile } = await getCurrentUserProfile();
+  const { user, profile } = await getCurrentUserProfile();
   const region = profile?.region ?? null;
 
-  const experts = await getExpertRepository().listRecommended({ vertical, urgency, categoryCode, region });
+  const raw = await getExpertRepository().listRecommended({ vertical, urgency, categoryCode, region });
+  // 전화번호는 로그인 사용자에게만 (비로그인이면 phone 제거 → 우회 방지)
+  const experts = stripPhoneIfGuest(raw, Boolean(user));
 
   return NextResponse.json({ experts, total: experts.length });
 }

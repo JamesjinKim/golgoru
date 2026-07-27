@@ -5,6 +5,8 @@ import { getExpertDataSource } from '@/lib/experts/data-source';
 import { supabaseAdmin } from '@/lib/supabase';
 import { VERTICAL_LABEL, VISIBLE_VERTICALS } from '@/lib/constants';
 import { sortCategoriesForDisplay } from '@/lib/experts/category-order';
+import { stripPhoneIfGuest } from '@/lib/experts/maskPhone';
+import { getCurrentUserProfile } from '@/lib/auth/user';
 import { G } from '@/lib/tokens';
 import type { Category, Vertical } from '@/lib/types';
 import ExpertBrowseList from '@/components/ExpertBrowseList';
@@ -45,10 +47,15 @@ export default async function ExpertsBrowsePage({
   // 선택 전(쿼리 없이 진입)에는 리스트를 조회하지 않음. '전체'(all=1) 또는 직역 선택 시에만 조회
   const selected = !!vertical || sp.all === '1';
 
+  // 전화번호는 로그인 사용자에게만 노출 → 비로그인이면 서버에서 phone 제거(우회 방지)
+  const { user } = await getCurrentUserProfile();
+  const signedIn = Boolean(user);
+
   const categories = await loadCategories(vertical);
-  const { experts, nextCursor } = selected
+  const { experts: rawExperts, nextCursor } = selected
     ? await getExpertRepository().listBrowse({ vertical, categoryCode: category })
     : { experts: [], nextCursor: null };
+  const experts = stripPhoneIfGuest(rawExperts, signedIn);
 
   // 미니홈피에서 '뒤로가기' 시 돌아올 현재 둘러보기 URL (필터 보존)
   const backParams = new URLSearchParams();
@@ -124,6 +131,7 @@ export default async function ExpertsBrowsePage({
             vertical={vertical}
             category={category}
             backHref={backHref}
+            signedIn={signedIn}
           />
         ) : (
           <div style={{
