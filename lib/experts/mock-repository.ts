@@ -1,10 +1,10 @@
 import { MOCK_EXPERTS } from '@/lib/mock-data';
-import type { ConsultStatus, Expert, Urgency, Vertical } from '@/lib/types';
+import type { Expert, Urgency, Vertical } from '@/lib/types';
 import { BROWSE_PAGE_SIZE, type ExpertRepository } from './repository';
 import { pickRecommended } from './select';
+import { sortByStatusThenSeed, STATUS_ORDER } from './shuffle';
 
-// mock 은 단순 오프셋 커서 (supabase keyset 과 형식만 다를 뿐 클라이언트엔 opaque)
-const STATUS_ORDER: Record<ConsultStatus, number> = { available: 0, delayed: 1, unavailable: 2 };
+// mock 은 단순 오프셋 커서 (supabase 도 offset 방식으로 통일. 클라이언트엔 opaque)
 function encodeOffset(o: number): string {
   return Buffer.from(String(o)).toString('base64url');
 }
@@ -32,15 +32,18 @@ export const mockExpertRepository: ExpertRepository = {
   },
 
   // mock 데이터는 카테고리 태깅이 없어 categoryCode 는 무시하고 vertical 필터만 적용
-  async listBrowse({ vertical, cursor, limit = BROWSE_PAGE_SIZE }) {
+  async listBrowse({ vertical, cursor, limit = BROWSE_PAGE_SIZE, seed }) {
     let experts = MOCK_EXPERTS.filter((e) => e.is_active);
     if (vertical) experts = experts.filter((e) => e.vertical === vertical);
 
-    experts = [...experts].sort((a, b) =>
-      (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
-      a.name.localeCompare(b.name, 'ko') ||
-      a.id.localeCompare(b.id)
-    );
+    // seed 있으면 상담가능 우선 + 랜덤 셔플, 없으면 가나다순 폴백
+    experts = seed !== undefined
+      ? sortByStatusThenSeed(experts, seed)
+      : [...experts].sort((a, b) =>
+          (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) ||
+          a.name.localeCompare(b.name, 'ko') ||
+          a.id.localeCompare(b.id)
+        );
 
     const offset = cursor ? decodeOffset(cursor) : 0;
     const page = experts.slice(offset, offset + limit);
