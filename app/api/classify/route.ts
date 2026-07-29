@@ -1,7 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { classifyQuery, classifyAudio, GeminiConfigError } from '@/lib/gemini';
+import { getCurrentUserProfile } from '@/lib/auth/user';
+import { supabaseAdmin } from '@/lib/supabase';
+import type { ClassifyResult } from '@/lib/types';
 
 const MAX_AUDIO_BYTES = 2.5 * 1024 * 1024; // 설계 §4.3: 정상 60s WAV ≈1.9MB, 초과는 비정상
+
+// 추천 분석 로그(A) 저장. 어드민 분석·홍보용. fire-and-forget: 실패해도 분류 응답을 막지 않는다.
+// SOS 입력은 로그인 필수(SosInput이 비로그인 차단)라 user가 대개 존재. 없으면 스킵.
+async function logRecommendation(result: ClassifyResult, query: string, inputType: 'text' | 'voice') {
+  try {
+    const { user } = await getCurrentUserProfile();
+    if (!user) return;
+    await supabaseAdmin.from('recommendation_logs').insert({
+      user_id: user.id,
+      query,
+      input_type: inputType,
+      vertical: result.vertical,
+      category: result.category ?? null,
+      category_code: result.category_code ?? null,
+      urgency: result.urgency ?? null,
+    });
+  } catch (err) {
+    console.error('[classify] recommendation log 저장 실패(무시):', err);
+  }
+}
 
 export async function POST(req: NextRequest) {
   const contentType = req.headers.get('content-type') ?? '';
@@ -27,6 +50,8 @@ export async function POST(req: NextRequest) {
     try {
       const base64 = Buffer.from(await audio.arrayBuffer()).toString('base64');
       const result = await classifyAudio(base64, 'audio/wav');
+      // 음성은 원문이 없으므로 Gemini 받아쓰기(transcript)를 query로 저장
+      await logRecommendation(result, result.transcript ?? '', 'voice');
       return NextResponse.json(result);
     } catch (err: unknown) {
       if (err instanceof GeminiConfigError) {
@@ -58,7 +83,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await classifyQuery(query.trim());
+    const trimmed = query.trim();
+    const result = await classifyQuery(trimmed);
+    await logRecommendation(result, trimmed, 'text');
     return NextResponse.json(result);
   } catch (err: unknown) {
     console.error('[classify] error:', err);
