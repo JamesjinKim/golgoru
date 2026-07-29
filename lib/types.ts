@@ -34,30 +34,6 @@ export interface Expert {
   category_codes?: string[]; // 어드민 조회 시 expert_categories 조인 결과 (표시·편집용)
 }
 
-// ── 핵심 루프 엔티티 (supabase-schema-v2.sql) ────────────────────────
-export type RequestStatus = 'pending' | 'accepted' | 'rejected';
-
-export interface ConsultRequest {
-  id: string;
-  expert_id: string;
-  session_id: string;
-  user_id?: string | null;
-  query: string;
-  vertical: Vertical;
-  urgency?: Urgency | null;
-  status: RequestStatus;
-  expert_reply?: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Like {
-  id: string;
-  expert_id: string;
-  session_id: string;
-  created_at: string;
-}
-
 export interface ClassifyResult {
   vertical: Vertical;
   category: string;
