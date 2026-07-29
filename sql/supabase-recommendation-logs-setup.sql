@@ -6,8 +6,10 @@
 --
 -- 저장 시점: app/api/classify/route.ts 가 Gemini 분석 성공 후 이 테이블에 insert(fire-and-forget).
 -- 조회: 어드민(/admin/requests)이 service role(supabaseAdmin)로 조회.
--- 보관기간: 추천 분석은 단기(설계상 24시간) — 자동 파기(pg_cron 등)는 후속 단계에서 도입.
---            현재는 저장·조회까지만. 약관(lib/legal/consent-terms.ts privacy)에 보관 정책 반영.
+-- 보관기간: 추천 분석 기록은 약관상 "분석 완료 후 24시간 이내 파기"로 확정
+--            (lib/legal/consent-terms.ts privacy 보유·이용 기간). 약관에 명시했으므로 자동 파기
+--            이행이 필수다: created_at < now()-interval '24 hours' 행을 주기 삭제하는 pg_cron(또는
+--            외부 스케줄러/정리 API)을 반드시 도입할 것. 미도입 시 약관 위반이 된다. (2단계 과제)
 
 create table if not exists recommendation_logs (
   id uuid primary key default gen_random_uuid(),
