@@ -147,7 +147,7 @@ export default async function ExpertsBrowsePage({
             fontSize: 14, lineHeight: 1.6, letterSpacing: '-0.16px',
           }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>👆</div>
-            위에서 분야를 선택하면<br />전문가 목록을 보여드려요.
+            위에서 전문가를 선택하면<br />분야를 보여드려요.
           </div>
         )}
       </main>
