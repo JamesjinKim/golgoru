@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CallButton from '@/components/CallButton';
+import ContactCallLink from '@/components/ContactCallLink';
 import ExpertAvatar from '@/components/ExpertAvatar';
 import { getExpertRepository } from '@/lib/experts/repository';
 import { getCurrentUserProfile } from '@/lib/auth/user';
@@ -131,30 +132,9 @@ export default async function ExpertPage({ params, searchParams }: {
             </Section>
           )}
 
-          {/* 연락처 — 전화번호는 로그인 사용자에게만 */}
+          {/* 연락처 — 전화번호는 로그인 사용자에게만. 전화 클릭 시 통화 로깅(source=contact) */}
           <Section title="연락처">
-            {phone ? (
-              <a href={`tel:${phone}`} style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '13px 16px', background: '#fff', borderRadius: 12,
-                boxShadow: SHADOW_CARD, textDecoration: 'none', color: G.textBlack,
-                fontSize: 15, fontWeight: 700, letterSpacing: '-0.16px',
-              }}>
-                <PhoneRawIcon />
-                {phone}
-                <span style={{ marginLeft: 'auto', fontSize: 11, color: G.greenAccent, fontWeight: 700 }}>탭하면 연결</span>
-              </a>
-            ) : (
-              <Link href="/login" style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '13px 16px', background: '#fff', borderRadius: 12,
-                boxShadow: SHADOW_CARD, textDecoration: 'none', color: G.textSoft,
-                fontSize: 15, fontWeight: 700, letterSpacing: '-0.16px',
-              }}>
-                🔒 전화번호는 로그인 후 확인할 수 있어요
-                <span style={{ marginLeft: 'auto', fontSize: 11, color: G.greenAccent, fontWeight: 700 }}>로그인 →</span>
-              </Link>
-            )}
+            <ContactCallLink phone={phone} expertId={expert.id} vertical={expert.vertical} />
           </Section>
 
           {/* 운영 시간 */}
@@ -231,7 +211,7 @@ export default async function ExpertPage({ params, searchParams }: {
         padding: '12px 20px 32px',
         background: `linear-gradient(180deg, rgba(242,240,235,0) 0%, ${G.cream} 30%)`,
       }}>
-        <CallButton phone={phone} name={expert.name} vertical={expert.vertical} license={expert.license} />
+        <CallButton phone={phone} name={expert.name} vertical={expert.vertical} license={expert.license} expertId={expert.id} source="detail" />
         <p style={{ textAlign: 'center', margin: '8px 0 0', fontSize: 11, color: G.textSoft, letterSpacing: '-0.16px' }}>
           전문가에 따라 상담료가 발생할 수 있습니다
         </p>
@@ -350,13 +330,6 @@ function ShieldIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    </svg>
-  );
-}
-function PhoneRawIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={G.greenAccent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/>
     </svg>
   );
 }
