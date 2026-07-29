@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Vertical } from '@/lib/types';
 import { G, SHADOW_FRAP } from '@/lib/tokens';
 import { expertCallLabel } from '@/lib/constants';
+import { logCall } from '@/lib/experts/logCall';
 
 const buttonStyle = {
   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -14,7 +15,7 @@ const buttonStyle = {
   boxSizing: 'border-box' as const,
 } as const;
 
-export default function CallButton({ phone, name, vertical, license }: { phone: string; name: string; vertical: Vertical; license?: string | null }) {
+export default function CallButton({ phone, name, vertical, license, expertId, source = 'detail' }: { phone: string; name: string; vertical: Vertical; license?: string | null; expertId: string; source?: 'detail' | 'contact' | 'card' }) {
   // 전화번호는 로그인 사용자에게만. 비로그인(phone 빈 값)이면 전화 대신 로그인 유도.
   if (!phone) {
     return (
@@ -28,6 +29,7 @@ export default function CallButton({ phone, name, vertical, license }: { phone: 
     <a
       href={`tel:${phone}`}
       style={buttonStyle}
+      onClick={() => logCall(expertId, vertical, source)}
       onPointerDown={e => (e.currentTarget.style.transform = 'scale(0.97)')}
       onPointerUp={e => (e.currentTarget.style.transform = 'scale(1)')}
       onPointerLeave={e => (e.currentTarget.style.transform = 'scale(1)')}

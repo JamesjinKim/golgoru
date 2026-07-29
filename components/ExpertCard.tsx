@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Expert } from '@/lib/types';
 import { G, SHADOW_CARD, SHADOW_HIGHLIGHT } from '@/lib/tokens';
 import { STATUS_LABEL, expertTitle } from '@/lib/constants';
+import { logCall } from '@/lib/experts/logCall';
 import ExpertAvatar from './ExpertAvatar';
 
 export default function ExpertCard({ expert, highlight, href }: { expert: Expert; highlight?: boolean; href?: string }) {
@@ -74,7 +75,7 @@ export default function ExpertCard({ expert, highlight, href }: { expert: Expert
             </span>
             <a
               href={`tel:${expert.phone}`}
-              onClick={e => e.stopPropagation()}
+              onClick={e => { e.stopPropagation(); logCall(expert.id, expert.vertical, 'card'); }}
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 background: live ? G.greenAccent : '#fff',

@@ -7,6 +7,7 @@ const LINKS = [
   { href: '/admin/applications', label: '입점신청' },
   { href: '/admin/users', label: '사용자' },
   { href: '/admin/requests', label: '상담분석' },
+  { href: '/admin/calls', label: '통화기록' },
   { href: '/admin/categories', label: '카테고리' },
   { href: '/admin/import', label: 'CSV 일괄등록' },
   { href: '/admin/audit', label: '감사·접속' },
