@@ -5,6 +5,13 @@ export const metadata: Metadata = {
   title: '골고루 SOS — 긴급 전문가 추천',
   description: '긴급 상황에서 30초 안에 전문가를 추천합니다.',
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
