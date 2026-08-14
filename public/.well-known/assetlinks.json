@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "kr.co.golgoru.sos",
+      "sha256_cert_fingerprints": [
+        "67:01:43:F1:FD:10:85:43:4A:22:35:0E:62:39:AA:23:AA:D5:F7:10:0F:31:BA:E1:4C:AC:9A:D5:AF:19:6D:5A"
+      ]
+    }
+  }
+]
