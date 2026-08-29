@@ -210,6 +210,14 @@ export default function SosInput({ signedIn }: SosInputProps) {
     if (isRecording) { await stopAndTranscribe(); return; }
     if (processing) return;
 
+    // 모바일(안드로이드/iOS)에서는 브라우저 Web Speech API의 중복 누적 버그(crbug.com/862142)를 방지하고
+    // 최고 품질의 한국어 인식을 위해 Gemini AI 음성 파이프라인(MediaRecorder)을 우선 사용
+    const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile && recorderSupported) {
+      await startRecording();
+      return;
+    }
+
     if (speechSupported) { startSpeech(); return; }
     if (recorderSupported) { await startRecording(); return; }
     setError('이 브라우저는 음성 입력을 지원하지 않습니다. 텍스트로 입력해주세요.');
