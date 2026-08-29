@@ -315,7 +315,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
         <button
           onClick={handleVoice}
           disabled={processing}
-          aria-label={listening || isRecording ? '음성 인식 중단' : '음성으로 말하기'}
+          aria-label={listening || isRecording ? '음성 입력 완료' : '탭하고 말하기'}
           style={{
             position: 'relative',
             width: 84,
@@ -351,7 +351,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
       {/* 마이크 라벨 + 파형 */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: G.textBlack, letterSpacing: '-0.16px' }}>
-          {listening || isRecording ? '탭해서 중단' : processing ? '받아쓰는 중…' : '🎤 말하기'}
+          {listening || isRecording ? '탭해서 완료' : processing ? '받아쓰는 중…' : '🎤 탭하고 말하기'}
         </div>
         {(listening || isRecording) && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginTop: 8, height: 20, alignItems: 'center' }}>
