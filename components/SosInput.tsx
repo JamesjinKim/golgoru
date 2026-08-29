@@ -175,7 +175,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
     rec.onerror = (e: any) => {
       if (e?.error === 'no-speech' || e?.error === 'aborted') return;
       setListening(false);
-      setError('음성 인식에 실패했습니다. 다시 시도하거나 텍스트로 입력해주세요.');
+      setError('음성이 인식되지 않았습니다. 주변이 시끄러우면 텍스트로 입력해 주세요.');
     };
     rec.onend = () => {
       setListening(false);
@@ -208,7 +208,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
       const data: ClassifyResult & { experts?: Expert[] } = await res.json();
       const text = (data.transcript ?? '').trim();
       if (!text) {
-        throw new Error('음성이 감지되지 않았습니다. 다시 말씀해주세요.');
+        throw new Error('음성이 인식되지 않았습니다. 주변이 시끄러우면 텍스트로 입력해 주세요.');
       }
 
       // 텍스트창에 인식된 텍스트 즉시 표시
@@ -285,7 +285,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
           value={query}
           onChange={e => { if (!busy) setQuery(e.target.value); }}
           onKeyDown={handleKeyDown}
-          placeholder={"마이크를 탭하고 말씀하시면 이곳에 텍스트로 표시되고, 적합한 전문가가 자동으로 추천됩니다.\n(직접 텍스트를 입력하셔도 됩니다)"}
+          placeholder="상황을 말하거나 입력하세요"
           rows={4}
           maxLength={300}
           readOnly={busy}

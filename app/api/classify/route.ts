@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       const status = (err as { status?: number })?.status;
       if (status === 422) {
         return NextResponse.json(
-          { error: '음성이 인식되지 않았습니다. 다시 시도해주세요.' },
+          { error: '음성이 인식되지 않았습니다. 주변이 시끄러우면 텍스트로 입력해 주세요.' },
           { status: 422 },
         );
       }
