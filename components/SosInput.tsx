@@ -211,6 +211,10 @@ export default function SosInput({ signedIn }: SosInputProps) {
         throw new Error('음성이 감지되지 않았습니다. 다시 말씀해주세요.');
       }
 
+      // 텍스트창에 인식된 텍스트 즉시 표시
+      setQuery(text);
+      cachedVoiceResultRef.current = { query: text, result: data };
+
       // 세션 스토리지에 즉시 캐싱
       sessionStorage.setItem('classifyResult', JSON.stringify(data));
       sessionStorage.setItem('sosQuery', text);
@@ -220,8 +224,10 @@ export default function SosInput({ signedIn }: SosInputProps) {
         sessionStorage.removeItem('recommendedExperts');
       }
 
-      // 원스톱 다이렉트 추천 이동 (추가 클릭 0회, 총 0.8초 내 즉시 화면 표시)
-      router.push(`/result?q=${encodeURIComponent(text)}`);
+      // 사용자가 텍스트창에서 변환된 내용을 확인한 후 부드럽게 결과 화면 이동
+      setTimeout(() => {
+        router.push(`/result?q=${encodeURIComponent(text)}`);
+      }, 600);
     } catch (e) {
       setError(e instanceof Error ? e.message : '음성 분석에 실패했습니다. 텍스트로 입력해주세요.');
       setProcessing(false);
@@ -259,7 +265,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
     : isRecording
       ? '🎤 듣는 중… (말씀 후 탭)'
       : processing
-        ? '⚡ AI 분석 및 전문가 매칭 중…'
+        ? '⚡ AI 분석 및 전문가 추천 중…'
         : query.length === 0
           ? '비공개 · 암호화 전송'
           : `${query.length}자`;
@@ -379,7 +385,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
       {/* 마이크 라벨 + 파형 */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: G.textBlack, letterSpacing: '-0.16px' }}>
-          {listening || isRecording ? '탭해서 완료' : processing ? '⚡ 매칭 중…' : '🎤 탭하고 말하기'}
+          {listening || isRecording ? '탭해서 완료' : processing ? '⚡ 추천 중…' : '🎤 탭하고 말하기'}
         </div>
         {(listening || isRecording) && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginTop: 8, height: 20, alignItems: 'center' }}>
