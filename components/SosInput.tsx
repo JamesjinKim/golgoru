@@ -71,6 +71,20 @@ export default function SosInput({ signedIn }: SosInputProps) {
     return () => clearInterval(id);
   }, [listening, isRecording]);
 
+  // 뒤로가기 등으로 홈으로 돌아왔을 때 이전 발화/입력 텍스트 및 분류 캐시 복원
+  useEffect(() => {
+    const savedQuery = sessionStorage.getItem('sosQuery');
+    if (savedQuery) {
+      setQuery(savedQuery);
+    }
+    const savedClassify = sessionStorage.getItem('classifyResult');
+    if (savedClassify && savedQuery) {
+      try {
+        cachedVoiceResultRef.current = { query: savedQuery, result: JSON.parse(savedClassify) };
+      } catch {}
+    }
+  }, []);
+
   useEffect(() => {
     return () => { try { recognitionRef.current?.stop(); } catch {} };
   }, []);
