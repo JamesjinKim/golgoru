@@ -18,17 +18,23 @@ export default function ResultPage() {
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
 
-  // 추천 조회 → state + sessionStorage 캐시에 저장 (delay: 분석 애니메이션과 동기화용)
+  // 추천 조회 → state + sessionStorage 캐시에 저장
   const loadExperts = (result: ClassifyResult, delay = 0) => {
     fetch(`/api/experts?vertical=${result.vertical}&urgency=${result.urgency}&category=${result.category_code ?? ''}`)
       .then(r => r.json())
       .then(data => {
         const list: Expert[] = data.experts ?? [];
-        setTimeout(() => {
+        if (delay > 0) {
+          setTimeout(() => {
+            setExperts(list);
+            sessionStorage.setItem('recommendedExperts', JSON.stringify(list));
+            setLoading(false);
+          }, delay);
+        } else {
           setExperts(list);
           sessionStorage.setItem('recommendedExperts', JSON.stringify(list));
           setLoading(false);
-        }, delay);
+        }
       })
       .catch(() => { setError('전문가 정보를 불러오지 못했습니다.'); setLoading(false); });
   };
@@ -40,7 +46,7 @@ export default function ResultPage() {
     setError('');
     setLoading(true);
     setExperts([]);
-    loadExperts(classify, 200);
+    loadExperts(classify, 0);
   };
 
   useEffect(() => {
@@ -62,10 +68,10 @@ export default function ResultPage() {
       } catch { /* 파싱 실패 시 아래로 falls through → 새로 조회 */ }
     }
 
-    const t1 = setTimeout(() => setStep(1), 300);
-    const t2 = setTimeout(() => setStep(2), 700);
-    const t3 = setTimeout(() => setStep(3), 1100);
-    loadExperts(result, 1300);
+    const t1 = setTimeout(() => setStep(1), 50);
+    const t2 = setTimeout(() => setStep(2), 120);
+    const t3 = setTimeout(() => setStep(3), 200);
+    loadExperts(result, 0);
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     // eslint-disable-next-line react-hooks/exhaustive-deps

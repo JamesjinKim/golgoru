@@ -52,6 +52,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
   const recognitionRef = useRef<any>(null);
   const baseRef = useRef('');   // 인식 시작 시점의 기존 텍스트
   const finalRef = useRef('');  // 누적 확정 텍스트
+  const cachedVoiceResultRef = useRef<{ query: string; result: ClassifyResult } | null>(null);
 
   const {
     isSupported: recorderSupported,
@@ -87,6 +88,18 @@ export default function SosInput({ signedIn }: SosInputProps) {
     }
     setLoading(true);
     setError('');
+
+    // 음성 인식 시 이미 계산된 분류 결과가 있고 사용자가 텍스트를 수정하지 않은 경우:
+    // 불필요한 2차 AI 재호출(1.5초 낭비)을 완전히 건너뛰고 0초 만에 결과 페이지로 즉시 이동
+    if (cachedVoiceResultRef.current && cachedVoiceResultRef.current.query === text) {
+      const result = cachedVoiceResultRef.current.result;
+      sessionStorage.setItem('classifyResult', JSON.stringify(result));
+      sessionStorage.setItem('sosQuery', text);
+      sessionStorage.removeItem('recommendedExperts');
+      router.push(`/result?q=${encodeURIComponent(text)}`);
+      return;
+    }
+
     try {
       const res = await fetch('/api/classify', {
         method: 'POST',
@@ -191,7 +204,9 @@ export default function SosInput({ signedIn }: SosInputProps) {
         throw new Error(j.error || '음성 분석에 실패했습니다.');
       }
       const result: ClassifyResult = await res.json();
-      setQuery(result.transcript ?? '');
+      const text = (result.transcript ?? '').trim();
+      cachedVoiceResultRef.current = { query: text, result };
+      setQuery(text);
       textareaRef.current?.focus();
     } catch (e) {
       setError(e instanceof Error ? e.message : '음성 분석에 실패했습니다. 텍스트로 입력해주세요.');
