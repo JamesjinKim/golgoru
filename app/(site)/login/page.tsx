@@ -27,7 +27,7 @@ export default function LoginPage() {
 }
 
 const shell: React.CSSProperties = {
-  maxWidth: 380, margin: '0 auto', minHeight: '100dvh',
+  maxWidth: 380, margin: '0 auto', minHeight: 'var(--app-vh, 100dvh)',
   padding: '64px 24px 40px', display: 'flex', flexDirection: 'column',
   justifyContent: 'center', background: G.cream,
 };

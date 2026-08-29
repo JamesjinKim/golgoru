@@ -75,7 +75,7 @@ export default async function ExpertsBrowsePage({
   const backHref = `/experts?${backParams.toString()}`;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: G.cream }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'var(--app-vh, 100dvh)', background: G.cream }}>
       <header style={{
         paddingTop: 54, paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
         borderBottom: `1px solid ${G.hairline}`, background: G.cream,

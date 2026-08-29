@@ -23,7 +23,7 @@ export default async function ConsentPage({
 
   return (
     <div style={{
-      maxWidth: 380, margin: '0 auto', minHeight: '100dvh',
+      maxWidth: 380, margin: '0 auto', minHeight: 'var(--app-vh, 100dvh)',
       padding: '48px 24px 40px', background: G.cream,
       display: 'flex', flexDirection: 'column',
     }}>

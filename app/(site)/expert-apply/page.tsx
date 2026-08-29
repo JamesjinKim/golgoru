@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ExpertApplyPage() {
   return (
-    <div style={{ maxWidth: 430, margin: '0 auto', minHeight: '100dvh', background: G.cream }}>
+    <div style={{ maxWidth: 430, margin: '0 auto', minHeight: 'var(--app-vh, 100dvh)', background: G.cream }}>
       <header style={{
         paddingTop: 54, paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
         display: 'flex', alignItems: 'center', gap: 8,

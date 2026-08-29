@@ -107,16 +107,3 @@ body {
     padding-top: 12px !important;
   }
 }
-
-/* dvh 미지원 브라우저(Chrome 108 미만 등) 폴백.
-   레이아웃·페이지 컨테이너는 min-height:100dvh를 쓴다. 모바일에서 100vh는
-   "주소창이 숨겨진 상태"의 큰 뷰포트로 고정 해석되어 실제 뷰포트보다 커지고,
-   그만큼 화면이 넘쳐 스크롤이 생긴다(TWA 실측: 100vh=813px, 뷰포트=757px).
-   dvh는 현재 뷰포트를 따라가므로 어긋나지 않는다. */
-@supports not (height: 100dvh) {
-  body,
-  body > div,
-  body > div > div {
-    min-height: 100vh;
-  }
-}

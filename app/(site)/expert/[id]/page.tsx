@@ -45,7 +45,7 @@ export default async function ExpertPage({ params, searchParams }: {
   const videoUrls = expertVideoUrls(expert); // youtube_urls 우선, 없으면 youtube_url 폴백 (최대 3)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: G.cream }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'var(--app-vh, 100dvh)', background: G.cream }}>
       <header style={{
         paddingTop: 54, paddingBottom: 8,
         paddingLeft: 20, paddingRight: 20,

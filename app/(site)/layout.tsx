@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import ViewportHeightFix from '@/components/ViewportHeightFix';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -36,14 +37,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{
         background: 'var(--color-neutral-warm)',
-        minHeight: '100dvh',
+        minHeight: 'var(--app-vh, 100dvh)',
         margin: 0,
       }}>
+        <ViewportHeightFix />
         <div style={{
           width: '100%',
           maxWidth: 430,
           margin: '0 auto',
-          minHeight: '100dvh',
+          minHeight: 'var(--app-vh, 100dvh)',
           background: 'var(--color-neutral-warm)',
           position: 'relative',
           overflow: 'hidden',
