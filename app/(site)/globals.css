@@ -97,3 +97,13 @@ body {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+/* TWA(설치형 앱)에서는 안드로이드 상태바가 웹 뷰포트 바깥에 그려진다.
+   각 페이지 header의 인라인 padding-top:54px은 브라우저 주소창을 가정한 값이라
+   앱에서는 그만큼이 빈 공간으로 남는다. standalone일 때만 줄인다.
+   (브라우저는 주소창이 뷰포트 안에 있으므로 기존 값을 유지) */
+@media (display-mode: standalone) {
+  header {
+    padding-top: 12px !important;
+  }
+}
