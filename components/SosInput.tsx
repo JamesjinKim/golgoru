@@ -127,13 +127,34 @@ export default function SosInput({ signedIn }: SosInputProps) {
     rec.onstart = () => { setListening(true); setError(''); };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onresult = (e: any) => {
-      let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
-        if (e.results[i].isFinal) finalRef.current += t;
-        else interim += t;
+      let finalTranscript = '';
+      let interimTranscript = '';
+      for (let i = 0; i < e.results.length; i++) {
+        const item = e.results[i];
+        const t = (item[0]?.transcript || '').trim();
+        if (!t) continue;
+        if (item.isFinal) {
+          if (!finalTranscript) {
+            finalTranscript = t;
+          } else if (t.startsWith(finalTranscript)) {
+            // 안드로이드 크롬 버그: 새 final에 이전 final 문장이 통째로 포함되어 오는 경우
+            finalTranscript = t;
+          } else if (!finalTranscript.includes(t)) {
+            finalTranscript = `${finalTranscript} ${t}`;
+          }
+        } else {
+          // 안드로이드 크롬: interim에 이미 확정된 final 문장이 포함되어 오는 경우 제외
+          if (finalTranscript && t.startsWith(finalTranscript)) {
+            const rest = t.slice(finalTranscript.length).trim();
+            if (rest) interimTranscript = rest;
+          } else if (!finalTranscript.includes(t)) {
+            interimTranscript = t;
+          }
+        }
       }
-      setQuery(baseRef.current + finalRef.current + interim);
+      finalRef.current = finalTranscript ? finalTranscript + ' ' : '';
+      const combined = (baseRef.current + (finalTranscript ? finalTranscript + ' ' : '') + interimTranscript).trim();
+      setQuery(combined);
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onerror = (e: any) => {
