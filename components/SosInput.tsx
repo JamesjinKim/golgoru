@@ -71,8 +71,11 @@ export default function SosInput({ signedIn }: SosInputProps) {
     return () => clearInterval(id);
   }, [listening, isRecording]);
 
-  // 뒤로가기 등으로 홈으로 돌아왔을 때 이전 발화/입력 텍스트 및 분류 캐시 복원
+  // 뒤로가기 등으로 홈으로 돌아왔을 때 이전 발화/입력 텍스트 및 분류 캐시 복원.
+  // 비로그인 상태에서는 복원하지 않는다 — 로그아웃 후 남은 캐시로 이전 사용자의
+  // 상담 내용이 되살아나는 것을 막는다(효과 실행 순서에 의존하지 않기 위해 명시).
   useEffect(() => {
+    if (!signedIn) return;
     const savedQuery = sessionStorage.getItem('sosQuery');
     if (savedQuery) {
       setQuery(savedQuery);
@@ -83,11 +86,20 @@ export default function SosInput({ signedIn }: SosInputProps) {
         cachedVoiceResultRef.current = { query: savedQuery, result: JSON.parse(savedClassify) };
       } catch {}
     }
-  }, []);
+  }, [signedIn]);
 
   useEffect(() => {
     return () => { try { recognitionRef.current?.stop(); } catch {} };
   }, []);
+
+  // 로그아웃 시 화면에 남은 상담 내용을 지운다.
+  // clearSosSession()이 sessionStorage를 비워도 이미 마운트된 컴포넌트의
+  // state는 그대로 남으므로, signedIn 해제를 감지해 함께 초기화한다.
+  useEffect(() => {
+    if (signedIn) return;
+    setQuery('');
+    cachedVoiceResultRef.current = null;
+  }, [signedIn]);
 
   const showLoginRequired = () => {
     setError('로그인 후 사용할 수 있습니다.');

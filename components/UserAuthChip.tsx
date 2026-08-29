@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/lib/auth/profile';
 import { formatUserLabel } from '@/lib/auth/profile';
 import { clearBrowserSupabaseAuthCookies } from '@/lib/auth/cookies';
+import { clearSosSession } from '@/lib/sosSession';
 import { G } from '@/lib/tokens';
 
 interface UserAuthChipProps {
@@ -24,6 +25,9 @@ export default function UserAuthChip({ profile }: UserAuthChipProps) {
   const logout = async () => {
     setLoading(true);
     setError('');
+    // 상담 내용은 서버 응답을 기다리지 않고 먼저 지운다.
+    // 로그아웃 요청이 실패하더라도 민감 정보가 기기에 남지 않아야 한다.
+    clearSosSession();
     try {
       const res = await fetch('/auth/logout', { method: 'POST' });
       clearBrowserSupabaseAuthCookies();
