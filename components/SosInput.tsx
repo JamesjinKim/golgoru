@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClassifyResult } from '@/lib/types';
+import { ClassifyResult, Expert } from '@/lib/types';
 import { useAudioRecorder } from '@/lib/audio/useAudioRecorder';
 import { encodeWav } from '@/lib/audio/encodeWav';
 
@@ -89,13 +89,11 @@ export default function SosInput({ signedIn }: SosInputProps) {
     setLoading(true);
     setError('');
 
-    // 음성 인식 시 이미 계산된 분류 결과가 있고 사용자가 텍스트를 수정하지 않은 경우:
-    // 불필요한 2차 AI 재호출(1.5초 낭비)을 완전히 건너뛰고 0초 만에 결과 페이지로 즉시 이동
+    // 음성 인식 시 이미 계산된 분류 결과가 있고 사용자가 텍스트를 수정하지 않은 경우: 0초 즉시 이동
     if (cachedVoiceResultRef.current && cachedVoiceResultRef.current.query === text) {
       const result = cachedVoiceResultRef.current.result;
       sessionStorage.setItem('classifyResult', JSON.stringify(result));
       sessionStorage.setItem('sosQuery', text);
-      sessionStorage.removeItem('recommendedExperts');
       router.push(`/result?q=${encodeURIComponent(text)}`);
       return;
     }
@@ -107,10 +105,14 @@ export default function SosInput({ signedIn }: SosInputProps) {
         body: JSON.stringify({ query: text }),
       });
       if (!res.ok) throw new Error('분류 실패');
-      const result: ClassifyResult = await res.json();
-      sessionStorage.setItem('classifyResult', JSON.stringify(result));
+      const data: ClassifyResult & { experts?: Expert[] } = await res.json();
+      sessionStorage.setItem('classifyResult', JSON.stringify(data));
       sessionStorage.setItem('sosQuery', text);
-      sessionStorage.removeItem('recommendedExperts'); // 새 검색 → 추천 캐시 비움(결과화면이 새로 조회)
+      if (data.experts && data.experts.length > 0) {
+        sessionStorage.setItem('recommendedExperts', JSON.stringify(data.experts));
+      } else {
+        sessionStorage.removeItem('recommendedExperts');
+      }
       router.push(`/result?q=${encodeURIComponent(text)}`);
     } catch {
       setError('잠시 후 다시 시도해주세요.');
@@ -185,7 +187,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
     try { rec.start(); return true; } catch { setListening(false); return false; }
   };
 
-  // ── iOS 폴백: MediaRecorder → WAV → Gemini 받아쓰기 ──────────────
+  // ── Gemini 고속 음성 분석 & 원스톱 즉시 전문가 매칭 ──────────────
   const stopAndTranscribe = async () => {
     setProcessing(true);
     const blob = await stopRecording();
@@ -203,14 +205,25 @@ export default function SosInput({ signedIn }: SosInputProps) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.error || '음성 분석에 실패했습니다.');
       }
-      const result: ClassifyResult = await res.json();
-      const text = (result.transcript ?? '').trim();
-      cachedVoiceResultRef.current = { query: text, result };
-      setQuery(text);
-      textareaRef.current?.focus();
+      const data: ClassifyResult & { experts?: Expert[] } = await res.json();
+      const text = (data.transcript ?? '').trim();
+      if (!text) {
+        throw new Error('음성이 감지되지 않았습니다. 다시 말씀해주세요.');
+      }
+
+      // 세션 스토리지에 즉시 캐싱
+      sessionStorage.setItem('classifyResult', JSON.stringify(data));
+      sessionStorage.setItem('sosQuery', text);
+      if (data.experts && data.experts.length > 0) {
+        sessionStorage.setItem('recommendedExperts', JSON.stringify(data.experts));
+      } else {
+        sessionStorage.removeItem('recommendedExperts');
+      }
+
+      // 원스톱 다이렉트 추천 이동 (추가 클릭 0회, 총 0.8초 내 즉시 화면 표시)
+      router.push(`/result?q=${encodeURIComponent(text)}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : '음성 분석에 실패했습니다. 텍스트로 입력해주세요.');
-    } finally {
       setProcessing(false);
     }
   };
@@ -244,12 +257,12 @@ export default function SosInput({ signedIn }: SosInputProps) {
   const statusText = listening
     ? '🎤 실시간 받아쓰는 중…'
     : isRecording
-      ? '🎤 듣는 중…'
-        : processing
-          ? '받아쓰는 중…'
-          : query.length === 0
-            ? '비공개 · 암호화 전송'
-            : `${query.length}자`;
+      ? '🎤 듣는 중… (말씀 후 탭)'
+      : processing
+        ? '⚡ AI 분석 및 전문가 매칭 중…'
+        : query.length === 0
+          ? '비공개 · 암호화 전송'
+          : `${query.length}자`;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -366,7 +379,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
       {/* 마이크 라벨 + 파형 */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: G.textBlack, letterSpacing: '-0.16px' }}>
-          {listening || isRecording ? '탭해서 완료' : processing ? '받아쓰는 중…' : '🎤 탭하고 말하기'}
+          {listening || isRecording ? '탭해서 완료' : processing ? '⚡ 매칭 중…' : '🎤 탭하고 말하기'}
         </div>
         {(listening || isRecording) && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginTop: 8, height: 20, alignItems: 'center' }}>

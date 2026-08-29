@@ -183,9 +183,9 @@ export async function classifyAudio(
 
   let parsed: { transcript?: string } & Partial<ClassifyResult>;
   try {
-    // 오디오는 받아쓰기 충실도 위해 flash 유지, thinking만 off로 지연 단축 (iOS 폴백 경로)
+    // 오디오는 gemini-2.5-flash-lite + thinking off로 초고속(0.6~0.8s) 처리
     const response = await getAI().models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       contents: [
         { inlineData: { mimeType, data: audioBase64 } },
         { text: AUDIO_CLASSIFY_PROMPT },

@@ -2,9 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { classifyQuery, classifyAudio, GeminiConfigError } from '@/lib/gemini';
 import { getCurrentUserProfile } from '@/lib/auth/user';
 import { supabaseAdmin } from '@/lib/supabase';
-import type { ClassifyResult } from '@/lib/types';
+import { getExpertRepository } from '@/lib/experts/repository';
+import { stripPhoneIfGuest } from '@/lib/experts/maskPhone';
+import { isHiddenVertical } from '@/lib/constants';
+import type { ClassifyResult, Expert } from '@/lib/types';
 
 const MAX_AUDIO_BYTES = 2.5 * 1024 * 1024; // 설계 §4.3: 정상 60s WAV ≈1.9MB, 초과는 비정상
+
+async function fetchExpertsForClassify(result: ClassifyResult): Promise<Expert[]> {
+  try {
+    if (isHiddenVertical(result.vertical)) return [];
+    const { user, profile } = await getCurrentUserProfile();
+    const raw = await getExpertRepository().listRecommended({
+      vertical: result.vertical,
+      urgency: result.urgency,
+      categoryCode: result.category_code,
+      region: profile?.region ?? null,
+    });
+    return stripPhoneIfGuest(raw, Boolean(user));
+  } catch (e) {
+    console.error('[classify] experts prefetch failed:', e);
+    return [];
+  }
+}
 
 // 추천 분석 로그(A) 저장. 어드민 분석·홍보용. fire-and-forget: 실패해도 분류 응답을 막지 않는다.
 // SOS 입력은 로그인 필수(SosInput이 비로그인 차단)라 user가 대개 존재. 없으면 스킵.
@@ -50,9 +70,10 @@ export async function POST(req: NextRequest) {
     try {
       const base64 = Buffer.from(await audio.arrayBuffer()).toString('base64');
       const result = await classifyAudio(base64, 'audio/wav');
+      const experts = await fetchExpertsForClassify(result);
       // 음성은 원문이 없으므로 Gemini 받아쓰기(transcript)를 query로 저장
       await logRecommendation(result, result.transcript ?? '', 'voice');
-      return NextResponse.json(result);
+      return NextResponse.json({ ...result, experts });
     } catch (err: unknown) {
       if (err instanceof GeminiConfigError) {
         return NextResponse.json(
@@ -85,8 +106,9 @@ export async function POST(req: NextRequest) {
   try {
     const trimmed = query.trim();
     const result = await classifyQuery(trimmed);
+    const experts = await fetchExpertsForClassify(result);
     await logRecommendation(result, trimmed, 'text');
-    return NextResponse.json(result);
+    return NextResponse.json({ ...result, experts });
   } catch (err: unknown) {
     console.error('[classify] error:', err);
     return NextResponse.json(
