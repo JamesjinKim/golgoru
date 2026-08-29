@@ -107,3 +107,16 @@ body {
     padding-top: 12px !important;
   }
 }
+
+/* 모바일에서 100vh는 "주소창이 숨겨진 상태"의 큰 뷰포트로 고정 해석된다.
+   TWA에서 당겨서 새로고침하면 이 값(813px)이 실제 뷰포트(757px)보다 커져
+   화면이 넘치고 스크롤이 생긴다. 100dvh는 현재 뷰포트를 따라가므로 어긋나지 않는다.
+   레이아웃·페이지 컨테이너가 인라인 style로 min-height:100vh를 쓰고 있어
+   (11곳, 10개 파일) 전역에서 한 번에 덮어쓴다. dvh 미지원 브라우저는
+   @supports 밖의 기존 100vh 값을 그대로 사용한다. */
+@supports (height: 100dvh) {
+  body[style*="100vh"],
+  div[style*="100vh"] {
+    min-height: 100dvh !important;
+  }
+}
