@@ -1,8 +1,9 @@
 import type { User } from '@supabase/supabase-js';
 import { supabaseAdmin } from '@/lib/supabase';
 import { hasSupabasePublicConfig } from '@/lib/env';
+import { cookies } from 'next/headers';
 import { getUserServerSupabase } from './supabaseServer';
-import { isInvalidRefreshTokenError } from './cookies';
+import { getSupabaseAuthCookieName, isInvalidRefreshTokenError } from './cookies';
 import { mapAuthUserToProfileRow, type UserProfile } from './profile';
 
 export interface CurrentUserProfile {
@@ -42,8 +43,27 @@ export async function upsertUserProfileFromAuthUser(user: User): Promise<UserPro
   return profile;
 }
 
+// 세션 쿠키가 하나도 없으면 비로그인이 확정이므로 auth 서버 왕복을 건너뛴다.
+// 값이 빈 쿠키와 code-verifier(로그인 진행용)는 세션으로 치지 않는다.
+async function hasAuthSessionCookie(): Promise<boolean> {
+  const base = getSupabaseAuthCookieName();
+  const store = await cookies();
+  return store.getAll().some(
+    ({ name, value }) =>
+      Boolean(value) &&
+      (name === base || name.startsWith(`${base}.`)) &&
+      !name.endsWith('-code-verifier'),
+  );
+}
+
 export async function getCurrentUserProfile(): Promise<CurrentUserProfile> {
   if (!hasSupabasePublicConfig()) {
+    return { user: null, profile: null };
+  }
+
+  // 비로그인 요청에서 Supabase auth 왕복(~200ms)을 피한다.
+  // 쿠키가 있으면 위조 가능성이 있으므로 종전대로 서버에서 검증한다.
+  if (!(await hasAuthSessionCookie())) {
     return { user: null, profile: null };
   }
 
