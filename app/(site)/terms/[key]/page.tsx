@@ -25,7 +25,7 @@ export default async function TermPage({ params }: { params: Promise<{ key: stri
   const doc = TERMS[key];
 
   return (
-    <div style={{ maxWidth: 380, margin: '0 auto', minHeight: '100vh', padding: '40px 24px 48px', background: G.cream }}>
+    <div style={{ maxWidth: 380, margin: '0 auto', minHeight: '100dvh', padding: '40px 24px 48px', background: G.cream }}>
       <h1 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.4px', color: G.textBlack }}>
         {doc.title}{' '}
         <span style={{ fontSize: 12.5, fontWeight: 700, color: doc.required ? G.houseGreen : G.textSoft }}>

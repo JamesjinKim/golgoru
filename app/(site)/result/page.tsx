@@ -78,7 +78,7 @@ export default function ResultPage() {
   }, [router]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: G.cream }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: G.cream }}>
       <header style={{
         paddingTop: 54, paddingBottom: 8,
         paddingLeft: 20, paddingRight: 20,

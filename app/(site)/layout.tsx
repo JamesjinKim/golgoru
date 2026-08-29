@@ -36,14 +36,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{
         background: 'var(--color-neutral-warm)',
-        minHeight: '100vh',
+        minHeight: '100dvh',
         margin: 0,
       }}>
         <div style={{
           width: '100%',
           maxWidth: 430,
           margin: '0 auto',
-          minHeight: '100vh',
+          minHeight: '100dvh',
           background: 'var(--color-neutral-warm)',
           position: 'relative',
           overflow: 'hidden',
