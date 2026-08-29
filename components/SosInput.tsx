@@ -285,7 +285,7 @@ export default function SosInput({ signedIn }: SosInputProps) {
           value={query}
           onChange={e => { if (!busy) setQuery(e.target.value); }}
           onKeyDown={handleKeyDown}
-          placeholder="예: 회사에서 갑자기 해고 통보를 받았는데 어떻게 해야 할지 모르겠어요…"
+          placeholder={"마이크를 탭하고 말씀하시면 이곳에 텍스트로 표시되고, 적합한 전문가가 자동으로 추천됩니다.\n(직접 텍스트를 입력하셔도 됩니다)"}
           rows={4}
           maxLength={300}
           readOnly={busy}
