@@ -4,9 +4,6 @@
 // 동의서는 동의를 받기 위한 고지이고, 이 방침은 처리 전반을 상시 공개하는 문서로
 // 개인정보 보호법 제30조가 요구하는 항목을 담는다. Play Console의
 // '개인정보처리방침 URL'에는 이 문서(/privacy)를 등록한다.
-//
-// ⚠️ COMPANY_INFO의 PLACEHOLDER 값은 반드시 실제 값으로 교체한 뒤 공개해야 한다.
-//    사업자등록번호·주소·책임자·연락처는 코드에서 확인할 수 없는 정보다.
 
 export const PRIVACY_POLICY_VERSION = '1.0';
 export const PRIVACY_POLICY_EFFECTIVE_DATE = '2026년 8월 29일';
@@ -14,11 +11,11 @@ export const PRIVACY_POLICY_EFFECTIVE_DATE = '2026년 8월 29일';
 export const COMPANY_INFO = {
   name: '(주)골고루보상',
   serviceName: '골고루 SOS',
-  // ⚠️ 아래 4개는 실제 값으로 교체 필요
-  businessNumber: '[사업자등록번호 입력]',
-  address: '[사업장 주소 입력]',
-  privacyOfficer: '[개인정보 보호책임자 성명 입력]',
-  contactEmail: '[문의 이메일 입력]',
+  ceo: '유태석',
+  businessNumber: '205-81-43321',
+  address: '경기도 의정부시 고산동 996-1 한강듀클래스 A동 821호',
+  privacyOfficer: '유태석',
+  contactEmail: 'golgorusos@gmail.com',
 };
 
 export interface PolicySection {

@@ -86,6 +86,7 @@ export default function PrivacyPolicyPage() {
         fontSize: 11.5, lineHeight: 1.7, color: G.textSoft,
       }}>
         <p style={{ margin: '0 0 3px' }}>{COMPANY_INFO.name}</p>
+        <p style={{ margin: '0 0 3px' }}>대표자: {COMPANY_INFO.ceo}</p>
         <p style={{ margin: '0 0 3px' }}>사업자등록번호: {COMPANY_INFO.businessNumber}</p>
         <p style={{ margin: '0 0 3px' }}>주소: {COMPANY_INFO.address}</p>
         <p style={{ margin: '0 0 3px' }}>문의: {COMPANY_INFO.contactEmail}</p>
