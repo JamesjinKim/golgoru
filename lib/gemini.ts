@@ -142,7 +142,7 @@ export async function classifyQuery(query: string): Promise<ClassifyResult> {
   try {
     // flash-lite + thinking off: 분류 지연 7s→~1.5s (단순 구조화 작업이라 품질 영향 미미)
     const response = await getAI().models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: 'gemini-3.1-flash-lite',
       contents: `${CLASSIFY_PROMPT}\n\n사용자 입력: ${query}`,
       config: { thinkingConfig: { thinkingBudget: 0 } },
     });
@@ -183,9 +183,9 @@ export async function classifyAudio(
 
   let parsed: { transcript?: string } & Partial<ClassifyResult>;
   try {
-    // 오디오는 gemini-2.5-flash-lite + thinking off로 초고속(0.6~0.8s) 처리
+    // 오디오는 gemini-3.1-flash-lite + thinking off로 초고속(~1.1s) 처리
     const response = await getAI().models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: 'gemini-3.1-flash-lite',
       contents: [
         { inlineData: { mimeType, data: audioBase64 } },
         { text: AUDIO_CLASSIFY_PROMPT },
