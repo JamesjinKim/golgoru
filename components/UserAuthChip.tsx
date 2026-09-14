@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { UserProfile } from '@/lib/auth/profile';
 import { formatUserLabel } from '@/lib/auth/profile';
 import { clearBrowserSupabaseAuthCookies } from '@/lib/auth/cookies';
@@ -63,6 +64,17 @@ export default function UserAuthChip({ profile }: UserAuthChipProps) {
             {formatUserLabel(profile)}
           </span>
         </span>
+        {/* 설정: 개인정보처리방침이 안내하는 "앱 내 설정 화면"(열람·정정·삭제, 회원 탈퇴) 진입점 */}
+        <Link
+          href="/settings"
+          aria-label="설정"
+          style={{
+            display: 'inline-flex', alignItems: 'center',
+            color: G.textSoft, lineHeight: 0,
+          }}
+        >
+          <GearIcon />
+        </Link>
         <button
           type="button"
           onClick={logout}
@@ -111,6 +123,17 @@ function AuthError({ text }: { text: string }) {
     }}>
       {text}
     </span>
+  );
+}
+
+function GearIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+         aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
   );
 }
 
