@@ -51,14 +51,17 @@ export default async function TermPage({ params }: { params: Promise<{ key: stri
         처리자: (주)골고루보상 · 문서 버전 {TERM_VERSION}
       </p>
 
+      {/* 이 페이지는 동의 화면 외에 /terms 목록·설정 화면·스토어 링크로도 들어온다.
+          정적 생성이라 유입 경로를 알 수 없으므로, 항상 유효한 약관 목록으로 보낸다.
+          (동의 흐름에서는 새 탭으로 열리므로 탭을 닫으면 원래 화면이 그대로 남는다.) */}
       <Link
-        href="/consent"
+        href="/terms"
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 4,
           fontSize: 13.5, fontWeight: 700, color: G.houseGreen, textDecoration: 'none',
         }}
       >
-        ← 동의 화면으로 돌아가기
+        ← 약관 목록으로
       </Link>
     </div>
   );

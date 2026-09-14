@@ -92,7 +92,7 @@ export default async function SettingsPage() {
         </a>
         <div style={{ marginTop: 14, display: 'flex', gap: 14 }}>
           <Link href="/privacy" style={linkStyle}>개인정보처리방침</Link>
-          <Link href="/terms/service" style={linkStyle}>이용약관</Link>
+          <Link href="/terms" style={linkStyle}>약관 및 정책</Link>
         </div>
       </Section>
 
