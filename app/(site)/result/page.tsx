@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ExpertCard from '@/components/ExpertCard';
 import UrgencyBadge from '@/components/UrgencyBadge';
 import { ClassifyResult, Expert } from '@/lib/types';
+import { VERTICAL_LABEL } from '@/lib/constants';
 import { G, SHADOW_CARD } from '@/lib/tokens';
 
 const ANALYSIS_STEPS = ['키워드 추출', '관할/유형 분류', '전문가 3인 추천'];
@@ -20,7 +21,8 @@ export default function ResultPage() {
 
   // 추천 조회 → state + sessionStorage 캐시에 저장
   const loadExperts = (result: ClassifyResult, delay = 0) => {
-    fetch(`/api/experts?vertical=${result.vertical}&urgency=${result.urgency}&category=${result.category_code ?? ''}`)
+    const secParam = result.secondary_vertical ? `&secondaryVertical=${result.secondary_vertical}` : '';
+    fetch(`/api/experts?vertical=${result.vertical}&urgency=${result.urgency}&category=${result.category_code ?? ''}${secParam}`)
       .then(r => r.json())
       .then(data => {
         const list: Expert[] = data.experts ?? [];
@@ -120,6 +122,13 @@ export default function ResultPage() {
                 fontSize: 13, fontWeight: 700, letterSpacing: '-0.16px',
               }}>{classify.category}</span>
               <UrgencyBadge urgency={classify.urgency} />
+              {classify.secondary_vertical && (
+                <span style={{
+                  background: 'rgba(255,255,255,0.18)', color: '#fff',
+                  padding: '5px 12px', borderRadius: 50,
+                  fontSize: 12, fontWeight: 600, letterSpacing: '-0.16px',
+                }}>+ {VERTICAL_LABEL[classify.secondary_vertical]} 함께 추천</span>
+              )}
             </div>
             <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.12)', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {ANALYSIS_STEPS.map((label, i) => {

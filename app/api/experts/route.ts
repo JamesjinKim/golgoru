@@ -3,6 +3,7 @@ import { getExpertRepository } from '@/lib/experts/repository';
 import { getCurrentUserProfile } from '@/lib/auth/user';
 import { isHiddenVertical } from '@/lib/constants';
 import { stripPhoneIfGuest } from '@/lib/experts/maskPhone';
+import { mixRecommendedExperts } from '@/lib/experts/hybridRecommend';
 import type { Vertical } from '@/lib/types';
 
 // 로그인 상태(phone 게이팅)·지역 우선 추천이 요청마다 달라지므로 매 요청 실행.
@@ -11,6 +12,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const vertical = searchParams.get('vertical') as Vertical | null;
+  const secondaryVertical = searchParams.get('secondaryVertical') as Vertical | null;
   const urgency = searchParams.get('urgency');
   const categoryCode = searchParams.get('category');
 
@@ -26,10 +28,18 @@ export async function GET(req: NextRequest) {
   // 로그인 사용자의 광역(시/도)을 세션에서 확인 → 지역 우선 추천. 없으면 전 지역 폴백
   const { user, profile } = await getCurrentUserProfile();
   const region = profile?.region ?? null;
+  const repo = getExpertRepository();
 
-  const raw = await getExpertRepository().listRecommended({ vertical, urgency, categoryCode, region });
+  const primaryRaw = await repo.listRecommended({ vertical, urgency, categoryCode, region });
+  let finalRaw = primaryRaw;
+
+  if (secondaryVertical && !isHiddenVertical(secondaryVertical)) {
+    const secondaryRaw = await repo.listRecommended({ vertical: secondaryVertical, urgency, region });
+    finalRaw = mixRecommendedExperts(primaryRaw, secondaryRaw);
+  }
+
   // 전화번호는 로그인 사용자에게만 (비로그인이면 phone 제거 → 우회 방지)
-  const experts = stripPhoneIfGuest(raw, Boolean(user));
+  const experts = stripPhoneIfGuest(finalRaw, Boolean(user));
 
   return NextResponse.json({ experts, total: experts.length });
 }

@@ -7,25 +7,27 @@ export const STATUS_LABEL: Record<ConsultStatus, string> = {
   unavailable: '상담 불가',
 };
 
-// 직역 라벨 = 문제 도메인. 세무 영역은 세무사로 단일화한다.
+// 직역 라벨 = 문제 도메인.
 export const VERTICAL_LABEL: Record<Vertical, string> = {
-  lawyer:    '변호사',
-  doctor:    '병원',
-  labor:     '노무사',
-  patent:    '변리사',
-  tax:       '세무사',
-  adjuster:  '손해사정사',
-  appraiser: '감정평가사',
+  lawyer:     '변호사',
+  accountant: '회계사',
+  doctor:     '병원',
+  labor:      '노무사',
+  patent:     '변리사',
+  tax:        '세무사',
+  adjuster:   '손해사정사',
+  appraiser:  '감정평가사',
 };
 
 export const VERTICAL_CALL_LABEL: Record<Vertical, string> = {
-  lawyer:    '변호사에게 전화하기',
-  doctor:    '병원에 전화하기',
-  labor:     '노무사에게 전화하기',
-  patent:    '변리사에게 전화하기',
-  tax:       '세무사에게 전화하기',
-  adjuster:  '손해사정사에게 전화하기',
-  appraiser: '감정평가사에게 전화하기',
+  lawyer:     '변호사에게 전화하기',
+  accountant: '회계사에게 전화하기',
+  doctor:     '병원에 전화하기',
+  labor:      '노무사에게 전화하기',
+  patent:     '변리사에게 전화하기',
+  tax:        '세무사에게 전화하기',
+  adjuster:   '손해사정사에게 전화하기',
+  appraiser:  '감정평가사에게 전화하기',
 };
 
 // UI에서 숨길 버티컬 (영업팀 요청). DB 데이터·타입·라벨은 보존하고 노출만 차단한다.
@@ -36,11 +38,11 @@ export const HIDDEN_VERTICALS: readonly Vertical[] = ['appraiser', 'doctor'];
 // 전체 버티컬 (라벨 정의 순서). 순서가 필요한 UI 목록은 VISIBLE_VERTICALS를 쓸 것.
 export const ALL_VERTICALS = Object.keys(VERTICAL_LABEL) as Vertical[];
 
-// 직역 노출 순서 SSoT (골고루팀 지정): 변호사→노무사→세무사→변리사→손해사정사→병원.
+// 직역 노출 순서 SSoT: 변호사→회계사→세무사→노무사→변리사→손해사정사→병원.
 // 소비자 /experts 칩, 어드민 목록/드롭다운, 어드민 전문가 정렬이 모두 이 순서를 공유한다.
 // 라벨 정의 순서(ALL_VERTICALS)와 다르므로 별도 지정. 여기 없는 직역(appraiser 등)은 맨 뒤로.
 export const VERTICAL_DISPLAY_ORDER: Vertical[] = [
-  'lawyer', 'labor', 'tax', 'patent', 'adjuster', 'doctor',
+  'lawyer', 'accountant', 'tax', 'labor', 'patent', 'adjuster', 'doctor',
 ];
 
 // UI 노출용 버티컬 목록: 지정 순서 + 숨김 대상 제외. (순서에 없는 노출 직역이 생기면 뒤에 덧붙임)
@@ -57,27 +59,30 @@ export function adminVerticalRank(v: Vertical): number {
   return i === -1 ? VERTICAL_DISPLAY_ORDER.length : i;
 }
 
-// license 표시 정규화: 세무사 요청으로 '회계' 표기를 노출하지 않는다.
-// 예) '김세무 세무회계' → '김세무 세무', '세무회계' → '세무'. DB 값은 그대로, 표시만 정리.
-// '회계' 제거 후 남은 공백·구분자를 다듬고, 비면 null 취급(라벨로 폴백).
-export function displayLicense(license?: string | null): string | null {
+// license 표시 정규화:
+// - 세무사(tax) 직역의 경우, 기존 요청에 따라 '회계' 표기를 정리한다. (예: '김세무 세무회계' → '김세무 세무')
+// - 회계사(accountant) 및 타 직역의 경우 '공인회계사' 등 고유 자격 표기를 온전히 보존한다.
+export function displayLicense(license?: string | null, vertical?: Vertical): string | null {
   const raw = license?.trim();
   if (!raw) return null;
-  const cleaned = raw
-    .replace(/회계/g, '')
-    .replace(/\s{2,}/g, ' ')       // 중간 이중 공백 정리
-    .replace(/[·・]\s*$/, '')       // 끝에 남은 구분점 제거
-    .trim();
-  return cleaned || null;
+  if (vertical === 'tax') {
+    const cleaned = raw
+      .replace(/회계/g, '')
+      .replace(/\s{2,}/g, ' ')       // 중간 이중 공백 정리
+      .replace(/[·・]\s*$/, '')       // 끝에 남은 구분점 제거
+      .trim();
+    return cleaned || null;
+  }
+  return raw;
 }
 
 // 카드·상세 표시용 직함: 개인 자격(license)이 있으면 우선, 없으면 직역 라벨
 export function expertTitle(e: { vertical: Vertical; license?: string | null }): string {
-  return displayLicense(e.license) || VERTICAL_LABEL[e.vertical];
+  return displayLicense(e.license, e.vertical) || VERTICAL_LABEL[e.vertical];
 }
 
 export function expertCallLabel(e: { vertical: Vertical; license?: string | null }): string {
-  const lic = displayLicense(e.license);
+  const lic = displayLicense(e.license, e.vertical);
   return lic ? `${lic}에게 전화하기` : VERTICAL_CALL_LABEL[e.vertical];
 }
 

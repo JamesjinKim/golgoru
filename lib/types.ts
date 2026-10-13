@@ -1,10 +1,11 @@
 export type Vertical =
-  | 'lawyer'    // 변호사
-  | 'doctor'    // 의사
-  | 'labor'     // 노무사
-  | 'patent'    // 변리사
-  | 'tax'       // 세무사
-  | 'adjuster'  // 손해사정사
+  | 'lawyer'     // 변호사
+  | 'accountant' // 회계사
+  | 'doctor'     // 의사
+  | 'labor'      // 노무사
+  | 'patent'     // 변리사
+  | 'tax'        // 세무사
+  | 'adjuster'   // 손해사정사
   | 'appraiser'; // 감정평가사
 export type Urgency = '즉시' | '당일' | '일반';
 
@@ -15,7 +16,7 @@ export interface Expert {
   id: string;
   name: string;
   vertical: Vertical;
-  license?: string | null; // 표시용 자격명(예: 세무사). 비면 직역 라벨로 폴백
+  license?: string | null; // 표시용 자격명(예: 세무사, 공인회계사). 비면 직역 라벨로 폴백
   specialties: string[];
   region: string;
   phone: string;
@@ -36,8 +37,9 @@ export interface Expert {
 
 export interface ClassifyResult {
   vertical: Vertical;
+  secondary_vertical?: Vertical | null; // 복합/중첩 사안 시 보조 직역 (예: 회계사-세무사 교차 추천)
   category: string;
-  category_code?: string; // 정규화 카테고리 코드 (예: 'LAW-03'). 매칭 우선, 없으면 vertical 폴백
+  category_code?: string; // 정규화 카테고리 코드 (예: 'LAW-03', 'ACC-01'). 매칭 우선, 없으면 vertical 폴백
   urgency: Urgency;
   keywords: string[];
   summary: string;

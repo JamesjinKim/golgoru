@@ -17,7 +17,7 @@ const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const schema = z.object({
   name: z.string().trim().min(1, '이름 필수').max(50),
-  vertical: z.enum(['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser']),
+  vertical: z.enum(['lawyer', 'accountant', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser']),
   license: z.string().trim().max(30).optional(),
   specialties: z.string(),
   region: z.string().trim().min(1, '지역 필수').max(50),

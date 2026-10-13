@@ -31,12 +31,13 @@ const HEADER_ALIASES: Record<string, string> = {
   '자격증': 'license', '직함': 'license',
 };
 
-const VERTICALS = ['lawyer', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'] as const;
+const VERTICALS = ['lawyer', 'accountant', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser'] as const;
 const STATUSES = ['available', 'delayed', 'unavailable'] as const;
 
 // 값 별칭: 한글 → 영문 코드 (영문도 그대로 허용)
 const VERTICAL_ALIAS: Record<string, string> = {
-  '변호사': 'lawyer', '의사': 'doctor', '노무사': 'labor', '변리사': 'patent',
+  '변호사': 'lawyer', '회계사': 'accountant', '회계': 'accountant',
+  '의사': 'doctor', '노무사': 'labor', '변리사': 'patent',
   '세무사': 'tax', '세무': 'tax', '손해사정사': 'adjuster', '감정평가사': 'appraiser',
 };
 const STATUS_ALIAS: Record<string, string> = {
@@ -68,7 +69,7 @@ const rowSchema = z.object({
   name: z.string().trim().min(1, '이름 필수').max(50),
   vertical: z.preprocess(
     (v) => { const s = String(v ?? '').trim(); return VERTICAL_ALIAS[s] ?? s; },
-    z.enum(VERTICALS, { message: `직업은 변호사·의사·노무사·변리사·세무사·손해사정사·감정평가사 (또는 영문코드) 중 하나` }),
+    z.enum(VERTICALS, { message: `직업은 변호사·회계사·의사·노무사·변리사·세무사·손해사정사·감정평가사 (또는 영문코드) 중 하나` }),
   ),
   // 표시용 자격명(선택). 비면 직역 라벨 사용.
   license: z.preprocess((v) => String(v ?? '').trim() || undefined, z.string().max(30).optional()),

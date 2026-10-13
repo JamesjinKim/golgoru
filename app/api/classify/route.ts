@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { getExpertRepository } from '@/lib/experts/repository';
 import { stripPhoneIfGuest } from '@/lib/experts/maskPhone';
 import { isHiddenVertical } from '@/lib/constants';
+import { mixRecommendedExperts } from '@/lib/experts/hybridRecommend';
 import type { ClassifyResult, Expert } from '@/lib/types';
 
 const MAX_AUDIO_BYTES = 2.5 * 1024 * 1024; // 설계 §4.3: 정상 60s WAV ≈1.9MB, 초과는 비정상
@@ -13,13 +14,28 @@ async function fetchExpertsForClassify(result: ClassifyResult): Promise<Expert[]
   try {
     if (isHiddenVertical(result.vertical)) return [];
     const { user, profile } = await getCurrentUserProfile();
-    const raw = await getExpertRepository().listRecommended({
+    const repo = getExpertRepository();
+    const region = profile?.region ?? null;
+
+    const primaryRaw = await repo.listRecommended({
       vertical: result.vertical,
       urgency: result.urgency,
       categoryCode: result.category_code,
-      region: profile?.region ?? null,
+      region,
     });
-    return stripPhoneIfGuest(raw, Boolean(user));
+
+    let finalRaw = primaryRaw;
+
+    if (result.secondary_vertical && !isHiddenVertical(result.secondary_vertical)) {
+      const secondaryRaw = await repo.listRecommended({
+        vertical: result.secondary_vertical,
+        urgency: result.urgency,
+        region,
+      });
+      finalRaw = mixRecommendedExperts(primaryRaw, secondaryRaw);
+    }
+
+    return stripPhoneIfGuest(finalRaw, Boolean(user));
   } catch (e) {
     console.error('[classify] experts prefetch failed:', e);
     return [];
