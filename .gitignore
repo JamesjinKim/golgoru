@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -20,21 +18,21 @@
 # production
 /build
 
-# misc
+# misc & OS
 .DS_Store
 *.pem
 
-# local tooling / editor state (machine-specific)
-.bkit/
+# editor & local tools
 .vscode/
+.idea/
 
-# debug
+# debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
 !.env.example
 
@@ -45,19 +43,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# agent tools
+# agent tools & caches
 .antigravitycli/
+.gemini/
 
-# bkit auto-generated session state (changes every session)
-docs/.bkit-memory.json
-docs/.pdca-status.json
-docs/.pdca-snapshots/
-
-# 카카오 로그인 학습 샘플 (자체 git 저장소, 메인 프로젝트와 별개)
-/dev-node/
-
-# supabase CLI 임시 폴더
+# supabase CLI temporary folder
 /supabase/.temp/
-
-# superpowers SDD 실행 로그 (세션별 스크래치)
-.superpowers/
