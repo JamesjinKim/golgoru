@@ -61,7 +61,7 @@ export function adminVerticalRank(v: Vertical): number {
 
 // license 표시 정규화:
 // - 세무사(tax) 직역의 경우, 기존 요청에 따라 '회계' 표기를 정리한다. (예: '김세무 세무회계' → '김세무 세무')
-// - 회계사(accountant) 및 타 직역의 경우 '공인회계사' 등 고유 자격 표기를 온전히 보존한다.
+// - 회계사(accountant) 직역의 경우, '공인회계사' 등 표기를 모두 '회계사'로 단일화한다.
 export function displayLicense(license?: string | null, vertical?: Vertical): string | null {
   const raw = license?.trim();
   if (!raw) return null;
@@ -72,6 +72,9 @@ export function displayLicense(license?: string | null, vertical?: Vertical): st
       .replace(/[·・]\s*$/, '')       // 끝에 남은 구분점 제거
       .trim();
     return cleaned || null;
+  }
+  if (vertical === 'accountant') {
+    return '회계사';
   }
   return raw;
 }

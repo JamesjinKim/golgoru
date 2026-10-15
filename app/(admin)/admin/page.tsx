@@ -53,8 +53,10 @@ export default function AdminExpertsPage() {
       header: '직업',
       cell: (c) => {
         const v = VERTICAL_LABEL[c.getValue()] ?? c.getValue();
-        // displayLicense: '회계' 표기 제거 후, 라벨과 같으면(예: tax "세무사") 중복 병기 생략
-        const lic = displayLicense(c.row.original.license);
+        // 회계사는 라이선스 값과 무관하게 항상 '회계사'로 단일 표기
+        if (c.getValue() === 'accountant') return '회계사';
+        // displayLicense: 세무사 '회계' 표기 제거, 라벨과 같으면 중복 병기 생략
+        const lic = displayLicense(c.row.original.license, c.getValue());
         return lic && lic !== v ? `${v} · ${lic}` : v;
       },
     }),

@@ -15,6 +15,13 @@ const VERTICALS: Vertical[] = VISIBLE_VERTICALS;
 const STATUSES: ConsultStatus[] = ['available', 'delayed', 'unavailable'];
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
+function normalizeTime(t?: string | null, fallback = '09:00'): string {
+  if (!t) return fallback;
+  const sliced = t.slice(0, 5);
+  if (sliced === '24:00') return '18:00';
+  return HHMM.test(sliced) ? sliced : fallback;
+}
+
 const schema = z.object({
   name: z.string().trim().min(1, '이름 필수').max(50),
   vertical: z.enum(['lawyer', 'accountant', 'doctor', 'labor', 'patent', 'tax', 'adjuster', 'appraiser']),
@@ -25,8 +32,8 @@ const schema = z.object({
   experience_years: z.coerce.number().int().min(0).max(80),
   bio: z.string().max(300).optional(),
   status: z.enum(['available', 'delayed', 'unavailable']),
-  weekday_start: z.string().regex(HHMM, 'HH:mm').or(z.literal('')).optional(),
-  weekday_end: z.string().regex(HHMM, 'HH:mm').or(z.literal('')).optional(),
+  weekday_start: z.string().regex(HHMM, '시작 시간 형식(00:00~23:59)을 확인하세요').or(z.literal('')).optional(),
+  weekday_end: z.string().regex(HHMM, '종료 시간 형식(00:00~23:59)을 확인하세요').or(z.literal('')).optional(),
   weekend_available: z.boolean(),
   night_available: z.boolean(),
   is_active: z.boolean(),
@@ -45,8 +52,8 @@ export function ExpertForm({
     experience_years: String(initial?.experience_years ?? 0),
     bio: initial?.bio ?? '',
     status: (initial?.status ?? 'available') as ConsultStatus,
-    weekday_start: initial?.weekday_start?.slice(0, 5) ?? '09:00',
-    weekday_end: initial?.weekday_end?.slice(0, 5) ?? '18:00',
+    weekday_start: normalizeTime(initial?.weekday_start, '09:00'),
+    weekday_end: normalizeTime(initial?.weekday_end, '18:00'),
     weekend_available: initial?.weekend_available ?? false,
     night_available: initial?.night_available ?? false,
     is_active: initial?.is_active ?? true,

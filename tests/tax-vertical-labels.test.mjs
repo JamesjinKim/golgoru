@@ -16,12 +16,12 @@ assert.equal(VERTICAL_CALL_LABEL.tax, '세무사에게 전화하기');
 assert.equal(expertTitle({ vertical: 'tax' }), '세무사');
 assert.equal(expertCallLabel({ vertical: 'tax' }), '세무사에게 전화하기');
 
-// 회계사 직역 및 라벨 검증
+// 회계사 직역 및 라벨 검증 (모두 '회계사'로 단일화)
 assert.equal(VERTICAL_LABEL.accountant, '회계사');
 assert.equal(VERTICAL_CALL_LABEL.accountant, '회계사에게 전화하기');
 assert.equal(expertTitle({ vertical: 'accountant' }), '회계사');
-assert.equal(expertTitle({ vertical: 'accountant', license: '공인회계사' }), '공인회계사');
-assert.equal(expertCallLabel({ vertical: 'accountant', license: '공인회계사' }), '공인회계사에게 전화하기');
+assert.equal(expertTitle({ vertical: 'accountant', license: '공인회계사' }), '회계사');
+assert.equal(expertCallLabel({ vertical: 'accountant', license: '공인회계사' }), '회계사에게 전화하기');
 
 const validTaxCsv = `이름,직업,자격,전문분야,지역,전화번호,경력,소개,유튜브URL,평일시작,평일종료,주말상담,야간상담,상담상태,카테고리코드,노출
 박세무,세무,세무사,기장|세무조사,서울 영등포,02-2345-6789,9,세무 상담 9년,,09:00,18:00,N,N,가능,TAX-01|TAX-03,Y
